@@ -1,0 +1,8 @@
+node_modules/
+.env
+.vs/
+.DS_Store
+# Exclude git metadata and nested git repositories
+.git/
+**/.git/
+

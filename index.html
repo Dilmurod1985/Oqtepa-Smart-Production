@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <title>Oqtepa Smart Production</title>
+  <style>
+    :root { --accent: #2b6cb0; --success: #38a169; --bg: #f7fafc; --dark: #2d3748; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; background: var(--bg); padding: 12px; }
+    .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tile { background: white; border-radius: 16px; padding: 20px; text-align: center; font-weight: 800; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .stock-card { background: var(--dark); color: white; padding: 15px; border-radius: 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px; text-align: center; }
+    .stock-item span { font-size: 10px; opacity: 0.8; display: block; text-transform: uppercase; }
+    .stock-item b { font-size: 18px; color: #63b3ed; }
+    .panel { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .mode-selector { display: flex; background: #edf2f7; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+    .mode-btn { flex: 1; padding: 10px; border: 0; font-weight: 700; background: transparent; cursor: pointer; border-radius: 10px; color: #718096; }
+    .mode-btn.active { background: white; color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .search-box { position: relative; }
+    #workerList { position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background: white; border: 2px solid var(--accent); z-index: 1000; border-radius: 0 0 12px 12px; }
+    .worker-opt { padding: 12px; border-bottom: 1px solid #edf2f7; }
+    label { display: block; font-size: 11px; font-weight: 800; color: #718096; margin-bottom: 5px; }
+    input, select { width: 100%; padding: 14px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; margin-bottom: 15px; outline: none; box-sizing: border-box; }
+    .btn-main { width: 100%; padding: 18px; border-radius: 14px; border: 0; font-weight: 800; color: white; background: var(--accent); font-size: 16px; cursor: pointer; }
+    .history-item { background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 5px solid var(--success); display: flex; justify-content: space-between; align-items: center; }
+    .hist-name { font-weight: 800; font-size: 13px; }
+    .hist-prod { font-size: 12px; color: #718096; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align: center; margin: 10px 0;">OQTEPA SMART</h2>
+
+  <div id="mainMenu" class="menu">
+    <div class="tile" onclick="openWS('ALLMAKON')">ALLMAKON</div>
+    <div class="tile" onclick="openWS('OQTEPA')">OQTEPA</div>
+    <div class="tile" onclick="openWS('CITY')">CITY</div>
+    <div class="tile" onclick="openWS('WENDY\'S')">WENDY'S</div>
+    <div class="tile" onclick="openWS('MISSION')">MISSION</div>
+    <div class="tile" onclick="openWS('TURK 70/30')">TURK 70/30</div>
+  </div>
+
+  <div id="panel" class="panel" style="display:none">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px">
+      <button onclick="goHome()" style="background:#edf2f7; border:0; width:40px; height:40px; border-radius:50%; font-size:20px;">←</button>
+      <h3 id="wsTitle" style="margin:0"></h3>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-item"><span>Лахм</span><b id="stL">0</b></div>
+      <div class="stock-item"><span>Кийма</span><b id="stK">0</b></div>
+      <div class="stock-item"><span>Думба</span><b id="stD">0</b></div>
+    </div>
+
+    <div class="mode-selector">
+      <button id="mRaw" class="mode-btn active" onclick="setM('RAW')">Склад</button>
+      <button id="mProd" class="mode-btn" onclick="setM('PROD')">Выпуск</button>
+    </div>
+
+    <div id="secRaw">
+      <label>Тип операции</label>
+      <select id="rawType">
+        <option value="Остаток утро">☀️ Остаток утро (Замена)</option>
+        <option value="Приход">📥 Приход мяса (Плюс +)</option>
+        <option value="Расход">📤 Расход / Брак (Минус -)</option>
+      </select>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
+        <div><label>Лахм</label><input id="rL" type="number" placeholder="0"></div>
+        <div><label>Кийма</label><input id="rK" type="number" placeholder="0"></div>
+        <div><label>Думба</label><input id="rD" type="number" placeholder="0"></div>
+      </div>
+      <button class="btn-main" onclick="submitData('RAW')">ОБНОВИТЬ СКЛАД</button>
+    </div>
+
+    <div id="secProd" class="hidden">
+      <label>Сотрудник</label>
+      <div class="search-box">
+        <input type="text" id="wSearch" placeholder="Имя или ID..." oninput="filterW()">
+        <div id="workerList" class="hidden"></div>
+      </div>
+      <input type="hidden" id="wId">
+
+      <label>Продукт</label>
+      <select id="pType" onchange="loadCals()">
+        <option value="DONER 50/50">DONER 50/50</option>
+        <option value="DONER 30/70">DONER 30/70</option>
+        <option value="CITY 50/50">CITY 50/50</option>
+        <option value="TURK 70/30">TURK 70/30</option>
+        <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+      </select>
+      <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:10px">
+        <div><label>Калибр</label><select id="pCal" onchange="updTotal()"></select></div>
+        <div><label>Кол-во</label><input id="pCount" type="number" value="1" oninput="updTotal()"></div>
+      </div>
+      <div id="totalTxt" style="text-align:center; font-weight:800; background:#ebf8ff; padding:10px; border-radius:12px; margin-bottom:15px; color:#2b6cb0">Итого: 0 кг</div>
+      <button class="btn-main" style="background:var(--success)" onclick="submitData('PROD')">ЗАФИКСИРОВАТЬ</button>
+    </div>
+
+    <div class="history-container" style="margin-top:20px; border-top:1px solid #eee; padding-top:10px">
+      <label>Последние действия</label>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const EMPLOYEES = [
+      {id: 57, name: "Alimov Murod"}, {id: 85, name: "Aliqulov Diyor"}, {id: 0.7, name: "Balqiboev Asadbek"},
+      {id: 5, name: "Balqiboev Temur"}, {id: 76, name: "Boboqulov Ma'rufjon"}, {id: 77, name: "Botiraliyev Iskandar"},
+      {id: 86, name: "Botirov Ulug'bek"}, {id: 74, name: "Hakimov Islom"}, {id: 41, name: "Ibragimov Ozodbek"},
+      {id: 67, name: "Jonizaqov Xasanjon"}, {id: 3, name: "Jonizaqov Xusanjon"}, {id: 43, name: "Abdulxamidov Xasan"},
+      {id: 11, name: "Адулло бригадир"}, {id: 44, name: "Эргашев Давронбек"}, {id: 71, name: "Ахмедов Улугбек"},
+      {id: 8, name: "Aminov Shahboz"}, {id: 55, name: "Habibullayev Doniyor"}, {id: 64, name: "Keldibekov Muxammadkodir"},
+      {id: 46, name: "Kuchkinov Abdulaziz"}, {id: 84, name: "Lapasov Javohir"}, {id: 88, name: "Miraliev Mirxasan"},
+      {id: 14, name: "Miraliev Mirxusan"}, {id: 53, name: "Muxammadiev Abbos"}, {id: 52, name: "Nazarov Abdukodir"},
+      {id: 49, name: "Nishonov Maxmudjon"}, {id: 6, name: "Normatov Avazbek"}, {id: 36, name: "O'ktamov Sardor"},
+      {id: 24, name: "Ortiqboev Ma'rufjon"}, {id: 2, name: "Qo'chqorov Sardor"}, {id: 10, name: "Qo'shbokov Inomjon"},
+      {id: 30, name: "Raimberdiyev Dilshod"}, {id: 37, name: "Rustamjonov Aziz"}, {id: 58, name: "Sattorov Ulug'bek"},
+      {id: 35, name: "Shermatov Javlon"}, {id: 26, name: "To'xtamurodov Izzatilla"}, {id: 51, name: "Tugalov Sherzod"},
+      {id: 73, name: "Vaxobjonov Avazbek"}, {id: 1, name: "Xalilov Nodirbek"}, {id: 27, name: "Xapizov Ozodbek"},
+      {id: 39, name: "Xayrullaev Jasurbek"}, {id: 4, name: "Xoliqov Jumanazarbek"}, {id: 61, name: "Obidov Ziyodulla"},
+      {id: 0.5, name: "Qayumova Dilnoza"}, {id: 'стаж', name: "Maxkamov Jahongir"}, {id: 'стаж', name: "Turg'unboyev Asadbek"}
+    ];
+
+    const RECIPES = {
+      "DONER 30/70": {5:{l:1.5,k:3.2,d:0.3}, 10:{l:3,k:6.4,d:0.6}, 20:{l:6,k:12.8,d:1.2}, 50:{l:15,k:32,d:3}, 60:{l:18,k:38.4,d:3.6}},
+      "DONER 50/50": {5:{l:2.4,k:2.1,d:0.5}, 10:{l:4.9,k:4.1,d:1}, 20:{l:9.8,k:8.2,d:2}, 50:{l:24.5,k:20.5,d:5}, 60:{l:29.4,k:24.6,d:6}},
+      "CITY 50/50": {5:{l:2.4,k:2.1,d:0.6}, 10:{l:4.7,k:4.1,d:1.2}, 20:{l:9.4,k:8.2,d:2.4}, 50:{l:23.5,k:20.5,d:6}},
+      "TURK 70/30": {10:{l:5.83,k:3.12,d:1.22}, 20:{l:16.5,k:9.4,d:5.7}, 50:{l:33,k:18,d:9}},
+      "MISSION 100% QIYMA": {50:{l:0,k:49,d:1}}
+    };
+
+    let curWS = '';
+
+    async function openWS(name) {
+      curWS = name;
+      document.getElementById('wsTitle').innerText = name;
+      document.getElementById('mainMenu').classList.add('hidden');
+      document.getElementById('panel').style.display = 'block';
+      await refreshStock();
+    }
+
+    function goHome() {
+      document.getElementById('mainMenu').classList.remove('hidden');
+      document.getElementById('panel').style.display = 'none';
+    }
+
+    async function refreshStock() {
+      const res = await fetch(`/api/get-stock/${curWS}`);
+      const s = await res.json();
+      document.getElementById('stL').innerText = s.lahm.toFixed(1);
+      document.getElementById('stK').innerText = s.kiyma.toFixed(1);
+      document.getElementById('stD').innerText = s.dumba.toFixed(1);
+    }
+
+    function setM(m) {
+      document.getElementById('secRaw').classList.toggle('hidden', m !== 'RAW');
+      document.getElementById('secProd').classList.toggle('hidden', m !== 'PROD');
+      document.getElementById('mRaw').classList.toggle('active', m === 'RAW');
+      document.getElementById('mProd').classList.toggle('active', m === 'PROD');
+      if(m === 'PROD') loadCals();
+    }
+
+    function filterW() {
+      const val = document.getElementById('wSearch').value.toLowerCase();
+      const list = document.getElementById('workerList');
+      list.innerHTML = '';
+      if(!val) return list.classList.add('hidden');
+      const f = EMPLOYEES.filter(e => e.name.toLowerCase().includes(val) || String(e.id).includes(val));
+      if(f.length) {
+        list.classList.remove('hidden');
+        f.forEach(e => {
+          const d = document.createElement('div');
+          d.className = 'worker-opt';
+          d.innerHTML = `<b>${e.id}</b> | ${e.name}`;
+          d.onclick = () => {
+            document.getElementById('wSearch').value = e.name;
+            document.getElementById('wId').value = e.id;
+            list.classList.add('hidden');
+          };
+          list.appendChild(d);
+        });
+      }
+    }
+
+    function loadCals() {
+      const t = document.getElementById('pType').value;
+      const s = document.getElementById('pCal');
+      s.innerHTML = '';
+      Object.keys(RECIPES[t]).forEach(kg => s.innerHTML += `<option value="${kg}">${kg} кг</option>`);
+      updTotal();
+    }
+
+    function updTotal() {
+      const c = document.getElementById('pCal').value;
+      const n = document.getElementById('pCount').value;
+      document.getElementById('totalTxt').innerText = `Итого: ${c * n} кг`;
+    }
+
+    function addToHistory(data) {
+      const list = document.getElementById('historyList');
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      if(data.category === 'PROD') {
+        item.innerHTML = `<div><div class="hist-name">${data.workerName}</div><div class="hist-prod">${data.workshop} ${data.product} (${data.caliber}) x ${data.count}</div></div><div style="font-weight:800; color:#2b6cb0">${data.totalKg}кг</div>`;
+      } else {
+        item.innerHTML = `<div><div class="hist-name">${data.type}</div><div class="hist-prod">${data.workshop}: склад обновлен</div></div><div style="font-weight:800">✅</div>`;
+      }
+      list.prepend(item);
+    }
+
+    async function submitData(cat) {
+      let data = { workshop: curWS, category: cat, timestamp: new Date().toLocaleTimeString() };
+      if(cat === 'RAW') {
+        data.type = document.getElementById('rawType').value;
+        data.lahm = parseFloat(document.getElementById('rL').value) || 0;
+        data.kiyma = parseFloat(document.getElementById('rK').value) || 0;
+        data.dumba = parseFloat(document.getElementById('rD').value) || 0;
+      } else {
+        const id = document.getElementById('wId').value;
+        if(!id) return alert("Выберите сотрудника!");
+        const t = document.getElementById('pType').value, c = document.getElementById('pCal').value, n = document.getElementById('pCount').value, r = RECIPES[t][c];
+        data.workerName = document.getElementById('wSearch').value;
+        data.product = t; data.caliber = c + " кг"; data.count = n; data.totalKg = c * n;
+        data.usage = { lahm: (r.l * n).toFixed(2), kiyma: (r.k * n).toFixed(2), dumba: (r.d * n).toFixed(2) };
+      }
+      const res = await fetch('/api/stock', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+      if(res.ok) {
+        await refreshStock();
+        addToHistory(data);
+        if(cat === 'RAW') {
+          document.getElementById('rL').value = ''; document.getElementById('rK').value = ''; document.getElementById('rD').value = '';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
