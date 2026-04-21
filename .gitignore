@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 log.json
 stocks.json
+Oqtepa Smart Production/
 # Exclude git metadata and nested git repositories
 .git/
 **/.git/
