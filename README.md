@@ -1,38 +1,48 @@
-Oqtepa Smart Production — prototype
+# Oqtepa Smart Production
 
-Коротко
-Проект — прототип веб-приложения для управления остатками сырья на 6 складах.
-Backend: Node.js + Express. Frontend: Vanilla JS (статический `index.html`).
+Прототип веб-приложения для учета остатков сырья и фиксации выпуска продукции по цехам.
 
-Файлы
-- `server.js` — Express сервер, статическая раздача и маршрут `POST /api/stock` (логирует тело запроса).
-- `index.html` — мобильный UI: 6 плиток, форма склада, кнопки ПРИХОД/РАСХОД.
-- `package.json` — скрипт `start`.
-- `.gitignore` — исключает `node_modules`, `.env`, `.vs`, `.git` и вложенные `.git`.
+## Что внутри
 
-Запуск локально
-1. Установить зависимости:
-   npm install
-2. Запустить сервер:
-   npm start
-3. Открыть в браузере:
-   http://localhost:3000
+- `server.js` — Express-сервер и API для остатков и выпуска
+- `index.html` — интерфейс оператора
+- `stocks.example.json` — пример структуры остатков
+- `.env.example` — пример переменных окружения
 
-Переменные окружения
-- Файл `.env` не должен попадать в репозиторий.
-- Пример переменных доступен в `.env.example`.
+## Запуск локально
 
-Подготовка к пушу (обычные команды)
-1. Инициализация репозитория (если ещё не инициализирован):
-   git init
-2. Добавить файлы и закоммитить:
-   git add .
-   git commit -m "Initial prototype: server + frontend"
-3. Добавить удалённый репозиторий и запушить (пример для GitHub):
-   git remote add origin git@github.com:USERNAME/REPO.git
-   git branch -M main
-   git push -u origin main
+```bash
+npm install
+npm start
+```
 
-Замечания
-- Не включайте секреты в репозиторий. Используйте `.env` и не коммитьте его.
-- Для дальнейшей интеграции с Google Sheets создайте сервисный аккаунт и добавьте ключ в `.env` (см. `.env.example`).
+После запуска приложение будет доступно по адресу `http://localhost:3000`.
+
+## Переменные окружения
+
+Скопируйте `.env.example` в `.env` и при необходимости измените значения.
+
+```env
+PORT=3000
+```
+
+## Данные
+
+В репозиторий не должны попадать рабочие файлы:
+
+- `.env`
+- `log.json`
+- `stocks.json`
+
+Если нужен стартовый шаблон остатков, используйте `stocks.example.json`.
+
+## Публикация на GitHub
+
+```bash
+git init
+git add .
+git commit -m "Prepare project for GitHub"
+git branch -M main
+git remote add origin https://github.com/<USERNAME>/<REPOSITORY>.git
+git push -u origin main
+```

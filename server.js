@@ -5,65 +5,108 @@ const app = express();
 app.use(express.json());
 app.use(express.static('.'));
 
+// === ДОБАВЛЕНО ДЛЯ РАБОТЫ С ONRENDER ===
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 const STOCKS_FILE = 'stocks.json';
 const LOG_FILE = 'log.json';
 
-// База рецептов: % содержания Лахма (l), Кийма (k) и Думбы (d)
-const RECIPES = {
-    "DONER 50/50": { l: 0.50, k: 0.50, d: 0 },
-    "DONER 30/70": { l: 0.30, k: 0.70, d: 0 },
-    "DONER 60/40": { l: 0.60, k: 0.40, d: 0 },
-    "DONER 70/30": { l: 0.70, k: 0.30, d: 0 },
-    "TURK DONER": { l: 0.70, k: 0.20, d: 0.10 }, // Добавил Turk
-    "CITY 50/50": { l: 0.50, k: 0.50, d: 0 },
-    "DONER 50/50 CITY": { l: 0.50, k: 0.50, d: 0 },
-    "DONER 50/50 DUAS": { l: 0.50, k: 0.50, d: 0 },
-    "DONER 50/50 SEVIMLI": { l: 0.50, k: 0.50, d: 0 },
-    "DONER 50/50 YUMA": { l: 0.50, k: 0.50, d: 0 },
-    "BURGER XOJAKBAR": { l: 0, k: 0.90, d: 0.10 },
-    "MISSIONFOODS": { l: 0, k: 1.0, d: 0 }
-};
+// Функция чтения базы остатков
+function getStocks() {
+    if (!fs.existsSync(STOCKS_FILE)) return {};
+    try {
+        return JSON.parse(fs.readFileSync(STOCKS_FILE, 'utf8'));
+    } catch (e) {
+        console.error('Ошибка чтения stocks.json:', e);
+        return {};
+    }
+}
 
-if (!fs.existsSync(STOCKS_FILE)) fs.writeFileSync(STOCKS_FILE, JSON.stringify({}));
+// Сохранение остатков
+function saveStocks(stocks) {
+    try {
+        fs.writeFileSync(STOCKS_FILE, JSON.stringify(stocks, null, 2));
+    } catch (e) {
+        console.error('Ошибка сохранения stocks.json:', e);
+    }
+}
 
+// Получить текущие остатки
 app.get('/api/get-stock/:ws', (req, res) => {
-    const data = JSON.parse(fs.readFileSync(STOCKS_FILE));
-    res.json(data[req.params.ws] || { lahm: 0, kiyma: 0, dumba: 0 });
+    const stocks = getStocks();
+    res.json(stocks[req.params.ws] || { lahm: 0, kiyma: 0, dumba: 0 });
 });
 
+// Основной обработчик (твой старый + небольшие улучшения)
 app.post('/api/stock', (req, res) => {
-    const entry = req.body;
-    const ws = entry.workshop;
-    let stocks = JSON.parse(fs.readFileSync(STOCKS_FILE));
+    const data = req.body;
+    const ws = data.workshop;
 
-    if (!stocks[ws]) stocks[ws] = { lahm: 0, kiyma: 0, dumba: 0 };
+    if (!ws) return res.status(400).json({ error: 'Не указан workshop' });
 
-    if (entry.category === 'RAW') {
-        const l = parseFloat(entry.lahm) || 0;
-        const k = parseFloat(entry.kiyma) || 0;
-        const d = parseFloat(entry.dumba) || 0;
+    let stocks = getStocks();
+    if (!stocks[ws]) {
+        stocks[ws] = { lahm: 0, kiyma: 0, dumba: 0 };
+    }
 
-        if (entry.type === 'Остаток утро') {
-            stocks[ws] = { lahm: l, kiyma: k, dumba: d };
-        } else if (entry.type === 'Приход') {
-            stocks[ws].lahm += l; stocks[ws].kiyma += k; stocks[ws].dumba += d;
-        } else if (entry.type === 'Расход') {
-            stocks[ws].lahm -= l; stocks[ws].kiyma -= k; stocks[ws].dumba -= d;
+    if (data.category === 'RAW') {
+        const l = parseFloat(data.lahm) || 0;
+        const k = parseFloat(data.kiyma) || 0;
+        const d = parseFloat(data.dumba) || 0;
+
+        if (data.type === 'Остаток утро') {
+            stocks[ws].lahm = l;
+            stocks[ws].kiyma = k;
+            stocks[ws].dumba = d;
+        } else if (data.type === 'Приход') {
+            stocks[ws].lahm += l;
+            stocks[ws].kiyma += k;
+            stocks[ws].dumba += d;
+        } else if (data.type === 'Расход') {
+            stocks[ws].lahm -= l;
+            stocks[ws].kiyma -= k;
+            stocks[ws].dumba -= d;
         }
-    } else if (entry.category === 'PROD') {
-        const recipe = RECIPES[entry.product];
-        const weight = parseFloat(entry.totalKg) || 0;
-        if (recipe) {
-            stocks[ws].lahm -= (recipe.l * weight);
-            stocks[ws].kiyma -= (recipe.k * weight);
-            stocks[ws].dumba -= (recipe.d * weight);
+    } 
+    else if (data.category === 'PROD') {
+        if (data.usage) {
+            stocks[ws].lahm -= parseFloat(data.usage.lahm) || 0;
+            stocks[ws].kiyma -= parseFloat(data.usage.kiyma) || 0;
+            stocks[ws].dumba -= parseFloat(data.usage.dumba) || 0;
         }
     }
 
-    fs.writeFileSync(STOCKS_FILE, JSON.stringify(stocks, null, 2));
-    fs.appendFileSync(LOG_FILE, JSON.stringify({ date: new Date(), ...entry }) + '\n');
-    res.json({ success: true, newStock: stocks[ws] });
+    // Защита от отрицательных остатков
+    stocks[ws].lahm = Math.max(0, stocks[ws].lahm);
+    stocks[ws].kiyma = Math.max(0, stocks[ws].kiyma);
+    stocks[ws].dumba = Math.max(0, stocks[ws].dumba);
+
+    // Сохраняем
+    saveStocks(stocks);
+
+    // Логируем полностью (включая workerName)
+    fs.appendFileSync(LOG_FILE, JSON.stringify({
+        ...data,
+        timestamp: new Date().toISOString()
+    }) + '\n');
+
+    res.json({ 
+        success: true, 
+        currentStock: stocks[ws],
+        message: 'Операция выполнена'
+    });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server live on ${PORT}`));
+app.listen(PORT, () => {
+    console.log('=========================================');
+    console.log('OQTEPA SMART SYSTEM ЗАПУЩЕН');
+    console.log(`Порт: ${PORT}`);
+    console.log('=========================================');
+});
