@@ -1,11 +1,12 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
+
 const app = express();
 
 app.use(express.json());
 app.use(express.static('.'));
 
-// === ДОБАВЛЕНО ДЛЯ РАБОТЫ С ONRENDER ===
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -14,99 +15,304 @@ app.use((req, res, next) => {
   next();
 });
 
-const STOCKS_FILE = 'stocks.json';
-const LOG_FILE = 'log.json';
+const STOCKS_FILE = path.join(__dirname, 'stocks.json');
+const LOG_FILE = path.join(__dirname, 'log.json');
+const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
-// Функция чтения базы остатков
+const DEFAULT_STOCK = { lahm: 0, kiyma: 0, dumba: 0 };
+const DEFAULT_EMPLOYEES = [
+  { id: '57', name: 'Alimov Murod' }, { id: '85', name: 'Aliqulov Diyor' }, { id: '0.7', name: 'Balqiboev Asadbek' },
+  { id: '5', name: 'Balqiboev Temur' }, { id: '76', name: "Boboqulov Ma'rufjon" }, { id: '77', name: 'Botiraliyev Iskandar' },
+  { id: '86', name: "Botirov Ulug'bek" }, { id: '74', name: 'Hakimov Islom' }, { id: '41', name: 'Ibragimov Ozodbek' },
+  { id: '67', name: 'Jonizaqov Xasanjon' }, { id: '3', name: 'Jonizaqov Xusanjon' }, { id: '43', name: 'Abdulxamidov Xasan' },
+  { id: '11', name: 'Adullo brigadir' }, { id: '44', name: 'Ergashev Davronbek' }, { id: '71', name: "Ahmedov Ulug'bek" },
+  { id: '8', name: 'Aminov Shahboz' }, { id: '55', name: 'Habibullayev Doniyor' }, { id: '64', name: 'Keldibekov Muxammadkodir' },
+  { id: '46', name: 'Kuchkinov Abdulaziz' }, { id: '84', name: 'Lapasov Javohir' }, { id: '88', name: 'Miraliev Mirxasan' },
+  { id: '14', name: 'Miraliev Mirxusan' }, { id: '53', name: 'Muxammadiev Abbos' }, { id: '52', name: 'Nazarov Abdukodir' },
+  { id: '49', name: 'Nishonov Maxmudjon' }, { id: '6', name: 'Normatov Avazbek' }, { id: '36', name: "O'ktamov Sardor" },
+  { id: '24', name: "Ortiqboev Ma'rufjon" }, { id: '2', name: "Qo'chqorov Sardor" }, { id: '10', name: "Qo'shbokov Inomjon" },
+  { id: '30', name: 'Raimberdiyev Dilshod' }, { id: '37', name: 'Rustamjonov Aziz' }, { id: '58', name: "Sattorov Ulug'bek" },
+  { id: '35', name: 'Shermatov Javlon' }, { id: '26', name: "To'xtamurodov Izzatilla" }, { id: '51', name: 'Tugalov Sherzod' },
+  { id: '73', name: 'Vaxobjonov Avazbek' }, { id: '1', name: 'Xalilov Nodirbek' }, { id: '27', name: 'Xapizov Ozodbek' },
+  { id: '39', name: 'Xayrullaev Jasurbek' }, { id: '4', name: 'Xoliqov Jumanazarbek' }, { id: '61', name: 'Obidov Ziyodulla' },
+  { id: '0.5', name: 'Qayumova Dilnoza' }, { id: 'staj-1', name: 'Maxkamov Jahongir' }, { id: 'staj-2', name: "Turg'unboyev Asadbek" }
+];
+
+function readJsonFile(filePath, fallback) {
+  if (!fs.existsSync(filePath)) return fallback;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    console.error(`Failed to read ${path.basename(filePath)}:`, error);
+    return fallback;
+  }
+}
+
+function writeJsonFile(filePath, value) {
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
+}
+
 function getStocks() {
-    if (!fs.existsSync(STOCKS_FILE)) return {};
-    try {
-        return JSON.parse(fs.readFileSync(STOCKS_FILE, 'utf8'));
-    } catch (e) {
-        console.error('Ошибка чтения stocks.json:', e);
-        return {};
-    }
+  return readJsonFile(STOCKS_FILE, {});
 }
 
-// Сохранение остатков
 function saveStocks(stocks) {
-    try {
-        fs.writeFileSync(STOCKS_FILE, JSON.stringify(stocks, null, 2));
-    } catch (e) {
-        console.error('Ошибка сохранения stocks.json:', e);
-    }
+  writeJsonFile(STOCKS_FILE, stocks);
 }
 
-// Получить текущие остатки
+function ensureWorkshopStock(stocks, workshop) {
+  if (!stocks[workshop]) {
+    stocks[workshop] = { ...DEFAULT_STOCK };
+  }
+}
+
+function normalizeStock(stock) {
+  return {
+    lahm: Math.max(0, Number(stock.lahm || 0)),
+    kiyma: Math.max(0, Number(stock.kiyma || 0)),
+    dumba: Math.max(0, Number(stock.dumba || 0))
+  };
+}
+
+function getEmployees() {
+  const stored = readJsonFile(EMPLOYEES_FILE, []);
+  const merged = [...DEFAULT_EMPLOYEES];
+
+  stored.forEach((employee) => {
+    if (!merged.some((item) => String(item.id) === String(employee.id))) {
+      merged.push({ id: String(employee.id), name: employee.name });
+    }
+  });
+
+  return merged;
+}
+
+function saveEmployees(employees) {
+  writeJsonFile(EMPLOYEES_FILE, employees);
+}
+
+function readLogEntries() {
+  if (!fs.existsSync(LOG_FILE)) return [];
+
+  const raw = fs.readFileSync(LOG_FILE, 'utf8').trim();
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    return raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+}
+
+function writeLogEntries(entries) {
+  writeJsonFile(LOG_FILE, entries);
+}
+
+function makeEntryId() {
+  return `entry_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function applyEntryToStocks(stocks, entry, direction) {
+  ensureWorkshopStock(stocks, entry.workshop);
+  const factor = direction === 'undo' ? -1 : 1;
+  const target = stocks[entry.workshop];
+
+  if (entry.category === 'RAW') {
+    if (entry.type === 'Остаток утро') {
+      const nextStock = direction === 'undo'
+        ? (entry.previousStock || DEFAULT_STOCK)
+        : {
+            lahm: Number(entry.lahm || 0),
+            kiyma: Number(entry.kiyma || 0),
+            dumba: Number(entry.dumba || 0)
+          };
+      stocks[entry.workshop] = normalizeStock(nextStock);
+      return;
+    }
+
+    const delta = {
+      lahm: Number(entry.lahm || 0),
+      kiyma: Number(entry.kiyma || 0),
+      dumba: Number(entry.dumba || 0)
+    };
+
+    const rawFactor = entry.type === 'Расход' ? -1 : 1;
+    target.lahm += delta.lahm * rawFactor * factor;
+    target.kiyma += delta.kiyma * rawFactor * factor;
+    target.dumba += delta.dumba * rawFactor * factor;
+  }
+
+  if (entry.category === 'PROD') {
+    const usage = entry.usage || {};
+    target.lahm -= Number(usage.lahm || 0) * factor;
+    target.kiyma -= Number(usage.kiyma || 0) * factor;
+    target.dumba -= Number(usage.dumba || 0) * factor;
+  }
+
+  stocks[entry.workshop] = normalizeStock(target);
+}
+
+function buildHistoryItem(entry) {
+  return {
+    id: entry.id,
+    category: entry.category,
+    workshop: entry.workshop,
+    timestamp: entry.timestamp,
+    workerName: entry.workerName || '',
+    workerId: entry.workerId || '',
+    product: entry.product || '',
+    caliber: entry.caliber || '',
+    count: entry.count || '',
+    totalKg: entry.totalKg || '',
+    type: entry.type || '',
+    lahm: entry.lahm || 0,
+    kiyma: entry.kiyma || 0,
+    dumba: entry.dumba || 0,
+    isUndone: Boolean(entry.isUndone)
+  };
+}
+
 app.get('/api/get-stock/:ws', (req, res) => {
-    const stocks = getStocks();
-    res.json(stocks[req.params.ws] || { lahm: 0, kiyma: 0, dumba: 0 });
+  const stocks = getStocks();
+  res.json(normalizeStock(stocks[req.params.ws] || DEFAULT_STOCK));
 });
 
-// Основной обработчик (твой старый + небольшие улучшения)
+app.get('/api/employees', (_req, res) => {
+  res.json(getEmployees());
+});
+
+app.post('/api/employees', (req, res) => {
+  const name = String(req.body.name || '').trim();
+  const id = String(req.body.id || '').trim();
+
+  if (!name || !id) {
+    return res.status(400).json({ error: 'Укажите имя и ID сотрудника' });
+  }
+
+  const employees = getEmployees();
+  if (employees.some((employee) => String(employee.id) === id)) {
+    return res.status(400).json({ error: 'Сотрудник с таким ID уже существует' });
+  }
+
+  const storedOnly = readJsonFile(EMPLOYEES_FILE, []);
+  const newEmployee = { id, name };
+  storedOnly.push(newEmployee);
+  saveEmployees(storedOnly);
+
+  res.json({ success: true, employee: newEmployee, employees: getEmployees() });
+});
+
+app.get('/api/history/:ws', (req, res) => {
+  const workshop = req.params.ws;
+  const entries = readLogEntries()
+    .filter((entry) => entry.workshop === workshop)
+    .filter((entry) => !entry.isUndone)
+    .slice(-10)
+    .reverse()
+    .map(buildHistoryItem);
+
+  res.json(entries);
+});
+
 app.post('/api/stock', (req, res) => {
-    const data = req.body;
-    const ws = data.workshop;
+  const data = req.body;
+  const workshop = data.workshop;
 
-    if (!ws) return res.status(400).json({ error: 'Не указан workshop' });
+  if (!workshop) {
+    return res.status(400).json({ error: 'Не указан workshop' });
+  }
 
-    let stocks = getStocks();
-    if (!stocks[ws]) {
-        stocks[ws] = { lahm: 0, kiyma: 0, dumba: 0 };
-    }
+  const stocks = getStocks();
+  ensureWorkshopStock(stocks, workshop);
 
-    if (data.category === 'RAW') {
-        const l = parseFloat(data.lahm) || 0;
-        const k = parseFloat(data.kiyma) || 0;
-        const d = parseFloat(data.dumba) || 0;
+  const entry = {
+    ...data,
+    id: makeEntryId(),
+    timestamp: new Date().toISOString(),
+    previousStock: { ...stocks[workshop] },
+    isUndone: false
+  };
 
-        if (data.type === 'Остаток утро') {
-            stocks[ws].lahm = l;
-            stocks[ws].kiyma = k;
-            stocks[ws].dumba = d;
-        } else if (data.type === 'Приход') {
-            stocks[ws].lahm += l;
-            stocks[ws].kiyma += k;
-            stocks[ws].dumba += d;
-        } else if (data.type === 'Расход') {
-            stocks[ws].lahm -= l;
-            stocks[ws].kiyma -= k;
-            stocks[ws].dumba -= d;
-        }
-    } 
-    else if (data.category === 'PROD') {
-        if (data.usage) {
-            stocks[ws].lahm -= parseFloat(data.usage.lahm) || 0;
-            stocks[ws].kiyma -= parseFloat(data.usage.kiyma) || 0;
-            stocks[ws].dumba -= parseFloat(data.usage.dumba) || 0;
-        }
-    }
+  if (entry.category === 'RAW') {
+    entry.lahm = Number(entry.lahm || 0);
+    entry.kiyma = Number(entry.kiyma || 0);
+    entry.dumba = Number(entry.dumba || 0);
+  }
 
-    // Защита от отрицательных остатков
-    stocks[ws].lahm = Math.max(0, stocks[ws].lahm);
-    stocks[ws].kiyma = Math.max(0, stocks[ws].kiyma);
-    stocks[ws].dumba = Math.max(0, stocks[ws].dumba);
+  if (entry.category === 'PROD') {
+    entry.count = Number(entry.count || 0);
+    entry.totalKg = Number(entry.totalKg || 0);
+    entry.usage = {
+      lahm: Number(entry.usage?.lahm || 0),
+      kiyma: Number(entry.usage?.kiyma || 0),
+      dumba: Number(entry.usage?.dumba || 0)
+    };
+  }
 
-    // Сохраняем
-    saveStocks(stocks);
+  applyEntryToStocks(stocks, entry, 'apply');
+  saveStocks(stocks);
 
-    // Логируем полностью (включая workerName)
-    fs.appendFileSync(LOG_FILE, JSON.stringify({
-        ...data,
-        timestamp: new Date().toISOString()
-    }) + '\n');
+  const entries = readLogEntries();
+  entries.push(entry);
+  writeLogEntries(entries);
 
-    res.json({ 
-        success: true, 
-        currentStock: stocks[ws],
-        message: 'Операция выполнена'
-    });
+  res.json({
+    success: true,
+    currentStock: normalizeStock(stocks[workshop]),
+    entry: buildHistoryItem(entry),
+    message: 'Операция выполнена'
+  });
+});
+
+app.post('/api/undo', (req, res) => {
+  const entryId = String(req.body.entryId || '').trim();
+
+  if (!entryId) {
+    return res.status(400).json({ error: 'Не указан entryId' });
+  }
+
+  const entries = readLogEntries();
+  const entry = entries.find((item) => item.id === entryId);
+
+  if (!entry) {
+    return res.status(404).json({ error: 'Операция не найдена' });
+  }
+
+  if (entry.isUndone) {
+    return res.status(400).json({ error: 'Операция уже отменена' });
+  }
+
+  const stocks = getStocks();
+  applyEntryToStocks(stocks, entry, 'undo');
+  saveStocks(stocks);
+
+  entry.isUndone = true;
+  entry.undoneAt = new Date().toISOString();
+  writeLogEntries(entries);
+
+  res.json({
+    success: true,
+    currentStock: normalizeStock(stocks[entry.workshop]),
+    message: 'Операция отменена'
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log('=========================================');
-    console.log('OQTEPA SMART SYSTEM ЗАПУЩЕН');
-    console.log(`Порт: ${PORT}`);
-    console.log('=========================================');
+  console.log('=========================================');
+  console.log('OQTEPA SMART SYSTEM STARTED');
+  console.log(`Port: ${PORT}`);
+  console.log('=========================================');
 });
