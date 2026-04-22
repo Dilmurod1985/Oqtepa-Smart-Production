@@ -119,6 +119,9 @@
       line-height: 1;
       font-weight: 900;
     }
+    .stock-item b.negative {
+      color: #ff5a5a;
+    }
 
     .mode-selector {
       display: grid;
@@ -325,6 +328,8 @@
       gap: 16px;
       min-height: 56px;
     }
+    .history-item.openable { cursor: pointer; }
+    .history-item.openable:hover { background: linear-gradient(90deg, #edf6ff 0%, #f6fbff 100%); }
 
     .history-main { min-width: 0; }
     .history-name {
@@ -349,6 +354,87 @@
       font-weight: 900;
       font-size: 16px;
       white-space: nowrap;
+    }
+
+    .history-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(17, 28, 44, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .history-modal-card {
+      width: min(760px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #dce6f5;
+      box-shadow: 0 26px 58px rgba(24, 45, 82, 0.24);
+      padding: 16px;
+    }
+
+    .history-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .history-modal-title {
+      margin: 0;
+      font-size: 20px;
+      color: #20324f;
+      font-weight: 900;
+    }
+
+    .history-close {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: #173760;
+      background: #eaf1fb;
+    }
+
+    .history-modal-meta {
+      margin: 0 0 10px;
+      color: #5f7599;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .history-detail-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-detail-item {
+      border-radius: 14px;
+      border: 1px solid #e0eaf8;
+      padding: 12px;
+      background: #f9fcff;
+    }
+
+    .history-detail-line {
+      margin: 0 0 5px;
+      color: #243a5c;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .history-detail-meta {
+      margin: 0 0 10px;
+      color: #7590b7;
+      font-size: 13px;
     }
 
     @media (max-width: 820px) {
@@ -479,6 +565,17 @@
         <h3 class="history-title">Последние действия</h3>
         <div id="historyList"></div>
       </div>
+
+      <div id="historyModal" class="history-modal hidden" onclick="onHistoryModalBackdrop(event)">
+        <div class="history-modal-card">
+          <div class="history-modal-head">
+            <h4 id="historyModalTitle" class="history-modal-title"></h4>
+            <button class="history-close" type="button" onclick="closeHistoryModal()">&times;</button>
+          </div>
+          <p id="historyModalMeta" class="history-modal-meta"></p>
+          <div id="historyModalList" class="history-detail-list"></div>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -514,6 +611,9 @@
 
     let employees = [...BASE_EMPLOYEES];
     let curWS = "";
+    let historyEntries = [];
+    let groupedHistory = [];
+    let openedHistoryGroupKey = "";
 
     function showStatus(message, type = "success") {
       const banner = document.getElementById("statusBanner");
@@ -567,13 +667,9 @@
       try {
         const res = await fetch(`/api/get-stock/${encodeURIComponent(curWS)}`);
         const stock = await res.json();
-        document.getElementById("stL").innerText = Number(stock.lahm || 0).toFixed(1);
-        document.getElementById("stK").innerText = Number(stock.kiyma || 0).toFixed(1);
-        document.getElementById("stD").innerText = Number(stock.dumba || 0).toFixed(1);
+        updateStockView(stock);
       } catch (_error) {
-        document.getElementById("stL").innerText = "0.0";
-        document.getElementById("stK").innerText = "0.0";
-        document.getElementById("stD").innerText = "0.0";
+        updateStockView({ lahm: 0, kiyma: 0, dumba: 0 });
       }
     }
 
@@ -584,9 +680,173 @@
       try {
         const res = await fetch(`/api/history/${encodeURIComponent(curWS)}`);
         const items = await res.json();
-        items.forEach((item) => renderHistoryItem(item, false));
+        historyEntries = Array.isArray(items) ? items : [];
+        renderHistoryList();
       } catch (_error) {
         list.innerHTML = "";
+        historyEntries = [];
+      }
+    }
+
+    function renderHistoryList() {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+      groupedHistory = groupHistoryByFixation(historyEntries).slice(0, 10);
+
+      groupedHistory.forEach((group) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "history-item openable";
+        card.onclick = () => openHistoryFixation(group.key);
+
+        card.innerHTML = `
+          <div class="history-main">
+            <span class="history-name">${escapeHtml(group.title)}</span>
+            <div class="history-sub">${escapeHtml(group.subtitle)}</div>
+            <div class="history-meta">${escapeHtml(group.meta)}</div>
+          </div>
+          <div class="history-side">
+            <div class="history-total">${escapeHtml(group.sideValue)}</div>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+    }
+
+    function groupHistoryByFixation(entries) {
+      const map = new Map();
+
+      (entries || []).forEach((entry) => {
+        const isProdByWorker = entry.category === "PROD" && entry.workerId;
+        const key = isProdByWorker ? `worker_${entry.workerId}` : `entry_${entry.id}`;
+        const timestamp = new Date(entry.timestamp || Date.now()).getTime();
+        const existing = map.get(key);
+
+        if (!existing) {
+          map.set(key, { key, entries: [entry], latestTimestamp: timestamp });
+          return;
+        }
+
+        existing.entries.push(entry);
+        if (timestamp > existing.latestTimestamp) {
+          existing.latestTimestamp = timestamp;
+        }
+      });
+
+      return [...map.values()]
+        .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
+        .map((group) => toHistoryCardModel(group));
+    }
+
+    function toHistoryCardModel(group) {
+      const first = group.entries[0];
+      const prodGroup = first.category === "PROD" && first.workerId;
+
+      if (prodGroup) {
+        const totalKg = group.entries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
+        const products = [...new Set(group.entries.map((item) => item.product).filter(Boolean))];
+        const preview = products.slice(0, 3).join(", ");
+        const overflow = products.length > 3 ? " ..." : "";
+
+        return {
+          key: group.key,
+          title: `${first.workerName || "Сотрудник"} (ID: ${first.workerId})`,
+          subtitle: `Произвел: ${preview || "без названия"}${overflow}`,
+          meta: `Фиксаций: ${group.entries.length}`,
+          sideValue: `${totalKg.toFixed(1)} кг`,
+          entries: group.entries
+        };
+      }
+
+      const sideTime = new Date(first.timestamp).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+      const rawDesc = `${first.type}: Лахм ${first.lahm || 0}, Кийма ${first.kiyma || 0}, Думба ${first.dumba || 0}`;
+      const prodDesc = `${first.product} (${first.caliber}) x ${first.count}`;
+
+      return {
+        key: group.key,
+        title: first.category === "PROD" ? (first.workerName || "Сотрудник") : "Склад",
+        subtitle: first.category === "PROD" ? prodDesc : rawDesc,
+        meta: `ID операции: ${first.id || "-"}`,
+        sideValue: first.category === "PROD" ? `${Number(first.totalKg || 0).toFixed(1)} кг` : sideTime,
+        entries: group.entries
+      };
+    }
+
+    function openHistoryFixation(groupKey) {
+      const group = groupedHistory.find((item) => item.key === groupKey);
+      if (!group) return;
+
+      openedHistoryGroupKey = groupKey;
+      document.getElementById("historyModalTitle").textContent = group.title;
+      document.getElementById("historyModalMeta").textContent = `${group.meta}. Выберите запись для просмотра и отмены.`;
+      document.getElementById("historyModal").classList.remove("hidden");
+
+      const details = document.getElementById("historyModalList");
+      details.innerHTML = "";
+
+      group.entries
+        .slice()
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .forEach((entry) => {
+          const row = document.createElement("div");
+          row.className = "history-detail-item";
+
+          const timeText = new Date(entry.timestamp).toLocaleString("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "2-digit",
+            month: "2-digit"
+          });
+
+          const detailLine = entry.category === "PROD"
+            ? `${entry.product} (${entry.caliber}) x ${entry.count} = ${Number(entry.totalKg || 0).toFixed(1)} кг`
+            : `${entry.type}: Лахм ${entry.lahm || 0}, Кийма ${entry.kiyma || 0}, Думба ${entry.dumba || 0}`;
+          const shortage = entry.shortage || { lahm: 0, kiyma: 0, dumba: 0 };
+          const shortageLine = entry.category === "PROD" && (Number(shortage.lahm || 0) > 0 || Number(shortage.kiyma || 0) > 0 || Number(shortage.dumba || 0) > 0)
+            ? `Пересорт: Лахм -${Number(shortage.lahm || 0).toFixed(1)}, Кийма -${Number(shortage.kiyma || 0).toFixed(1)}, Думба -${Number(shortage.dumba || 0).toFixed(1)}`
+            : "";
+
+          row.innerHTML = `
+            <p class="history-detail-line">${escapeHtml(detailLine)}</p>
+            ${shortageLine ? `<p class="history-detail-meta" style="color:#c83d3d;font-weight:800;">${escapeHtml(shortageLine)}</p>` : ""}
+            <p class="history-detail-meta">${escapeHtml(timeText)} - ID операции: ${escapeHtml(entry.id || "-")}</p>
+            <button class="btn-danger" type="button" onclick="undoEntry('${escapeAttr(entry.id || "")}')" ${entry.id ? "" : "disabled"}>Отменить</button>
+          `;
+
+          details.appendChild(row);
+        });
+    }
+
+    function closeHistoryModal() {
+      openedHistoryGroupKey = "";
+      document.getElementById("historyModal").classList.add("hidden");
+    }
+
+    function onHistoryModalBackdrop(event) {
+      if (event.target.id === "historyModal") {
+        closeHistoryModal();
+      }
+    }
+
+    function appendHistoryEntry(entry) {
+      if (!entry) return;
+      historyEntries.unshift(entry);
+      historyEntries = historyEntries.slice(0, 120);
+      renderHistoryList();
+    }
+
+    function removeHistoryEntry(entryId) {
+      historyEntries = historyEntries.filter((item) => item.id !== entryId);
+      renderHistoryList();
+
+      if (openedHistoryGroupKey) {
+        const stillExists = groupedHistory.some((item) => item.key === openedHistoryGroupKey);
+        if (stillExists) {
+          openHistoryFixation(openedHistoryGroupKey);
+        } else {
+          closeHistoryModal();
+        }
       }
     }
 
@@ -756,28 +1016,52 @@
           throw new Error(result.error || "Ошибка при отправке");
         }
 
-        updateStockView(result.currentStock);
+        updateStockView(result.currentStock, result.shortage || null);
 
         if (result.entry) {
-          renderHistoryItem(result.entry, true);
+          appendHistoryEntry(result.entry);
         } else {
-          renderHistoryItem(buildLocalHistoryEntry(data), true);
+          appendHistoryEntry(buildLocalHistoryEntry(data));
         }
 
         if (category === "RAW") resetRawForm();
         if (category === "PROD") resetProdForm();
 
-        showStatus("Успешно зафиксировано. Новая запись добавлена в блок 'Последние действия' ниже.", "success");
+        const shortage = result.shortage || {};
+        const shortageTotal = Number(shortage.lahm || 0) + Number(shortage.kiyma || 0) + Number(shortage.dumba || 0);
+        if (shortageTotal > 0) {
+          showStatus(
+            `Зафиксировано. Пересорт: Лахм -${Number(shortage.lahm || 0).toFixed(1)} кг, Кийма -${Number(shortage.kiyma || 0).toFixed(1)} кг, Думба -${Number(shortage.dumba || 0).toFixed(1)} кг.`,
+            "error"
+          );
+        } else {
+          showStatus("Успешно зафиксировано. Новая запись добавлена в блок 'Последние действия' ниже.", "success");
+        }
         document.querySelector(".history-wrap")?.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
         showStatus(error.message || "Ошибка при отправке", "error");
       }
     }
 
-    function updateStockView(stock) {
-      document.getElementById("stL").innerText = Number(stock.lahm || 0).toFixed(1);
-      document.getElementById("stK").innerText = Number(stock.kiyma || 0).toFixed(1);
-      document.getElementById("stD").innerText = Number(stock.dumba || 0).toFixed(1);
+    function setStockCellValue(el, baseValue, shortageValue = 0) {
+      const value = Number(baseValue || 0);
+      const shortage = Number(shortageValue || 0);
+
+      if (shortage > 0 && value <= 0) {
+        el.innerText = `-${shortage.toFixed(1)}`;
+        el.classList.add("negative");
+        return;
+      }
+
+      el.innerText = value.toFixed(1);
+      el.classList.remove("negative");
+    }
+
+    function updateStockView(stock, shortage = null) {
+      const shortageSafe = shortage || stock.shortage || { lahm: 0, kiyma: 0, dumba: 0 };
+      setStockCellValue(document.getElementById("stL"), stock.lahm, shortageSafe.lahm);
+      setStockCellValue(document.getElementById("stK"), stock.kiyma, shortageSafe.kiyma);
+      setStockCellValue(document.getElementById("stD"), stock.dumba, shortageSafe.dumba);
     }
 
     function buildLocalHistoryEntry(data) {
@@ -799,48 +1083,17 @@
       };
     }
 
-    function renderHistoryItem(data, prepend = true) {
-      if (!data) return;
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-      const list = document.getElementById("historyList");
-      const item = document.createElement("div");
-      item.className = "history-item";
-      const entryId = data.id || `temp_${Date.now()}`;
-      item.dataset.entryId = entryId;
-
-      const description = data.category === "PROD"
-        ? `${data.product} (${data.caliber}) x ${data.count}`
-        : `${data.type}: Лахм ${data.lahm || 0}, Кийма ${data.kiyma || 0}, Думба ${data.dumba || 0}`;
-
-      const title = data.category === "PROD"
-        ? (data.workerName || "Неизвестный сотрудник")
-        : "Склад";
-
-      const sideValue = data.category === "PROD"
-        ? `${Number(data.totalKg || 0).toFixed(1)} кг`
-        : new Date(data.timestamp).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-
-      item.innerHTML = `
-        <div class="history-main">
-          <span class="history-name">${title}</span>
-          <div class="history-sub">${description}</div>
-          <div class="history-meta">ID операции: ${entryId}</div>
-        </div>
-        <div class="history-side">
-          <div class="history-total">${sideValue}</div>
-          <button class="btn-danger" type="button" onclick="undoEntry('${entryId}')" ${data.id ? "" : "disabled"}>Отменить</button>
-        </div>
-      `;
-
-      if (prepend) {
-        list.prepend(item);
-      } else {
-        list.appendChild(item);
-      }
-
-      while (list.children.length > 10) {
-        list.removeChild(list.lastChild);
-      }
+    function escapeAttr(value) {
+      return String(value ?? "").replace(/'/g, "\\'");
     }
 
     async function undoEntry(entryId) {
@@ -859,8 +1112,7 @@
         }
 
         updateStockView(result.currentStock);
-        const node = document.querySelector(`[data-entry-id="${entryId}"]`);
-        if (node) node.remove();
+        removeHistoryEntry(entryId);
         showStatus("Операция отменена. Остатки обновлены.", "success");
       } catch (error) {
         showStatus(error.message || "Ошибка отмены", "error");

@@ -19,7 +19,14 @@ const STOCKS_FILE = path.join(__dirname, 'stocks.json');
 const LOG_FILE = path.join(__dirname, 'log.json');
 const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
-const DEFAULT_STOCK = { lahm: 0, kiyma: 0, dumba: 0 };
+const DEFAULT_STOCK = {
+  lahm: 0,
+  kiyma: 0,
+  dumba: 0,
+  shortageLahm: 0,
+  shortageKiyma: 0,
+  shortageDumba: 0
+};
 const DEFAULT_EMPLOYEES = [
   { id: '57', name: 'Alimov Murod' }, { id: '85', name: 'Aliqulov Diyor' }, { id: '0.7', name: 'Balqiboev Asadbek' },
   { id: '5', name: 'Balqiboev Temur' }, { id: '76', name: "Boboqulov Ma'rufjon" }, { id: '77', name: 'Botiraliyev Iskandar' },
@@ -61,17 +68,56 @@ function saveStocks(stocks) {
 }
 
 function ensureWorkshopStock(stocks, workshop) {
-  if (!stocks[workshop]) {
-    stocks[workshop] = { ...DEFAULT_STOCK };
-  }
+  stocks[workshop] = normalizeStock(stocks[workshop] || DEFAULT_STOCK);
 }
 
 function normalizeStock(stock) {
-  return {
-    lahm: Math.max(0, Number(stock.lahm || 0)),
-    kiyma: Math.max(0, Number(stock.kiyma || 0)),
-    dumba: Math.max(0, Number(stock.dumba || 0))
+  const asNumber = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
   };
+
+  return {
+    lahm: asNumber(stock.lahm),
+    kiyma: asNumber(stock.kiyma),
+    dumba: asNumber(stock.dumba),
+    shortageLahm: asNumber(stock.shortageLahm),
+    shortageKiyma: asNumber(stock.shortageKiyma),
+    shortageDumba: asNumber(stock.shortageDumba)
+  };
+}
+
+function toClientStock(stock) {
+  const normalized = normalizeStock(stock);
+  return {
+    lahm: normalized.lahm,
+    kiyma: normalized.kiyma,
+    dumba: normalized.dumba,
+    shortage: {
+      lahm: normalized.shortageLahm,
+      kiyma: normalized.shortageKiyma,
+      dumba: normalized.shortageDumba
+    }
+  };
+}
+
+function applyDeltaWithShortage(target, stockKey, shortageKey, delta) {
+  const amount = Number(delta || 0);
+  if (!amount) return { shortageAdded: 0 };
+
+  if (amount > 0) {
+    const covered = Math.min(target[shortageKey], amount);
+    target[shortageKey] -= covered;
+    target[stockKey] += (amount - covered);
+    return { shortageAdded: -covered };
+  }
+
+  const need = Math.abs(amount);
+  const used = Math.min(target[stockKey], need);
+  target[stockKey] -= used;
+  const missing = need - used;
+  target[shortageKey] += missing;
+  return { shortageAdded: missing };
 }
 
 function getEmployees() {
@@ -127,19 +173,26 @@ function makeEntryId() {
 function applyEntryToStocks(stocks, entry, direction) {
   ensureWorkshopStock(stocks, entry.workshop);
   const factor = direction === 'undo' ? -1 : 1;
-  const target = stocks[entry.workshop];
+  const target = normalizeStock(stocks[entry.workshop]);
+  const result = {};
 
   if (entry.category === 'RAW') {
-    if (entry.type === 'Остаток утро') {
+    const typeValue = String(entry.type || '');
+    const isMorningBalance = typeValue.includes('Остаток утро') || typeValue.includes('РћСЃС‚Р°С‚РѕРє СѓС‚СЂРѕ');
+
+    if (isMorningBalance) {
       const nextStock = direction === 'undo'
         ? (entry.previousStock || DEFAULT_STOCK)
         : {
             lahm: Number(entry.lahm || 0),
             kiyma: Number(entry.kiyma || 0),
-            dumba: Number(entry.dumba || 0)
+            dumba: Number(entry.dumba || 0),
+            shortageLahm: 0,
+            shortageKiyma: 0,
+            shortageDumba: 0
           };
       stocks[entry.workshop] = normalizeStock(nextStock);
-      return;
+      return result;
     }
 
     const delta = {
@@ -148,20 +201,32 @@ function applyEntryToStocks(stocks, entry, direction) {
       dumba: Number(entry.dumba || 0)
     };
 
-    const rawFactor = entry.type === 'Расход' ? -1 : 1;
-    target.lahm += delta.lahm * rawFactor * factor;
-    target.kiyma += delta.kiyma * rawFactor * factor;
-    target.dumba += delta.dumba * rawFactor * factor;
+    const isExpense = typeValue.includes('Расход') || typeValue.includes('Р Р°СЃС…РѕРґ');
+    const rawFactor = isExpense ? -1 : 1;
+    applyDeltaWithShortage(target, 'lahm', 'shortageLahm', delta.lahm * rawFactor * factor);
+    applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', delta.kiyma * rawFactor * factor);
+    applyDeltaWithShortage(target, 'dumba', 'shortageDumba', delta.dumba * rawFactor * factor);
   }
 
   if (entry.category === 'PROD') {
     const usage = entry.usage || {};
-    target.lahm -= Number(usage.lahm || 0) * factor;
-    target.kiyma -= Number(usage.kiyma || 0) * factor;
-    target.dumba -= Number(usage.dumba || 0) * factor;
+    const lahmResult = applyDeltaWithShortage(target, 'lahm', 'shortageLahm', -Number(usage.lahm || 0) * factor);
+    const kiymaResult = applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', -Number(usage.kiyma || 0) * factor);
+    const dumbaResult = applyDeltaWithShortage(target, 'dumba', 'shortageDumba', -Number(usage.dumba || 0) * factor);
+
+    if (direction === 'apply') {
+      const shortage = {
+        lahm: Number(Math.max(0, lahmResult.shortageAdded).toFixed(2)),
+        kiyma: Number(Math.max(0, kiymaResult.shortageAdded).toFixed(2)),
+        dumba: Number(Math.max(0, dumbaResult.shortageAdded).toFixed(2))
+      };
+      entry.shortage = shortage;
+      result.shortage = shortage;
+    }
   }
 
   stocks[entry.workshop] = normalizeStock(target);
+  return result;
 }
 
 function buildHistoryItem(entry) {
@@ -176,6 +241,7 @@ function buildHistoryItem(entry) {
     caliber: entry.caliber || '',
     count: entry.count || '',
     totalKg: entry.totalKg || '',
+    shortage: entry.shortage || { lahm: 0, kiyma: 0, dumba: 0 },
     type: entry.type || '',
     lahm: entry.lahm || 0,
     kiyma: entry.kiyma || 0,
@@ -186,7 +252,7 @@ function buildHistoryItem(entry) {
 
 app.get('/api/get-stock/:ws', (req, res) => {
   const stocks = getStocks();
-  res.json(normalizeStock(stocks[req.params.ws] || DEFAULT_STOCK));
+  res.json(toClientStock(stocks[req.params.ws] || DEFAULT_STOCK));
 });
 
 app.get('/api/employees', (_req, res) => {
@@ -198,12 +264,12 @@ app.post('/api/employees', (req, res) => {
   const id = String(req.body.id || '').trim();
 
   if (!name || !id) {
-    return res.status(400).json({ error: 'Укажите имя и ID сотрудника' });
+    return res.status(400).json({ error: 'РЈРєР°Р¶РёС‚Рµ РёРјСЏ Рё ID СЃРѕС‚СЂСѓРґРЅРёРєР°' });
   }
 
   const employees = getEmployees();
   if (employees.some((employee) => String(employee.id) === id)) {
-    return res.status(400).json({ error: 'Сотрудник с таким ID уже существует' });
+    return res.status(400).json({ error: 'РЎРѕС‚СЂСѓРґРЅРёРє СЃ С‚Р°РєРёРј ID СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚' });
   }
 
   const storedOnly = readJsonFile(EMPLOYEES_FILE, []);
@@ -231,7 +297,7 @@ app.post('/api/stock', (req, res) => {
   const workshop = data.workshop;
 
   if (!workshop) {
-    return res.status(400).json({ error: 'Не указан workshop' });
+    return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ workshop' });
   }
 
   const stocks = getStocks();
@@ -261,7 +327,7 @@ app.post('/api/stock', (req, res) => {
     };
   }
 
-  applyEntryToStocks(stocks, entry, 'apply');
+  const applyResult = applyEntryToStocks(stocks, entry, 'apply');
   saveStocks(stocks);
 
   const entries = readLogEntries();
@@ -270,9 +336,10 @@ app.post('/api/stock', (req, res) => {
 
   res.json({
     success: true,
-    currentStock: normalizeStock(stocks[workshop]),
+    currentStock: toClientStock(stocks[workshop]),
+    shortage: applyResult.shortage || null,
     entry: buildHistoryItem(entry),
-    message: 'Операция выполнена'
+    message: 'РћРїРµСЂР°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°'
   });
 });
 
@@ -280,18 +347,18 @@ app.post('/api/undo', (req, res) => {
   const entryId = String(req.body.entryId || '').trim();
 
   if (!entryId) {
-    return res.status(400).json({ error: 'Не указан entryId' });
+    return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ entryId' });
   }
 
   const entries = readLogEntries();
   const entry = entries.find((item) => item.id === entryId);
 
   if (!entry) {
-    return res.status(404).json({ error: 'Операция не найдена' });
+    return res.status(404).json({ error: 'РћРїРµСЂР°С†РёСЏ РЅРµ РЅР°Р№РґРµРЅР°' });
   }
 
   if (entry.isUndone) {
-    return res.status(400).json({ error: 'Операция уже отменена' });
+    return res.status(400).json({ error: 'РћРїРµСЂР°С†РёСЏ СѓР¶Рµ РѕС‚РјРµРЅРµРЅР°' });
   }
 
   const stocks = getStocks();
@@ -304,8 +371,8 @@ app.post('/api/undo', (req, res) => {
 
   res.json({
     success: true,
-    currentStock: normalizeStock(stocks[entry.workshop]),
-    message: 'Операция отменена'
+    currentStock: toClientStock(stocks[entry.workshop]),
+    message: 'РћРїРµСЂР°С†РёСЏ РѕС‚РјРµРЅРµРЅР°'
   });
 });
 
