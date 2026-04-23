@@ -1005,7 +1005,7 @@
 
       const filtered = employees.filter((employee) =>
         employee.name.toLowerCase().includes(value) || String(employee.id).toLowerCase().includes(value)
-      ).slice(0, 12);
+      );
 
       if (!filtered.length) {
         list.classList.add("hidden");
