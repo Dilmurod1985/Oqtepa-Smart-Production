@@ -772,24 +772,22 @@
 
     function updateProductionSummary(entries) {
       const prodEntries = (entries || []).filter((item) => item.category === "PROD" && !item.isUndone);
-      const latestByCaliber = new Map();
-      prodEntries.forEach((item) => {
-        const key = String(item.caliber || "-").trim() || "-";
-        if (!latestByCaliber.has(key)) {
-          latestByCaliber.set(key, item);
-        }
-      });
-
-      const latestEntries = [...latestByCaliber.values()];
-      const totalKg = latestEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
+      const totalKg = prodEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
       document.getElementById("prodTotalKg").textContent = `${totalKg.toFixed(1)} кг`;
 
-      const caliberText = latestEntries
-        .sort((a, b) => parseFloat(a.caliber) - parseFloat(b.caliber))
-        .map((item) => {
-          const caliberValue = parseFloat(String(item.caliber || "").replace(",", "."));
-          const caliberLabel = Number.isFinite(caliberValue) ? caliberValue : String(item.caliber || "-");
-          return `Калибр ${caliberLabel}: ${Number(item.count || 0)} шт`;
+      const byCaliber = new Map();
+      prodEntries.forEach((item) => {
+        const key = String(item.caliber || "-").trim() || "-";
+        const prev = Number(byCaliber.get(key) || 0);
+        byCaliber.set(key, prev + Number(item.count || 0));
+      });
+
+      const caliberText = [...byCaliber.entries()]
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+        .map(([caliber, qty]) => {
+          const caliberValue = parseFloat(String(caliber || "").replace(",", "."));
+          const caliberLabel = Number.isFinite(caliberValue) ? caliberValue : String(caliber || "-");
+          return `Калибр ${caliberLabel}: ${qty} шт`;
         })
         .join(", ");
 
