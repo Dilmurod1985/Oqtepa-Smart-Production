@@ -123,6 +123,36 @@
       color: #ff5a5a;
     }
 
+    .prod-summary-card {
+      margin-top: 12px;
+      border-radius: 18px;
+      border: 1px solid #d7e4f8;
+      background: #f7fbff;
+      padding: 14px;
+    }
+
+    .prod-summary-title {
+      margin: 0 0 8px;
+      color: #5f7599;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .prod-summary-total {
+      margin: 0 0 8px;
+      color: #1e3558;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .prod-summary-calibers {
+      margin: 0;
+      color: #3f5f8b;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
     .mode-selector {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -477,6 +507,12 @@
         <div class="stock-item"><span>Думба</span><b id="stD">0.0</b></div>
       </div>
 
+      <div id="prodSummaryCard" class="prod-summary-card">
+        <p class="prod-summary-title">Выпуск (отдельно от склада)</p>
+        <p class="prod-summary-total">Общий тоннаж: <span id="prodTotalKg">0.0 кг</span></p>
+        <p id="prodCalibers" class="prod-summary-calibers">По калибрам: нет данных</p>
+      </div>
+
       <div class="mode-selector">
         <button id="mRaw" class="mode-btn active" onclick="setM('RAW')">Склад</button>
         <button id="mProd" class="mode-btn" onclick="setM('PROD')">Выпуск</button>
@@ -654,6 +690,7 @@
 
     let employees = [...BASE_EMPLOYEES];
     let curWS = "";
+    let currentMode = "PROD";
     let historyEntries = [];
     let groupedHistory = [];
     let openedHistoryGroupKey = "";
@@ -724,17 +761,48 @@
         const res = await fetch(`/api/history/${encodeURIComponent(curWS)}`);
         const items = await res.json();
         historyEntries = Array.isArray(items) ? items : [];
+        updateProductionSummary(historyEntries);
         renderHistoryList();
       } catch (_error) {
         list.innerHTML = "";
         historyEntries = [];
+        updateProductionSummary([]);
       }
+    }
+
+    function updateProductionSummary(entries) {
+      const prodEntries = (entries || []).filter((item) => item.category === "PROD" && !item.isUndone);
+      const latestByCaliber = new Map();
+      prodEntries.forEach((item) => {
+        const key = String(item.caliber || "-").trim() || "-";
+        if (!latestByCaliber.has(key)) {
+          latestByCaliber.set(key, item);
+        }
+      });
+
+      const latestEntries = [...latestByCaliber.values()];
+      const totalKg = latestEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
+      document.getElementById("prodTotalKg").textContent = `${totalKg.toFixed(1)} кг`;
+
+      const caliberText = latestEntries
+        .sort((a, b) => parseFloat(a.caliber) - parseFloat(b.caliber))
+        .map((item) => {
+          const caliberValue = parseFloat(String(item.caliber || "").replace(",", "."));
+          const caliberLabel = Number.isFinite(caliberValue) ? caliberValue : String(item.caliber || "-");
+          return `Калибр ${caliberLabel}: ${Number(item.count || 0)} шт`;
+        })
+        .join(", ");
+
+      document.getElementById("prodCalibers").textContent = caliberText || "По калибрам: нет данных";
     }
 
     function renderHistoryList() {
       const list = document.getElementById("historyList");
       list.innerHTML = "";
-      groupedHistory = groupHistoryByFixation(historyEntries).slice(0, 10);
+      const visibleEntries = currentMode === "RAW"
+        ? historyEntries.filter((item) => item.category === "RAW")
+        : historyEntries.filter((item) => item.category === "PROD");
+      groupedHistory = groupHistoryByFixation(visibleEntries);
 
       groupedHistory.forEach((group) => {
         const card = document.createElement("button");
@@ -822,7 +890,7 @@
 
       openedHistoryGroupKey = groupKey;
       document.getElementById("historyModalTitle").textContent = group.title;
-      document.getElementById("historyModalMeta").textContent = `${group.meta}. Выберите запись для просмотра и отмены.`;
+      document.getElementById("historyModalMeta").textContent = buildFixationSummaryText(group);
       document.getElementById("historyModal").classList.remove("hidden");
 
       const details = document.getElementById("historyModalList");
@@ -875,12 +943,36 @@
     function appendHistoryEntry(entry) {
       if (!entry) return;
       historyEntries.unshift(entry);
-      historyEntries = historyEntries.slice(0, 120);
+      updateProductionSummary(historyEntries);
       renderHistoryList();
+    }
+
+    function buildFixationSummaryText(group) {
+      const prodEntries = (group.entries || []).filter((item) => item.category === "PROD");
+      if (!prodEntries.length) {
+        return `${group.meta}. Выберите запись для просмотра и отмены.`;
+      }
+
+      const totalKg = prodEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
+      const caliberMap = new Map();
+
+      prodEntries.forEach((item) => {
+        const key = String(item.caliber || "-").trim() || "-";
+        const prev = Number(caliberMap.get(key) || 0);
+        caliberMap.set(key, prev + Number(item.count || 0));
+      });
+
+      const caliberText = [...caliberMap.entries()]
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+        .map(([caliber, qty]) => `${caliber}: ${qty} шт`)
+        .join(", ");
+
+      return `${group.meta}. Общий тоннаж: ${totalKg.toFixed(1)} кг. По калибрам: ${caliberText || "нет данных"}.`;
     }
 
     function removeHistoryEntry(entryId) {
       historyEntries = historyEntries.filter((item) => item.id !== entryId);
+      updateProductionSummary(historyEntries);
       renderHistoryList();
 
       if (openedHistoryGroupKey) {
@@ -894,10 +986,13 @@
     }
 
     function setM(mode) {
+      currentMode = mode;
       document.getElementById("secRaw").classList.toggle("hidden", mode !== "RAW");
       document.getElementById("secProd").classList.toggle("hidden", mode !== "PROD");
       document.getElementById("mRaw").classList.toggle("active", mode === "RAW");
       document.getElementById("mProd").classList.toggle("active", mode === "PROD");
+      document.getElementById("prodSummaryCard").classList.toggle("hidden", mode !== "PROD");
+      renderHistoryList();
     }
 
     function filterW() {
