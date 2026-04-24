@@ -1,0 +1,42 @@
+{
+  "ALLMAKON": {
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "shortageLahm": 562,
+    "shortageKiyma": 347,
+    "shortageDumba": 146
+  },
+  "OQTEPA": {
+    "lahm": 84.8,
+    "kiyma": 0,
+    "dumba": 30.5,
+    "shortageLahm": 0,
+    "shortageKiyma": 9.299999999999997,
+    "shortageDumba": 0
+  },
+  "VENDIS": {
+    "lahm": 2,
+    "kiyma": 2,
+    "dumba": 1,
+    "shortageLahm": 0,
+    "shortageKiyma": 0,
+    "shortageDumba": 0
+  },
+  "WENDY'S": {
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "shortageLahm": 0,
+    "shortageKiyma": 98,
+    "shortageDumba": 2
+  },
+  "MISSION": {
+    "lahm": 2,
+    "kiyma": 200,
+    "dumba": 6,
+    "shortageLahm": 0,
+    "shortageKiyma": 0,
+    "shortageDumba": 0
+  }
+}

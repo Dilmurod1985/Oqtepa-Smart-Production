@@ -210,18 +210,48 @@ function applyEntryToStocks(stocks, entry, direction) {
 
   if (entry.category === 'PROD') {
     const usage = entry.usage || {};
-    const lahmResult = applyDeltaWithShortage(target, 'lahm', 'shortageLahm', -Number(usage.lahm || 0) * factor);
-    const kiymaResult = applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', -Number(usage.kiyma || 0) * factor);
-    const dumbaResult = applyDeltaWithShortage(target, 'dumba', 'shortageDumba', -Number(usage.dumba || 0) * factor);
+    
+    // Special logic for MISSION - use ingredients from OQTEPA
+    if (entry.workshop === 'MISSION') {
+      ensureWorkshopStock(stocks, 'OQTEPA');
+      const oqtepaTarget = normalizeStock(stocks['OQTEPA']);
+      
+      const lahmResult = applyDeltaWithShortage(oqtepaTarget, 'lahm', 'shortageLahm', -Number(usage.lahm || 0) * factor);
+      const kiymaResult = applyDeltaWithShortage(oqtepaTarget, 'kiyma', 'shortageKiyma', -Number(usage.kiyma || 0) * factor);
+      const dumbaResult = applyDeltaWithShortage(oqtepaTarget, 'dumba', 'shortageDumba', -Number(usage.dumba || 0) * factor);
+      
+      stocks['OQTEPA'] = normalizeStock(oqtepaTarget);
+      
+      // Add used ingredients to workshop stock (as produced goods)
+      applyDeltaWithShortage(target, 'lahm', 'shortageLahm', Number(usage.lahm || 0) * factor);
+      applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', Number(usage.kiyma || 0) * factor);
+      applyDeltaWithShortage(target, 'dumba', 'shortageDumba', Number(usage.dumba || 0) * factor);
+      
+      if (direction === 'apply') {
+        const shortage = {
+          lahm: Number(Math.max(0, lahmResult.shortageAdded).toFixed(2)),
+          kiyma: Number(Math.max(0, kiymaResult.shortageAdded).toFixed(2)),
+          dumba: Number(Math.max(0, dumbaResult.shortageAdded).toFixed(2))
+        };
+        entry.shortage = shortage;
+        entry.sourceWorkshop = 'OQTEPA'; // Track that ingredients came from OQTEPA
+        result.shortage = shortage;
+      }
+    } else {
+      // Normal logic for other workshops
+      const lahmResult = applyDeltaWithShortage(target, 'lahm', 'shortageLahm', -Number(usage.lahm || 0) * factor);
+      const kiymaResult = applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', -Number(usage.kiyma || 0) * factor);
+      const dumbaResult = applyDeltaWithShortage(target, 'dumba', 'shortageDumba', -Number(usage.dumba || 0) * factor);
 
-    if (direction === 'apply') {
-      const shortage = {
-        lahm: Number(Math.max(0, lahmResult.shortageAdded).toFixed(2)),
-        kiyma: Number(Math.max(0, kiymaResult.shortageAdded).toFixed(2)),
-        dumba: Number(Math.max(0, dumbaResult.shortageAdded).toFixed(2))
-      };
-      entry.shortage = shortage;
-      result.shortage = shortage;
+      if (direction === 'apply') {
+        const shortage = {
+          lahm: Number(Math.max(0, lahmResult.shortageAdded).toFixed(2)),
+          kiyma: Number(Math.max(0, kiymaResult.shortageAdded).toFixed(2)),
+          dumba: Number(Math.max(0, dumbaResult.shortageAdded).toFixed(2))
+        };
+        entry.shortage = shortage;
+        result.shortage = shortage;
+      }
     }
   }
 
@@ -282,14 +312,21 @@ app.post('/api/employees', (req, res) => {
 
 app.get('/api/history/:ws', (req, res) => {
   const workshop = req.params.ws;
-  const entries = readLogEntries()
+  const limit = Number(req.query.limit || 0);
+
+  let entries = readLogEntries()
     .filter((entry) => entry.workshop === workshop)
-    .filter((entry) => !entry.isUndone)
-    .slice(-10)
+    .filter((entry) => !entry.isUndone);
+
+  if (Number.isFinite(limit) && limit > 0) {
+    entries = entries.slice(-limit);
+  }
+
+  const result = entries
     .reverse()
     .map(buildHistoryItem);
 
-  res.json(entries);
+  res.json(result);
 });
 
 app.post('/api/stock', (req, res) => {

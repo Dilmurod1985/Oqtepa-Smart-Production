@@ -1,0 +1,1328 @@
+[
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "2026-04-20T09:58:10.513Z",
+    "type": "Остаток утро",
+    "lahm": 50,
+    "kiyma": 50,
+    "dumba": 50
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "2026-04-20T09:58:32.895Z",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 150
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-20T09:59:08.657Z",
+    "workerId": "41",
+    "usage": {
+      "lahm": "64.80",
+      "kiyma": "56.70",
+      "dumba": "13.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:06:59",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:07:35",
+    "type": "Приход",
+    "lahm": 250,
+    "kiyma": 250,
+    "dumba": 150
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "time": "15:08:20",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "19",
+    "totalKg": 95,
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:15:05",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:15:18",
+    "type": "Остаток утро",
+    "lahm": 50,
+    "kiyma": 50,
+    "dumba": 50
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:15:30",
+    "type": "Остаток утро",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 150
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:19:07",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:19:20",
+    "type": "Остаток утро",
+    "lahm": 50,
+    "kiyma": 50,
+    "dumba": 50
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "time": "15:19:34",
+    "type": "Приход",
+    "lahm": 250,
+    "kiyma": 250,
+    "dumba": 150
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "time": "15:20:44",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "19",
+    "totalKg": 95,
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "15:30:11",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "19",
+    "totalKg": 95,
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "date": "2026-04-20T12:38:28.901Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:38:28",
+    "type": "Остаток утро",
+    "lahm": 150,
+    "kiyma": 150,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:38:47.944Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:38:47",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:39:21.467Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:39:21",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "28",
+    "totalKg": 140,
+    "usage": {
+      "lahm": "67.20",
+      "kiyma": "58.80",
+      "dumba": "14.00"
+    }
+  },
+  {
+    "date": "2026-04-20T12:39:25.686Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:39:25",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "28",
+    "totalKg": 140,
+    "usage": {
+      "lahm": "67.20",
+      "kiyma": "58.80",
+      "dumba": "14.00"
+    }
+  },
+  {
+    "date": "2026-04-20T12:39:41.896Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:39:41",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "28",
+    "totalKg": 140,
+    "usage": {
+      "lahm": "67.20",
+      "kiyma": "58.80",
+      "dumba": "14.00"
+    }
+  },
+  {
+    "date": "2026-04-20T12:39:43.727Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:39:43",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "28",
+    "totalKg": 140,
+    "usage": {
+      "lahm": "67.20",
+      "kiyma": "58.80",
+      "dumba": "14.00"
+    }
+  },
+  {
+    "date": "2026-04-20T12:39:45.308Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:39:45",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "28",
+    "totalKg": 140,
+    "usage": {
+      "lahm": "67.20",
+      "kiyma": "58.80",
+      "dumba": "14.00"
+    }
+  },
+  {
+    "date": "2026-04-20T12:43:15.088Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:43:15",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "date": "2026-04-20T12:43:43.163Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:43:43",
+    "type": "Приход",
+    "lahm": 350,
+    "kiyma": 350,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:44:05.120Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:44:05",
+    "type": "Остаток утро",
+    "lahm": 350,
+    "kiyma": 350,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:44:12.501Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:44:12",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "date": "2026-04-20T12:49:04.503Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:49:04",
+    "type": "Остаток утро",
+    "lahm": 150,
+    "kiyma": 150,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:49:21.231Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "17:49:21",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 150
+  },
+  {
+    "date": "2026-04-20T12:49:41.584Z",
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "17:49:41",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": "18",
+    "totalKg": 90,
+    "usage": {
+      "lahm": "43.20",
+      "kiyma": "37.80",
+      "dumba": "9.00"
+    }
+  },
+  {
+    "date": "2026-04-21T05:55:26.443Z",
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "10:55:26",
+    "type": "Приход",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 50,
+    "kiyma": 50,
+    "dumba": 50,
+    "timestamp": "2026-04-21T06:54:53.652Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 450,
+    "timestamp": "2026-04-21T06:55:17.650Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-21T06:59:16.666Z",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 18,
+    "totalKg": "90.0",
+    "usage": {
+      "lahm": "43.20",
+      "kiyma": "37.80",
+      "dumba": "9.00"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-21T07:04:50.194Z",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 19,
+    "totalKg": "95.0",
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "2026-04-21T07:06:03.260Z",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "2026-04-21T07:06:17.334Z",
+    "type": "Остаток утро",
+    "lahm": 50,
+    "kiyma": 50,
+    "dumba": 50
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "timestamp": "2026-04-21T07:06:32.485Z",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 150
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-21T07:06:47.718Z",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 19,
+    "totalKg": "95.0",
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-21T07:13:54.553Z",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 19,
+    "totalKg": "95.0",
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "timestamp": "2026-04-21T09:44:32.941Z",
+    "workerName": "Alimov Murod",
+    "workerId": "57",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 19,
+    "totalKg": "95.0",
+    "usage": {
+      "lahm": "45.60",
+      "kiyma": "39.90",
+      "dumba": "9.50"
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "15 кг",
+    "count": 24,
+    "totalKg": 360,
+    "usage": {
+      "lahm": 172.8,
+      "kiyma": 151.2,
+      "dumba": 36
+    },
+    "timestamp": "2026-04-22T06:12:22.957Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "15 кг",
+    "count": 24,
+    "totalKg": 360,
+    "usage": {
+      "lahm": 172.8,
+      "kiyma": 151.2,
+      "dumba": 36
+    },
+    "timestamp": "2026-04-22T06:12:30.821Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "15 кг",
+    "count": 10,
+    "totalKg": 150,
+    "usage": {
+      "lahm": 72,
+      "kiyma": 63,
+      "dumba": 15
+    },
+    "timestamp": "2026-04-22T06:30:14.775Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "15 кг",
+    "count": 15,
+    "totalKg": 225,
+    "usage": {
+      "lahm": 108,
+      "kiyma": 94.5,
+      "dumba": 22.5
+    },
+    "timestamp": "2026-04-22T06:33:38.149Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 150,
+    "kiyma": 150,
+    "dumba": 150,
+    "timestamp": "2026-04-22T06:37:27.069Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "type": "Приход",
+    "lahm": 450,
+    "kiyma": 450,
+    "dumba": 50,
+    "timestamp": "2026-04-22T06:37:41.762Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "10 кг",
+    "count": 60,
+    "totalKg": 600,
+    "usage": {
+      "lahm": 288,
+      "kiyma": 252,
+      "dumba": 60
+    },
+    "timestamp": "2026-04-22T06:38:02.927Z"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 50,
+    "totalKg": 250,
+    "usage": {
+      "lahm": 120,
+      "kiyma": 105,
+      "dumba": 25
+    },
+    "id": "entry_1776845937980_ok6iid",
+    "timestamp": "2026-04-22T08:18:57.982Z",
+    "previousStock": {
+      "lahm": 312,
+      "kiyma": 348,
+      "dumba": 140
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 60,
+    "totalKg": 300,
+    "usage": {
+      "lahm": 144,
+      "kiyma": 126,
+      "dumba": 30
+    },
+    "id": "entry_1776846069560_vgiohs",
+    "timestamp": "2026-04-22T08:21:09.561Z",
+    "previousStock": {
+      "lahm": 192,
+      "kiyma": 243,
+      "dumba": 115
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "caliber": "60 кг",
+    "count": 10,
+    "totalKg": 600,
+    "usage": {
+      "lahm": 288,
+      "kiyma": 252,
+      "dumba": 60
+    },
+    "id": "entry_1776846100249_ben7vj",
+    "timestamp": "2026-04-22T08:21:40.250Z",
+    "previousStock": {
+      "lahm": 48,
+      "kiyma": 117,
+      "dumba": 85
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ahmedov Ulug'bek",
+    "workerId": "71",
+    "product": "DONER 50/50",
+    "caliber": "50 кг",
+    "count": 10,
+    "totalKg": 500,
+    "usage": {
+      "lahm": 240,
+      "kiyma": 210,
+      "dumba": 50
+    },
+    "id": "entry_1776846497065_j2xzby",
+    "timestamp": "2026-04-22T08:28:17.067Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 25
+    },
+    "isUndone": false
+  },
+  {
+    "count": 1,
+    "product": "DONER 50/50",
+    "usage": {
+      "lahm": 2,
+      "kiyma": 2,
+      "dumba": 1
+    },
+    "caliber": "5 ??",
+    "category": "PROD",
+    "workerId": "1",
+    "workerName": "test",
+    "totalKg": 5,
+    "workshop": "ALLMAKON",
+    "id": "entry_1776846653567_9ke6ae",
+    "timestamp": "2026-04-22T08:30:53.569Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false,
+    "appliedUsage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 2,
+      "kiyma": 2,
+      "dumba": 1
+    }
+  },
+  {
+    "count": 1,
+    "product": "DONER 50/50",
+    "usage": {
+      "lahm": 2,
+      "kiyma": 2,
+      "dumba": 1
+    },
+    "caliber": "5 ??",
+    "category": "PROD",
+    "workerId": "1",
+    "workerName": "test",
+    "totalKg": 5,
+    "workshop": "ALLMAKON",
+    "id": "entry_1776847332482_cu5qp7",
+    "timestamp": "2026-04-22T08:42:12.485Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 2,
+      "kiyma": 2,
+      "dumba": 1
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "caliber": "50 кг",
+    "count": 5,
+    "totalKg": 250,
+    "usage": {
+      "lahm": 120,
+      "kiyma": 105,
+      "dumba": 25
+    },
+    "id": "entry_1776847437906_dh971b",
+    "timestamp": "2026-04-22T08:43:57.906Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 2,
+      "shortageKiyma": 2,
+      "shortageDumba": 1
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 120,
+      "kiyma": 105,
+      "dumba": 25
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "TURK 70/30",
+    "caliber": "50 кг",
+    "count": 10,
+    "totalKg": 500,
+    "usage": {
+      "lahm": 275,
+      "kiyma": 150,
+      "dumba": 75
+    },
+    "id": "entry_1776852839408_ogkea4",
+    "timestamp": "2026-04-22T10:13:59.409Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 122,
+      "shortageKiyma": 107,
+      "shortageDumba": 26
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 275,
+      "kiyma": 150,
+      "dumba": 75
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "TURK 70/30",
+    "caliber": "30 кг",
+    "count": 10,
+    "totalKg": 300,
+    "usage": {
+      "lahm": 165,
+      "kiyma": 90,
+      "dumba": 45
+    },
+    "id": "entry_1776853165090_z6ddhw",
+    "timestamp": "2026-04-22T10:19:25.091Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 397,
+      "shortageKiyma": 257,
+      "shortageDumba": 101
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 165,
+      "kiyma": 90,
+      "dumba": 45
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "caliber": "50 кг",
+    "count": 10,
+    "totalKg": 500,
+    "usage": {
+      "lahm": 245,
+      "kiyma": 205,
+      "dumba": 50
+    },
+    "id": "entry_1776921427523_sb8f60",
+    "timestamp": "2026-04-23T05:17:07.525Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 245,
+      "kiyma": 205,
+      "dumba": 50
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Alimov Murod",
+    "workerId": "57",
+    "product": "DONER 50/50",
+    "caliber": "50 кг",
+    "count": 10,
+    "totalKg": 500,
+    "usage": {
+      "lahm": 245,
+      "kiyma": 205,
+      "dumba": 50
+    },
+    "id": "entry_1776922497599_qev9f1",
+    "timestamp": "2026-04-23T05:34:57.600Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 245,
+      "shortageKiyma": 205,
+      "shortageDumba": 50
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 245,
+      "kiyma": 205,
+      "dumba": 50
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Ahmedov Ulug'bek",
+    "workerId": "71",
+    "product": "DONER 50/50",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1776922546041_9x20rc",
+    "timestamp": "2026-04-23T05:35:46.041Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 490,
+      "shortageKiyma": 410,
+      "shortageDumba": 100
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 150,
+    "kiyma": 150,
+    "dumba": 50,
+    "id": "entry_1776922737412_98zd2r",
+    "timestamp": "2026-04-23T05:38:57.413Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 539,
+      "shortageKiyma": 451,
+      "shortageDumba": 110
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "5 кг",
+    "count": 5,
+    "totalKg": 25,
+    "usage": {
+      "lahm": 12,
+      "kiyma": 10.5,
+      "dumba": 2.5
+    },
+    "id": "entry_1776924028781_unjgnf",
+    "timestamp": "2026-04-23T06:00:28.781Z",
+    "previousStock": {
+      "lahm": 150,
+      "kiyma": 150,
+      "dumba": 50,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Qo'shbokov Inomjon",
+    "workerId": "10",
+    "product": "DONER 50/50",
+    "caliber": "10 кг",
+    "count": 3,
+    "totalKg": 30,
+    "usage": {
+      "lahm": 14.7,
+      "kiyma": 12.3,
+      "dumba": 3
+    },
+    "id": "entry_1776925337629_4gzyn5",
+    "timestamp": "2026-04-23T06:22:17.629Z",
+    "previousStock": {
+      "lahm": 138,
+      "kiyma": 139.5,
+      "dumba": 47.5,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Xapizov Ozodbek",
+    "workerId": "27",
+    "product": "DONER 50/50",
+    "caliber": "50 кг",
+    "count": 1,
+    "totalKg": 50,
+    "usage": {
+      "lahm": 24.5,
+      "kiyma": 20.5,
+      "dumba": 5
+    },
+    "id": "entry_1776925374899_q2kp8o",
+    "timestamp": "2026-04-23T06:22:54.899Z",
+    "previousStock": {
+      "lahm": 123.3,
+      "kiyma": 127.2,
+      "dumba": 44.5,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "WENDY'S",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "MISSION 100% QIYMA",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    },
+    "id": "entry_1777034618179_tfzjlx",
+    "timestamp": "2026-04-24T12:43:38.179Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    }
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "MISSION 100% QIYMA",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    },
+    "id": "entry_1777034668400_t8malt",
+    "timestamp": "2026-04-24T12:44:28.400Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    }
+  },
+  {
+    "workshop": "VENDIS",
+    "category": "PROD",
+    "workerName": "Test",
+    "workerId": "test",
+    "product": "VENDIS Product",
+    "caliber": "5 kg",
+    "count": 2,
+    "totalKg": 10,
+    "usage": {
+      "lahm": 5,
+      "kiyma": 4,
+      "dumba": 1
+    },
+    "id": "entry_1777035692240_dw21fz",
+    "timestamp": "2026-04-24T13:01:32.240Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "VENDIS",
+    "category": "PROD",
+    "workerName": "Test",
+    "workerId": "test",
+    "product": "VENDIS Product",
+    "caliber": "5 kg",
+    "count": 2,
+    "totalKg": 10,
+    "usage": {
+      "lahm": 5,
+      "kiyma": 4,
+      "dumba": 1
+    },
+    "id": "entry_1777035708080_chivoa",
+    "timestamp": "2026-04-24T13:01:48.082Z",
+    "previousStock": {
+      "lahm": 5,
+      "kiyma": 4,
+      "dumba": 1,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Test",
+    "workerId": "test",
+    "product": "MISSION Product",
+    "caliber": "10 kg",
+    "count": 1,
+    "totalKg": 10,
+    "usage": {
+      "lahm": 3,
+      "kiyma": 5,
+      "dumba": 2
+    },
+    "id": "entry_1777035924795_oldf39",
+    "timestamp": "2026-04-24T13:05:24.795Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 98,
+      "shortageDumba": 2
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 3,
+      "kiyma": 5,
+      "dumba": 2
+    }
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Test",
+    "workerId": "test",
+    "product": "MISSION Product",
+    "caliber": "5 kg",
+    "count": 1,
+    "totalKg": 5,
+    "usage": {
+      "lahm": 1,
+      "kiyma": 2,
+      "dumba": 1
+    },
+    "id": "entry_1777036032184_ua9bcu",
+    "timestamp": "2026-04-24T13:07:12.190Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "VENDIS",
+    "category": "PROD",
+    "workerName": "Test VENDIS",
+    "workerId": "test_vendis",
+    "product": "VENDIS Product",
+    "caliber": "5 kg",
+    "count": 1,
+    "totalKg": 5,
+    "usage": {
+      "lahm": 2,
+      "kiyma": 2,
+      "dumba": 1
+    },
+    "id": "entry_1777036206606_0bav6u",
+    "timestamp": "2026-04-24T13:10:06.607Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Test",
+    "workerId": "test",
+    "product": "MISSION Product",
+    "caliber": "5 kg",
+    "count": 1,
+    "totalKg": 5,
+    "usage": {
+      "lahm": 1,
+      "kiyma": 2,
+      "dumba": 1
+    },
+    "id": "entry_1777036221679_8a3xqp",
+    "timestamp": "2026-04-24T13:10:21.680Z",
+    "previousStock": {
+      "lahm": 1,
+      "kiyma": 2,
+      "dumba": 1,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "MISSION 100% QIYMA",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    },
+    "id": "entry_1777036309082_pqg5q8",
+    "timestamp": "2026-04-24T13:11:49.082Z",
+    "previousStock": {
+      "lahm": 2,
+      "kiyma": 4,
+      "dumba": 2,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 5.3,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "Ahmedov Ulug'bek",
+    "workerId": "71",
+    "product": "MISSION 100% QIYMA",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 98,
+      "dumba": 2
+    },
+    "id": "entry_1777036510055_mv89kp",
+    "timestamp": "2026-04-24T13:15:10.055Z",
+    "previousStock": {
+      "lahm": 2,
+      "kiyma": 102,
+      "dumba": 4,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 9.3,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  }
+]

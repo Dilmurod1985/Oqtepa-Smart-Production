@@ -487,6 +487,7 @@
     <div id="mainMenu" class="menu">
       <button class="tile" onclick="openWS('ALLMAKON')">ALLMAKON</button>
       <button class="tile" onclick="openWS('OQTEPA')">OQTEPA</button>
+      <button class="tile" onclick="openWS('VENDIS')">VENDIS</button>
       <button class="tile" onclick="openWS('CITY')">CITY</button>
       <button class="tile" onclick="openWS(`WENDY'S`)">WENDY'S</button>
       <button class="tile" onclick="openWS('MISSION')">MISSION</button>
@@ -1179,7 +1180,21 @@
 
         const shortage = result.shortage || {};
         const shortageTotal = Number(shortage.lahm || 0) + Number(shortage.kiyma || 0) + Number(shortage.dumba || 0);
-        if (shortageTotal > 0) {
+        
+        // Special message for MISSION workshop
+        if (currentWorkshop === 'MISSION' && category === 'PROD') {
+          const usage = data.usage || {};
+          const takenFromOqtepa = `Взято со склада OQTEPA: Лахм ${Number(usage.lahm || 0).toFixed(1)} кг, Кийма ${Number(usage.kiyma || 0).toFixed(1)} кг, Думба ${Number(usage.dumba || 0).toFixed(1)} кг`;
+          
+          if (shortageTotal > 0) {
+            showStatus(
+              `${takenFromOqtepa}. Пересорт: Лахм -${Number(shortage.lahm || 0).toFixed(1)} кг, Кийма -${Number(shortage.kiyma || 0).toFixed(1)} кг, Думба -${Number(shortage.dumba || 0).toFixed(1)} кг.`,
+              "error"
+            );
+          } else {
+            showStatus(`${takenFromOqtepa}. Успешно зафиксировано.`, "success");
+          }
+        } else if (shortageTotal > 0) {
           showStatus(
             `Зафиксировано. Пересорт: Лахм -${Number(shortage.lahm || 0).toFixed(1)} кг, Кийма -${Number(shortage.kiyma || 0).toFixed(1)} кг, Думба -${Number(shortage.dumba || 0).toFixed(1)} кг.`,
             "error"
