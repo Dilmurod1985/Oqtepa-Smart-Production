@@ -185,6 +185,48 @@
     .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .field-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
     .field { min-width: 0; }
+    
+    .product-item {
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--surface-muted);
+      position: relative;
+    }
+    
+    .product-item:not(:first-child)::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--border);
+    }
+    
+    .product-total {
+      text-align: right;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 8px;
+      font-size: 16px;
+    }
+    
+    .remove-product {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
     label {
       display: block;
       margin: 0 0 8px;
@@ -569,33 +611,40 @@
         </div>
 
         <div class="field">
-          <label for="pType">Продукт</label>
-          <select id="pType" onchange="updTotal()">
-            <option value="DONER 50/50">DONER 50/50</option>
-            <option value="DONER 30/70">DONER 30/70</option>
-            <option value="DONER 60/40">DONER 60/40</option>
-            <option value="DONER 70/30">DONER 70/30</option>
-            <option value="TURK 70/30">TURK 70/30</option>
-            <option value="CITY 50/50">CITY 50/50</option>
-            <option value="WENDY'S 50/50">WENDY'S 50/50</option>
-            <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
-          </select>
+          <label>Продукты для выпуска</label>
+          <div id="productsList">
+            <!-- Первая продукция -->
+            <div class="product-item" data-index="0">
+              <div class="field">
+                <select class="pType" onchange="updateProductTotal(0)">
+                  <option value="DONER 50/50">DONER 50/50</option>
+                  <option value="DONER 30/70">DONER 30/70</option>
+                  <option value="DONER 60/40">DONER 60/40</option>
+                  <option value="DONER 70/30">DONER 70/30</option>
+                  <option value="TURK 70/30">TURK 70/30</option>
+                  <option value="CITY 50/50">CITY 50/50</option>
+                  <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+                  <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+                </select>
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(0)" />
+                </div>
+                <div class="field">
+                  <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(0)" />
+                </div>
+              </div>
+              <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
+            </div>
+          </div>
+          
+          <button class="btn-secondary" onclick="addProductItem()" style="margin-top: 10px;">+ Добавить еще продукт</button>
         </div>
 
-        <div class="field-grid">
-          <div class="field">
-            <label for="pCal">Калибр донера (кг)</label>
-            <input id="pCal" type="number" step="0.1" min="0" placeholder="Например: 5" oninput="updTotal()" />
-          </div>
-          <div class="field">
-            <label for="pCount">Кол-во</label>
-            <input id="pCount" type="number" min="1" placeholder="Например: 10" oninput="updTotal()" />
-          </div>
-        </div>
+        <div id="totalTxt" class="summary-bar">Общий итог: <span id="overallTotal">0.0</span> кг</div>
 
-        <div id="totalTxt" class="summary-bar">Итого: 0 кг</div>
-
-        <button class="btn-main" onclick="submitData('PROD')">ЗАФИКСИРОВАТЬ</button>
+        <button class="btn-main" onclick="submitMultipleProducts()">ЗАФИКСИРОВАТЬ ВСЕ</button>
       </div>
 
       <div class="history-wrap">
@@ -1109,10 +1158,196 @@
     function resetProdForm() {
       document.getElementById("wSearch").value = "";
       document.getElementById("wId").value = "";
-      document.getElementById("pCal").value = "";
-      document.getElementById("pCount").value = "";
-      setWorkerDisplay("Не выбран");
-      updTotal();
+      // Не сбрасываем продукты, чтобы можно было добавлять несколько
+      updateOverallTotal();
+    }
+
+    let productIndex = 1;
+
+    function addProductItem() {
+      const container = document.getElementById('productsList');
+      const newIndex = productIndex++;
+      
+      const productItem = document.createElement('div');
+      productItem.className = 'product-item';
+      productItem.setAttribute('data-index', newIndex);
+      
+      productItem.innerHTML = `
+        <button class="remove-product" onclick="removeProductItem(${newIndex})" title="Удалить продукт">×</button>
+        <div class="field">
+          <select class="pType" onchange="updateProductTotal(${newIndex})">
+            <option value="DONER 50/50">DONER 50/50</option>
+            <option value="DONER 30/70">DONER 30/70</option>
+            <option value="DONER 60/40">DONER 60/40</option>
+            <option value="DONER 70/30">DONER 70/30</option>
+            <option value="TURK 70/30">TURK 70/30</option>
+            <option value="CITY 50/50">CITY 50/50</option>
+            <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+            <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+          </select>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(${newIndex})" />
+          </div>
+          <div class="field">
+            <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(${newIndex})" />
+          </div>
+        </div>
+        <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
+      `;
+      
+      container.appendChild(productItem);
+    }
+
+    function removeProductItem(index) {
+      const item = document.querySelector(`[data-index="${index}"]`);
+      if (item) {
+        item.remove();
+        updateOverallTotal();
+      }
+    }
+
+    function updateProductTotal(index) {
+      const item = document.querySelector(`[data-index="${index}"]`);
+      if (!item) return;
+      
+      const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
+      const count = parseFloat(item.querySelector('.pCount').value) || 0;
+      const total = caliber * count;
+      
+      item.querySelector('.productKg').textContent = Number.isInteger(total) ? total : total.toFixed(1);
+      updateOverallTotal();
+    }
+
+    function updateOverallTotal() {
+      const products = document.querySelectorAll('.product-item');
+      let total = 0;
+      
+      products.forEach(item => {
+        const kgText = item.querySelector('.productKg').textContent;
+        total += parseFloat(kgText) || 0;
+      });
+      
+      document.getElementById('overallTotal').textContent = Number.isInteger(total) ? total : total.toFixed(1);
+    }
+
+    async function submitMultipleProducts() {
+      const workerId = document.getElementById('wId').value;
+      const workerName = document.getElementById('workerDisplay').textContent.trim();
+      
+      if (!workerId || workerName === 'Не выбран') {
+        showStatus('Выберите сотрудника', 'error');
+        return;
+      }
+      
+      const products = [];
+      const productItems = document.querySelectorAll('.product-item');
+      
+      for (const item of productItems) {
+        const product = item.querySelector('.pType').value;
+        const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
+        const count = parseInt(item.querySelector('.pCount').value) || 0;
+        
+        if (caliber > 0 && count > 0) {
+          products.push({ product, caliber, count });
+        }
+      }
+      
+      if (products.length === 0) {
+        showStatus('Добавьте хотя бы один продукт', 'error');
+        return;
+      }
+      
+      // Отправляем каждый продукт отдельно
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const prod of products) {
+        try {
+          const data = {
+            workshop: curWS,
+            category: 'PROD',
+            workerName: workerName,
+            workerId: workerId,
+            product: prod.product,
+            caliber: `${prod.caliber} кг`,
+            count: prod.count,
+            totalKg: prod.caliber * prod.count
+          };
+          
+          const usageByRecipe = calculateUsageByRecipe(prod.product, prod.caliber, prod.count);
+          if (usageByRecipe) {
+            data.usage = {
+              lahm: usageByRecipe.lahm,
+              kiyma: usageByRecipe.kiyma,
+              dumba: usageByRecipe.dumba
+            };
+          }
+          
+          const res = await fetch('/api/stock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          
+          const result = await res.json();
+          if (res.ok) {
+            successCount++;
+            if (result.entry) {
+              appendHistoryEntry(result.entry);
+            }
+          } else {
+            errorCount++;
+          }
+        } catch (error) {
+          errorCount++;
+        }
+      }
+      
+      // Показываем результат
+      if (errorCount === 0) {
+        showStatus(`Успешно зафиксировано ${successCount} продуктов`, 'success');
+        // Очищаем форму продуктов, но сохраняем сотрудника
+        clearProductsForm();
+      } else {
+        showStatus(`Зафиксировано ${successCount} из ${products.length} продуктов`, 'warning');
+      }
+      
+      updateStockView();
+      document.querySelector('.history-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function clearProductsForm() {
+      // Оставляем только первый продукт и очищаем его
+      const container = document.getElementById('productsList');
+      container.innerHTML = `
+        <div class="product-item" data-index="0">
+          <div class="field">
+            <select class="pType" onchange="updateProductTotal(0)">
+              <option value="DONER 50/50">DONER 50/50</option>
+              <option value="DONER 30/70">DONER 30/70</option>
+              <option value="DONER 60/40">DONER 60/40</option>
+              <option value="DONER 70/30">DONER 70/30</option>
+              <option value="TURK 70/30">TURK 70/30</option>
+              <option value="CITY 50/50">CITY 50/50</option>
+              <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+              <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+            </select>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(0)" />
+            </div>
+            <div class="field">
+              <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(0)" />
+            </div>
+          </div>
+          <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
+        </div>
+      `;
+      productIndex = 1;
+      updateOverallTotal();
     }
 
     async function submitData(category) {
