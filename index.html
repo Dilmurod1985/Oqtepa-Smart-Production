@@ -123,6 +123,50 @@
       color: #ff5a5a;
     }
 
+    .daily-stats-card {
+      margin: 16px 0;
+      border: 2px solid #e8f4fd;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f8fbff 0%, #eef7ff 100%);
+      padding: 16px;
+    }
+
+    .stats-title {
+      margin: 0 0 12px;
+      color: #2c5aa0;
+      font-size: 16px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stats-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e1ecf7;
+    }
+
+    .stats-label {
+      color: #6b80a0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stats-value {
+      color: #1e3a5f;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
     .prod-summary-card {
       margin-top: 12px;
       border-radius: 18px;
@@ -539,6 +583,7 @@
       <div class="panel-header">
         <button class="back-btn" onclick="goHome()" aria-label="Назад">←</button>
         <h2 id="wsTitle" class="panel-title"></h2>
+        <button class="btn-daily-reset" onclick="performDailyReset()" title="Ежедневный сброс производства">🔄</button>
       </div>
 
       <div id="statusBanner" class="status-banner"></div>
@@ -547,6 +592,28 @@
         <div class="stock-item"><span>Лахм</span><b id="stL">0.0</b></div>
         <div class="stock-item"><span>Кийма</span><b id="stK">0.0</b></div>
         <div class="stock-item"><span>Думба</span><b id="stD">0.0</b></div>
+      </div>
+
+      <div id="dailyStatsCard" class="daily-stats-card">
+        <h3 class="stats-title">📊 Статистика за сегодня</h3>
+        <div class="stats-grid">
+          <div class="stats-item">
+            <span class="stats-label">Приход сырья:</span>
+            <span class="stats-value" id="todayStockIn">0.0 кг</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">Расход сырья:</span>
+            <span class="stats-value" id="todayStockOut">0.0 кг</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">Произведено:</span>
+            <span class="stats-value" id="todayProduction">0.0 кг</span>
+          </div>
+          <div class="stats-item">
+            <span class="stats-label">Кол-во:</span>
+            <span class="stats-value" id="todayProductionCount">0 шт</span>
+          </div>
+        </div>
       </div>
 
       <div id="prodSummaryCard" class="prod-summary-card">
@@ -792,6 +859,39 @@
       document.getElementById("panel").style.display = "none";
     }
 
+    async function performDailyReset() {
+      if (!curWS) {
+        showStatus('Сначала откройте цех', 'error');
+        return;
+      }
+
+      const confirmed = confirm(`Вы уверены, что хотите выполнить ежедневный сброс в цеху ${curWS}?\n\nПроизводство обнулится, остатки сохранятся.`);
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch('/api/daily-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workshop: curWS })
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.error || 'Ошибка при сбросе');
+        }
+
+        showStatus(result.message, 'success');
+        
+        // Обновляем отображение остатков
+        await refreshStock();
+        await loadHistory();
+        await loadDailyStats();
+        
+      } catch (error) {
+        showStatus(error.message || 'Ошибка при выполнении сброса', 'error');
+      }
+    }
+
     async function refreshStock() {
       try {
         const res = await fetch(`/api/get-stock/${encodeURIComponent(curWS)}`);
@@ -814,15 +914,18 @@
         renderHistoryList();
 
         // Загружаем и отображаем остатки
-        try {
-          const stockRes = await fetch(`/api/stocks/${encodeURIComponent(curWS)}`);
-          const stockData = await stockRes.json();
-          if (stockData[curWS]) {
-            updateStockView(stockData[curWS]);
-          }
-        } catch (_error) {
-          console.error('Failed to load stocks:', _error);
+      try {
+        const stockRes = await fetch(`/api/stocks/${encodeURIComponent(curWS)}`);
+        const stockData = await stockRes.json();
+        if (stockData[curWS]) {
+          updateStockView(stockData[curWS]);
         }
+      } catch (_error) {
+        console.error('Failed to load stocks:', _error);
+      }
+
+      // Загружаем ежедневную статистику
+      await loadDailyStats();
       } catch (_error) {
         list.innerHTML = "";
         historyEntries = [];
@@ -1040,6 +1143,30 @@
         } else {
           closeHistoryModal();
         }
+      }
+    }
+
+    async function loadDailyStats() {
+      if (!curWS) return;
+
+      try {
+        const res = await fetch(`/api/daily-stats/${encodeURIComponent(curWS)}`);
+        const data = await res.json();
+        
+        if (data.success && data.today) {
+          const stats = data.today;
+          
+          // Обновляем статистику
+          const totalStockIn = stats.stockIn.lahm + stats.stockIn.kiyma + stats.stockIn.dumba;
+          const totalStockOut = stats.stockOut.lahm + stats.stockOut.kiyma + stats.stockOut.dumba;
+          
+          document.getElementById('todayStockIn').textContent = `${totalStockIn.toFixed(1)} кг`;
+          document.getElementById('todayStockOut').textContent = `${totalStockOut.toFixed(1)} кг`;
+          document.getElementById('todayProduction').textContent = `${stats.production.toFixed(1)} кг`;
+          document.getElementById('todayProductionCount').textContent = `${stats.productionCount} шт`;
+        }
+      } catch (error) {
+        console.error('Failed to load daily stats:', error);
       }
     }
 

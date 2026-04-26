@@ -413,6 +413,145 @@ app.post('/api/undo', (req, res) => {
   });
 });
 
+// Daily reset endpoint
+app.post('/api/daily-reset', (req, res) => {
+  const { workshop } = req.body;
+  
+  if (!workshop) {
+    return res.status(400).json({ error: 'Укажите цех' });
+  }
+
+  const stocks = getStocks();
+  
+  if (!stocks[workshop]) {
+    return res.status(404).json({ error: 'Цех не найден' });
+  }
+
+  // Сохраняем текущие остатки (только для склада)
+  const currentStock = { ...stocks[workshop] };
+  
+  // Сбрасываем только производство (lahm, kiyma, dumba до 0, но сохраняем shortage)
+  stocks[workshop] = {
+    lahm: 0,
+    kiyma: 0, 
+    dumba: 0,
+    shortageLahm: currentStock.shortageLahm || 0,
+    shortageKiyma: currentStock.shortageKiyma || 0,
+    shortageDumba: currentStock.shortageDumba || 0
+  };
+
+  // Добавляем запись о сбросе в лог
+  const entries = readLogEntries();
+  const resetEntry = {
+    id: `reset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    category: 'RESET',
+    workshop: workshop,
+    timestamp: new Date().toISOString(),
+    type: 'Ежедневный сброс производства',
+    previousStock: {
+      lahm: currentStock.lahm || 0,
+      kiyma: currentStock.kiyma || 0,
+      dumba: currentStock.dumba || 0
+    },
+    isUndone: false
+  };
+
+  entries.unshift(resetEntry);
+  writeLogEntries(entries);
+  saveStocks(stocks);
+
+  res.json({
+    success: true,
+    message: `Производство в цеху ${workshop} сброшено. Остатки сохранены.`,
+    previousStock: currentStock,
+    newStock: toClientStock(stocks[workshop])
+  });
+});
+
+// Daily statistics endpoint
+app.get('/api/daily-stats/:workshop', (req, res) => {
+  const { workshop } = req.params;
+  
+  if (!workshop) {
+    return res.status(400).json({ error: 'Укажите цех' });
+  }
+
+  const entries = readLogEntries();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Начало сегодняшнего дня
+  
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1); // Начало вчерашнего дня
+
+  // Фильтруем записи за сегодня и вчера
+  const todayEntries = entries.filter(entry => 
+    entry.workshop === workshop && 
+    new Date(entry.timestamp) >= today &&
+    !entry.isUndone
+  );
+
+  const yesterdayEntries = entries.filter(entry => 
+    entry.workshop === workshop && 
+    new Date(entry.timestamp) >= yesterday &&
+    new Date(entry.timestamp) < today &&
+    !entry.isUndone
+  );
+
+  // Считаем статистику
+  const calculateStats = (dayEntries) => {
+    let stockIn = { lahm: 0, kiyma: 0, dumba: 0 };
+    let stockOut = { lahm: 0, kiyma: 0, dumba: 0 };
+    let production = 0;
+    let productionCount = 0;
+
+    dayEntries.forEach(entry => {
+      if (entry.category === 'RAW') {
+        if (entry.type.includes('Приход')) {
+          stockIn.lahm += Number(entry.lahm || 0);
+          stockIn.kiyma += Number(entry.kiyma || 0);
+          stockIn.dumba += Number(entry.dumba || 0);
+        } else if (entry.type.includes('Расход') || entry.type.includes('Расход')) {
+          stockOut.lahm += Number(entry.lahm || 0);
+          stockOut.kiyma += Number(entry.kiyma || 0);
+          stockOut.dumba += Number(entry.dumba || 0);
+        }
+      } else if (entry.category === 'PROD') {
+        production += Number(entry.totalKg || 0);
+        productionCount += Number(entry.count || 0);
+      }
+    });
+
+    return {
+      stockIn,
+      stockOut,
+      production,
+      productionCount,
+      netStock: {
+        lahm: stockIn.lahm - stockOut.lahm,
+        kiyma: stockIn.kiyma - stockOut.kiyma,
+        dumba: stockIn.dumba - stockOut.dumba
+      }
+    };
+  };
+
+  const todayStats = calculateStats(todayEntries);
+  const yesterdayStats = calculateStats(yesterdayEntries);
+
+  res.json({
+    success: true,
+    today: {
+      date: today.toISOString().split('T')[0],
+      ...todayStats,
+      entriesCount: todayEntries.length
+    },
+    yesterday: {
+      date: yesterday.toISOString().split('T')[0],
+      ...yesterdayStats,
+      entriesCount: yesterdayEntries.length
+    }
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('=========================================');
