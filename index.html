@@ -915,11 +915,9 @@
 
         // Загружаем и отображаем остатки
       try {
-        const stockRes = await fetch(`/api/stocks/${encodeURIComponent(curWS)}`);
+        const stockRes = await fetch(`/api/get-stock/${encodeURIComponent(curWS)}`);
         const stockData = await stockRes.json();
-        if (stockData[curWS]) {
-          updateStockView(stockData[curWS]);
-        }
+        updateStockView(stockData);
       } catch (_error) {
         console.error('Failed to load stocks:', _error);
       }
@@ -1280,10 +1278,17 @@
     }
 
     function updTotal() {
-      const caliber = parseFloat(document.getElementById("pCal").value) || 0;
-      const count = parseFloat(document.getElementById("pCount").value) || 0;
-      const total = caliber * count;
-      document.getElementById("totalTxt").innerText = `Итого: ${Number.isInteger(total) ? total : total.toFixed(1)} кг`;
+      // Проверяем существование элементов (для старой совместимости)
+      const pCal = document.getElementById("pCal");
+      const pCount = document.getElementById("pCount");
+      const totalTxt = document.getElementById("totalTxt");
+      
+      if (pCal && pCount && totalTxt) {
+        const caliber = parseFloat(pCal.value) || 0;
+        const count = parseFloat(pCount.value) || 0;
+        const total = caliber * count;
+        totalTxt.innerText = `Итого: ${Number.isInteger(total) ? total : total.toFixed(1)} кг`;
+      }
     }
 
     function resetRawForm() {
@@ -1452,12 +1457,10 @@
       }
       
       // Обновляем остатки текущего цеха
-      fetch(`/api/stocks/${encodeURIComponent(curWS)}`)
+      fetch(`/api/get-stock/${encodeURIComponent(curWS)}`)
         .then(res => res.json())
         .then(data => {
-          if (data[curWS]) {
-            updateStockView(data[curWS]);
-          }
+          updateStockView(data);
         })
         .catch(err => console.error('Failed to update stock view:', err));
       
@@ -1679,7 +1682,7 @@
     });
 
     loadEmployees();
-    updTotal();
+  // updTotal(); // Удалено - больше не нужно при загрузке
   </script>
 </body>
 </html>
