@@ -1413,7 +1413,7 @@
             totalKg: prod.caliber * prod.count
           };
           
-          const usageByRecipe = calculateUsageByRecipe(prod.product, prod.caliber, prod.count);
+          const usageByRecipe = getUsageForCaliber(prod.product, prod.caliber, prod.count);
           if (usageByRecipe) {
             data.usage = {
               lahm: usageByRecipe.lahm,
