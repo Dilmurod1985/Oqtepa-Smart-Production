@@ -1430,5 +1430,36 @@
       "kiyma": 164,
       "dumba": 40
     }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir (ID: 11)",
+    "workerId": "11",
+    "product": "TURK 70/30",
+    "caliber": "10 кг",
+    "count": 20,
+    "totalKg": 200,
+    "usage": {
+      "lahm": 116,
+      "kiyma": 60,
+      "dumba": 24
+    },
+    "id": "entry_1777213585208_2ed3og",
+    "timestamp": "2026-04-26T14:26:25.210Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 758,
+      "shortageKiyma": 511,
+      "shortageDumba": 186
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 116,
+      "kiyma": 60,
+      "dumba": 24
+    }
   }
 ]

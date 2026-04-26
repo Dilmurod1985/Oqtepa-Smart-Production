@@ -966,6 +966,15 @@
       const totalKg = prodEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
       document.getElementById("prodTotalKg").textContent = `${totalKg.toFixed(1)} кг`;
 
+      // Считаем по типам продуктов
+      const byProduct = new Map();
+      prodEntries.forEach((item) => {
+        const key = item.product || "Без названия";
+        const prev = Number(byProduct.get(key) || 0);
+        byProduct.set(key, prev + Number(item.count || 0));
+      });
+
+      // Считаем по калибрам для доп информации
       const byCaliber = new Map();
       prodEntries.forEach((item) => {
         const key = String(item.caliber || "-").trim().replace(" кг", "") || "-";
@@ -973,6 +982,13 @@
         byCaliber.set(key, prev + Number(item.count || 0));
       });
 
+      // Формируем текст с типами продуктов
+      const productText = [...byProduct.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([product, qty]) => `${product}: ${qty} шт`)
+        .join(", ");
+
+      // Формируем текст с калибрами
       const caliberText = [...byCaliber.entries()]
         .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
         .map(([caliber, qty]) => {
@@ -982,7 +998,12 @@
         })
         .join(", ");
 
-      document.getElementById("prodCalibers").textContent = caliberText || "По калибрам: нет данных";
+      // Показываем сначала типы продуктов, потом калибры
+      const displayText = productText ? 
+        (productText + (caliberText ? ` (${caliberText})` : "")) : 
+        "По калибрам: нет данных";
+
+      document.getElementById("prodCalibers").textContent = displayText;
     }
 
     function renderHistoryList() {
