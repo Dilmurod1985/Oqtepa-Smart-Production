@@ -3,17 +3,17 @@
     "lahm": 0,
     "kiyma": 0,
     "dumba": 0,
-    "shortageLahm": 562,
-    "shortageKiyma": 347,
-    "shortageDumba": 146
+    "shortageLahm": 758,
+    "shortageKiyma": 511,
+    "shortageDumba": 186
   },
   "OQTEPA": {
-    "lahm": 35.8,
+    "lahm": 0,
     "kiyma": 0,
-    "dumba": 20.5,
-    "shortageLahm": 0,
-    "shortageKiyma": 50.3,
-    "shortageDumba": 0
+    "dumba": 0,
+    "shortageLahm": 186.2,
+    "shortageKiyma": 206.10000000000002,
+    "shortageDumba": 38
   },
   "VENDIS": {
     "lahm": 2,

@@ -637,7 +637,7 @@
       </div>
 
       <div id="prodSummaryCard" class="prod-summary-card">
-        <p class="prod-summary-title">Выпуск (отдельно от склада)</p>
+        <p class="prod-summary-title">Выпуск за сегодня</p>
         <p class="prod-summary-total">Общий тоннаж: <span id="prodTotalKg">0.0 кг</span></p>
         <p id="prodCalibers" class="prod-summary-calibers">По калибрам: нет данных</p>
       </div>
@@ -952,13 +952,23 @@
     }
 
     function updateProductionSummary(entries) {
-      const prodEntries = (entries || []).filter((item) => item.category === "PROD" && !item.isUndone);
+      // Фильтруем только сегодняшние записи
+      const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
+      const todayEnd = new Date(new Date().setHours(23, 59, 59, 999));
+      
+      const prodEntries = (entries || []).filter((item) => 
+        item.category === "PROD" && 
+        !item.isUndone &&
+        new Date(item.timestamp) >= todayStart &&
+        new Date(item.timestamp) <= todayEnd
+      );
+      
       const totalKg = prodEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
       document.getElementById("prodTotalKg").textContent = `${totalKg.toFixed(1)} кг`;
 
       const byCaliber = new Map();
       prodEntries.forEach((item) => {
-        const key = String(item.caliber || "-").trim() || "-";
+        const key = String(item.caliber || "-").trim().replace(" кг", "") || "-";
         const prev = Number(byCaliber.get(key) || 0);
         byCaliber.set(key, prev + Number(item.count || 0));
       });

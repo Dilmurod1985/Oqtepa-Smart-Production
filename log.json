@@ -1,5 +1,18 @@
 [
   {
+    "id": "reset_1777212766373_ptkdql7jb",
+    "category": "RESET",
+    "workshop": "OQTEPA",
+    "timestamp": "2026-04-26T14:12:46.373Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 35.8,
+      "kiyma": 0,
+      "dumba": 20.5
+    },
+    "isUndone": false
+  },
+  {
     "workshop": "ALLMAKON",
     "category": "RAW",
     "timestamp": "2026-04-20T09:58:10.513Z",
@@ -1354,6 +1367,68 @@
       "lahm": 0,
       "kiyma": 41,
       "dumba": 0
+    }
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Adullo brigadir (ID: 11)",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "caliber": "20 кг",
+    "count": 19,
+    "totalKg": 380,
+    "usage": {
+      "lahm": 186.2,
+      "kiyma": 155.8,
+      "dumba": 38
+    },
+    "id": "entry_1777212952298_lwd6t8",
+    "timestamp": "2026-04-26T14:15:52.298Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 50.3,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 186.2,
+      "kiyma": 155.8,
+      "dumba": 38
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir (ID: 11)",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "caliber": "20 кг",
+    "count": 20,
+    "totalKg": 400,
+    "usage": {
+      "lahm": 196,
+      "kiyma": 164,
+      "dumba": 40
+    },
+    "id": "entry_1777213075488_qb35i3",
+    "timestamp": "2026-04-26T14:17:55.489Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 562,
+      "shortageKiyma": 347,
+      "shortageDumba": 146
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 196,
+      "kiyma": 164,
+      "dumba": 40
     }
   }
 ]
