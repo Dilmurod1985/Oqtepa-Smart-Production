@@ -1461,6 +1461,9 @@
         })
         .catch(err => console.error('Failed to update stock view:', err));
       
+      // Обновляем статистику
+      await loadDailyStats();
+      
       document.querySelector('.history-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1562,8 +1565,11 @@
         const shortage = result.shortage || {};
         const shortageTotal = Number(shortage.lahm || 0) + Number(shortage.kiyma || 0) + Number(shortage.dumba || 0);
         
+        // Обновляем статистику после фиксации
+        await loadDailyStats();
+        
         // Special message for MISSION workshop
-        if (currentWorkshop === 'MISSION' && category === 'PROD') {
+        if (curWS === 'MISSION' && category === 'PROD') {
           const usage = data.usage || {};
           const takenFromOqtepa = `Взято со склада OQTEPA: Лахм ${Number(usage.lahm || 0).toFixed(1)} кг, Кийма ${Number(usage.kiyma || 0).toFixed(1)} кг, Думба ${Number(usage.dumba || 0).toFixed(1)} кг`;
           

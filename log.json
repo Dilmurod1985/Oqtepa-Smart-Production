@@ -1324,5 +1324,36 @@
       "dumba": 0
     },
     "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek (ID: 41)",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777210695633_01tsz6",
+    "timestamp": "2026-04-26T13:38:15.635Z",
+    "previousStock": {
+      "lahm": 84.8,
+      "kiyma": 0,
+      "dumba": 30.5,
+      "shortageLahm": 0,
+      "shortageKiyma": 9.299999999999997,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 41,
+      "dumba": 0
+    }
   }
 ]
