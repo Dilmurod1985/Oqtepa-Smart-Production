@@ -167,6 +167,22 @@
       font-weight: 700;
     }
 
+    .stats-calibers {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e1ecf7;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stats-calibers-text {
+      color: #6b80a0;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
     .prod-summary-card {
       margin-top: 12px;
       border-radius: 18px;
@@ -613,6 +629,10 @@
             <span class="stats-label">Кол-во:</span>
             <span class="stats-value" id="todayProductionCount">0 шт</span>
           </div>
+        </div>
+        <div class="stats-calibers">
+          <span class="stats-label">По калибрам:</span>
+          <span id="todayProductionCalibers" class="stats-calibers-text">нет данных</span>
         </div>
       </div>
 
@@ -1162,6 +1182,31 @@
           document.getElementById('todayStockOut').textContent = `${totalStockOut.toFixed(1)} кг`;
           document.getElementById('todayProduction').textContent = `${stats.production.toFixed(1)} кг`;
           document.getElementById('todayProductionCount').textContent = `${stats.productionCount} шт`;
+          
+          // Обновляем статистику по калибрам для сегодняшнего дня
+          const prodEntries = historyEntries.filter((item) => 
+            item.category === "PROD" && 
+            !item.isUndone &&
+            new Date(item.timestamp) >= new Date(new Date().setHours(0, 0, 0, 0))
+          );
+          
+          const byCaliber = new Map();
+          prodEntries.forEach((item) => {
+            const key = String(item.caliber || "-").trim().replace(" кг", "") || "-";
+            const prev = Number(byCaliber.get(key) || 0);
+            byCaliber.set(key, prev + Number(item.count || 0));
+          });
+
+          const caliberText = [...byCaliber.entries()]
+            .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+            .map(([caliber, qty]) => {
+              const caliberValue = parseFloat(String(caliber || "").replace(",", "."));
+              const caliberLabel = Number.isFinite(caliberValue) ? caliberValue : String(caliber || "-");
+              return `Калибр ${caliberLabel}: ${qty} шт`;
+            })
+            .join(", ");
+
+          document.getElementById('todayProductionCalibers').textContent = caliberText || "По калибрам: нет данных";
         }
       } catch (error) {
         console.error('Failed to load daily stats:', error);
