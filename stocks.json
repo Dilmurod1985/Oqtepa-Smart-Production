@@ -3,17 +3,17 @@
     "lahm": 0,
     "kiyma": 0,
     "dumba": 0,
-    "shortageLahm": 874,
-    "shortageKiyma": 571,
-    "shortageDumba": 210
+    "shortageLahm": 0,
+    "shortageKiyma": 0,
+    "shortageDumba": 0
   },
   "OQTEPA": {
     "lahm": 0,
     "kiyma": 0,
     "dumba": 0,
-    "shortageLahm": 186.2,
-    "shortageKiyma": 206.10000000000002,
-    "shortageDumba": 38
+    "shortageLahm": 0,
+    "shortageKiyma": 0,
+    "shortageDumba": 0
   },
   "VENDIS": {
     "lahm": 2,
@@ -28,8 +28,8 @@
     "kiyma": 0,
     "dumba": 0,
     "shortageLahm": 0,
-    "shortageKiyma": 98,
-    "shortageDumba": 2
+    "shortageKiyma": 0,
+    "shortageDumba": 0
   },
   "MISSION": {
     "lahm": 2,

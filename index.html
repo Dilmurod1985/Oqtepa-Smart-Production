@@ -606,6 +606,28 @@
       font-size: 14px;
     }
 
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--text);
+      color: white;
+    }
+
     .btn-small {
       padding: 8px 16px;
       font-size: 14px;
@@ -961,7 +983,7 @@
                   <option value="WENDY'S 50/50">WENDY'S 50/50</option>
                   <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
                 </select>
-                <input type="text" class="pFirm" placeholder="Фирма" oninput="updateProductTotal(0)" />
+                <input type="text" class="pFirm" placeholder="Фирма *" required oninput="updateProductTotal(0)" />
                 <button class="btn-qr btn-small" onclick="generateProductQR(0)" type="button" title="Сгенерировать QR-код товара">🏷</button>
               </div>
               <div class="field-grid">
@@ -1146,8 +1168,23 @@
       document.getElementById("wsTitle").innerText = name;
       setWorkerDisplay("Не выбран");
       showStatus(`Открыт цех ${name}. Новые записи будут появляться в блоке "Последние действия".`);
+      
+      // Auto-fill firm fields with current workshop
+      updateAllFirmFields(name);
+      
       await Promise.all([refreshStock(), loadHistory(), loadEmployees()]);
       setM("PROD");
+    }
+    
+    function updateAllFirmFields(firmName) {
+      // Update all existing firm input fields
+      document.querySelectorAll('.pFirm').forEach(input => {
+        input.value = firmName;
+      });
+      
+      // Store current firm for new products
+      window.currentFirm = firmName;
+      localStorage.setItem('currentFirm', firmName);
     }
 
     function goHome() {
@@ -1680,7 +1717,7 @@
             <option value="WENDY'S 50/50">WENDY'S 50/50</option>
             <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
           </select>
-          <input type="text" class="pFirm" placeholder="Фирма" oninput="updateProductTotal(${newIndex})" />
+          <input type="text" class="pFirm" placeholder="Фирма *" required value="${window.currentFirm || curWS || ''}" oninput="updateProductTotal(${newIndex})" />
           <button class="btn-qr btn-small" onclick="generateProductQR(${newIndex})" type="button" title="Сгенерировать QR-код товара">🏷</button>
         </div>
         <div class="field-grid">
@@ -2050,19 +2087,121 @@
     }
 
     function showQRGenerator() {
-      const generator = document.getElementById('qrGenerator');
-      if (generator) {
-        generator.classList.toggle('hidden');
+      // Check if employee is already selected
+      const employeeName = document.getElementById('wSearch').value;
+      const employeeId = document.getElementById('wId').value;
+      
+      if (employeeName && employeeId) {
+        // Employee is selected, generate QR directly
+        generateEmployeeQRDirect(employeeName, employeeId);
       } else {
-        // Create QR generator modal if it doesn't exist
-        createQRGenerator();
+        // No employee selected, show regular generator
+        const generator = document.getElementById('qrGenerator');
+        if (generator) {
+          generator.classList.toggle('hidden');
+        } else {
+          createQRGenerator();
+        }
       }
+    }
+    
+    function generateEmployeeQRDirect(employeeName, employeeId) {
+      // Generate unique employee ID 
+      const qrEmployeeId = 'EMP_' + employeeName.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+      
+      // QR code data containing employee info
+      const qrData = JSON.stringify({
+        id: qrEmployeeId,
+        name: employeeName,
+        type: 'employee'
+      });
+      
+      // Create modal with pre-filled data
+      createEmployeeQRModalDirect(employeeName, employeeId, qrData, qrEmployeeId);
+    }
+    
+    function createEmployeeQRModalDirect(employeeName, employeeId, qrData, qrEmployeeId) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById('qrGenerator');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'qrGenerator';
+      modal.className = 'qr-generator-modal';
+      modal.innerHTML = `
+        <div class="qr-generator-content">
+          <div class="qr-generator-header">
+            <h4>🏷 QR-код сотрудника</h4>
+            <button class="btn-close" onclick="showQRGenerator()">×</button>
+          </div>
+          <div class="qr-generator-body">
+            <div class="product-info">
+              <p><strong>Сотрудник:</strong> ${employeeName}</p>
+              <p><strong>ID:</strong> ${employeeId}</p>
+            </div>
+            <div id="qrCodeDisplay" class="qr-code-display"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Generate QR code
+      setTimeout(() => {
+        const qrDisplay = document.getElementById('qrCodeDisplay');
+        qrDisplay.innerHTML = '';
+        
+        const canvas = document.createElement('canvas');
+        canvas.id = 'qrGeneratorCanvas';
+        qrDisplay.appendChild(canvas);
+        
+        QRCode.toCanvas(canvas, qrData, {
+          width: 300,
+          margin: 4,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        }, function (error) {
+          if (error) {
+            console.error('QR code generation error:', error);
+            qrDisplay.innerHTML = '<p class="error">Ошибка генерации QR-кода</p>';
+            return;
+          }
+          
+          // Add download button
+          const infoDiv = document.createElement('div');
+          infoDiv.className = 'qr-info';
+          infoDiv.innerHTML = `
+            <p><strong>ID:</strong> ${qrEmployeeId}</p>
+            <button class="btn-primary btn-small" onclick="downloadQR('${qrEmployeeId}', '${employeeName}')">
+              📥 Скачать QR-код
+            </button>
+          `;
+          qrDisplay.appendChild(infoDiv);
+          
+          showStatus('QR-код сотрудника создан', 'success');
+          
+          // Auto-close modal after 3 seconds
+          setTimeout(() => {
+            const modal = document.getElementById('qrGenerator');
+            if (modal) {
+              modal.remove();
+            }
+          }, 3000);
+        });
+      }, 100);
     }
 
     function startQRScanner() {
       const video = document.getElementById('qrVideo');
       const canvas = document.getElementById('qrScannerCanvas');
       const context = canvas.getContext('2d', { willReadFrequently: true });
+      
+      // Add scanning indicator
+      showStatus('Наведите камеру на QR-код...', 'info');
       
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -2093,6 +2232,7 @@
         
         if (code) {
           // QR code found
+          console.log('QR code detected in scanner');
           handleQRCodeData(code.data);
           return; // Stop scanning
         }
@@ -2104,27 +2244,152 @@
     
     function handleQRCodeData(qrData) {
       try {
+        console.log('QR Data received:', qrData);
         const data = JSON.parse(qrData);
+        console.log('Parsed QR data:', data);
         
-        if (data.type === 'employee' && data.name && data.id) {
-          // Auto-select employee
-          selectEmployeeByQR(data);
+        // Simple validation: if it has name and id, it's valid
+        if (!data.name || !data.id) {
+          console.log('Invalid QR code - missing name or id:', data);
+          showStatus('Недействительный QR-код', 'error');
+          return;
+        }
+        
+        // Determine type: explicit product or default to employee
+        if (data.type === 'product') {
+          // Handle product QR code
+          console.log('Product QR detected:', data.name);
+          handleProductQR(data);
           toggleQRScanner(); // Close scanner
         } else {
-          showStatus('Недействительный QR-код сотрудника', 'error');
+          // Default to employee (both old and new employee QR codes)
+          console.log('Employee QR detected:', data.name);
+          selectEmployeeByQR(data);
+          toggleQRScanner(); // Close scanner
         }
       } catch (error) {
+        console.error('QR parsing error:', error);
+        console.error('Raw QR data that failed:', qrData);
         showStatus('Ошибка чтения QR-кода', 'error');
       }
+    }
+    
+    function handleProductQR(productData) {
+      // Show product information modal
+      createProductScannedModal(productData);
+    }
+    
+    function createProductScannedModal(productData) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById('scannedProductModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Handle old QR codes (without firm field)
+      const firm = productData.firm || '';
+      const productType = productData.productType || productData.name || '';
+      const displayName = firm ? `${firm} ${productType}` : productType;
+      
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'scannedProductModal';
+      modal.className = 'qr-generator-modal';
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeScannedProductModal();
+        }
+      };
+      modal.innerHTML = `
+        <div class="qr-generator-content">
+          <div class="qr-generator-header">
+            <h4>📦 Отсканированный товар</h4>
+            <button class="btn-close" onclick="closeScannedProductModal()">×</button>
+          </div>
+          <div class="qr-generator-body">
+            <div class="product-info">
+              <p><strong>Товар:</strong> ${displayName}</p>
+              <p><strong>Тип:</strong> ${productType}</p>
+              ${firm ? `<p><strong>Фирма:</strong> ${firm}</p>` : '<p style="color: orange;"><strong>Фирма:</strong> не указана</p>'}
+              <p><strong>Калибр:</strong> ${productData.caliber} кг</p>
+              <p><strong>Количество:</strong> ${productData.count} шт</p>
+              <p><strong>Итого:</strong> ${productData.totalKg} кг</p>
+            </div>
+            <div class="modal-actions">
+              <button class="btn-primary" onclick="addScannedProductToForm('${displayName}', '${productType}', '${firm}', '${productData.caliber}', '${productData.count}')">
+                ➕ Добавить в форму
+              </button>
+              <button class="btn-secondary" onclick="closeScannedProductModal()">
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      showStatus('Товар отсканирован', 'success');
+    }
+    
+    function closeScannedProductModal() {
+      const modal = document.getElementById('scannedProductModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    function addScannedProductToForm(fullName, productType, firm, caliber, count) {
+      // Get the first empty product item or create new one
+      const productItems = document.querySelectorAll('.product-item');
+      let targetItem = null;
+      
+      // Find first empty item or use the last one
+      for (let item of productItems) {
+        const pType = item.querySelector('.pType').value;
+        const pCal = item.querySelector('.pCal').value;
+        const pCount = item.querySelector('.pCount').value;
+        
+        if (!pType && !pCal && !pCount) {
+          targetItem = item;
+          break;
+        }
+      }
+      
+      // If no empty item, create new one
+      if (!targetItem) {
+        addProductItem();
+        targetItem = document.querySelector('.product-item:last-child');
+      }
+      
+      // Fill the form
+      const index = targetItem.getAttribute('data-index');
+      targetItem.querySelector('.pType').value = productType;
+      targetItem.querySelector('.pFirm').value = firm;
+      targetItem.querySelector('.pCal').value = caliber;
+      targetItem.querySelector('.pCount').value = count;
+      
+      // Update totals
+      updateProductTotal(index);
+      updateOverallTotal();
+      
+      // Close modal
+      closeScannedProductModal();
+      
+      showStatus(`Товар "${fullName}" добавлен в форму`, 'success');
     }
     
     function selectEmployeeByQR(employeeData) {
       // Find employee in the list
       const employees = getAllEmployees();
+      console.log('Available employees:', employees);
+      console.log('Looking for:', employeeData);
+      
       const employee = employees.find(emp => 
         emp.name.toLowerCase() === employeeData.name.toLowerCase() ||
         emp.id === employeeData.id
       );
+      
+      console.log('Found employee:', employee);
       
       if (employee) {
         // Select employee
@@ -2167,10 +2432,8 @@
     
     function getAllEmployees() {
       // Get all employees from the system
-      const workerList = document.getElementById('workerList');
-      // This should return the list of employees
-      // Implementation depends on how you store employees
-      return window.employees || [];
+      console.log('Current employees array:', employees);
+      return employees || [];
     }
     
     async function saveEmployee(employee) {
@@ -2301,6 +2564,17 @@
       const count = productItem.querySelector('.pCount').value || '0';
       const totalKg = productItem.querySelector('.productKg').textContent || '0';
       
+      // Check if product is configured
+      if (!productType) {
+        showStatus('Выберите тип товара', 'error');
+        return;
+      }
+      
+      if (!firm) {
+        showStatus('Введите фирму товара', 'error');
+        return;
+      }
+      
       // Generate unique product ID
       const productId = 'PROD_' + productType.replace(/\s+/g, '_') + '_' + Date.now();
       
@@ -2319,6 +2593,8 @@
         totalKg: totalKg
       });
       
+      console.log('Generated QR data for product:', qrData);
+      
       // Create modal for product QR
       createProductQRModal(fullProductName, caliber, count, totalKg, qrData, productId);
     }
@@ -2330,10 +2606,23 @@
         existingModal.remove();
       }
       
+      // Parse product data to get firm info
+      let productData;
+      try {
+        productData = JSON.parse(qrData);
+      } catch(e) {
+        productData = {};
+      }
+      
       // Create modal
       const modal = document.createElement('div');
       modal.id = 'productQRModal';
       modal.className = 'qr-generator-modal';
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeProductQRModal();
+        }
+      };
       modal.innerHTML = `
         <div class="qr-generator-content">
           <div class="qr-generator-header">
@@ -2343,6 +2632,8 @@
           <div class="qr-generator-body">
             <div class="product-info">
               <p><strong>Товар:</strong> ${fullProductName}</p>
+              ${productData.firm ? `<p><strong>Фирма:</strong> ${productData.firm}</p>` : ''}
+              <p><strong>Тип:</strong> ${productData.productType || 'N/A'}</p>
               <p><strong>Калибр:</strong> ${caliber} кг</p>
               <p><strong>Количество:</strong> ${count} шт</p>
               <p><strong>Итого:</strong> ${totalKg} кг</p>
@@ -2363,10 +2654,10 @@
         qrDisplay.appendChild(canvas);
         
         QRCode.toCanvas(canvas, qrData, {
-          width: 200,
-          margin: 2,
+          width: 300,
+          margin: 4,
           color: {
-            dark: '#20324f',
+            dark: '#000000',
             light: '#ffffff'
           }
         }, function (error) {
@@ -2384,6 +2675,11 @@
           qrDisplay.appendChild(downloadBtn);
           
           showStatus('QR-код товара создан', 'success');
+          
+          // Auto-close modal after 3 seconds
+          setTimeout(() => {
+            closeProductQRModal();
+          }, 3000);
         });
       }, 100);
     }
@@ -2409,6 +2705,13 @@
     }
 
     loadEmployees();
+    
+    // Load saved firm on page load
+    const savedFirm = localStorage.getItem('currentFirm');
+    if (savedFirm) {
+      window.currentFirm = savedFirm;
+    }
+    
   // updTotal(); // Удалено - больше не нужно при загрузке
   </script>
 </body>

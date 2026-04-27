@@ -1,5 +1,18 @@
 [
   {
+    "id": "reset_1777290647715_i1nrmh284",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-04-27T11:50:47.717Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
     "id": "reset_1777212766373_ptkdql7jb",
     "category": "RESET",
     "workshop": "OQTEPA",
@@ -1461,5 +1474,62 @@
       "kiyma": 60,
       "dumba": 24
     }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "id": "entry_1777290661746_2017in",
+    "timestamp": "2026-04-27T11:51:01.747Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 874,
+      "shortageKiyma": 571,
+      "shortageDumba": 210
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "OQTEPA",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "id": "entry_1777290682275_f9ejnn",
+    "timestamp": "2026-04-27T11:51:22.276Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 186.2,
+      "shortageKiyma": 206.10000000000002,
+      "shortageDumba": 38
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "WENDY'S",
+    "category": "RAW",
+    "type": "Остаток утро",
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "id": "entry_1777290707004_ifrums",
+    "timestamp": "2026-04-27T11:51:47.005Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 98,
+      "shortageDumba": 2
+    },
+    "isUndone": false
   }
 ]
