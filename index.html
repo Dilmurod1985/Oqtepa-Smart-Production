@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
   <title>Oqtepa Smart Production</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     :root {
       --surface: #ffffff;
@@ -403,6 +405,239 @@
     }
 
     .search-box { position: relative; }
+
+    /* QR Button Styles */
+    .btn-qr {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+      margin-right: 8px;
+    }
+
+    .btn-qr:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    /* QR Scanner Styles */
+    .qr-scanner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 4000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .qr-scanner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .qr-scanner-header h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .btn-close {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .qr-video {
+      width: 100%;
+      max-width: 400px;
+      height: 300px;
+      border-radius: 12px;
+      border: 2px solid #667eea;
+      position: relative;
+    }
+
+    .qr-scanner-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 3px solid #4CAF50;
+      border-radius: 12px;
+      pointer-events: none;
+      animation: pulse 2s infinite;
+    }
+
+    .qr-scanner-overlay::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border: 3px solid transparent;
+      border-top-color: #4CAF50;
+      border-radius: 12px;
+      animation: scan 2s linear infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes scan {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .qr-scanning-hint {
+      color: white;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .qr-result {
+      margin-top: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      color: #333;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* QR Generator Styles */
+    .qr-generator-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .qr-generator-content {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .qr-generator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-top);
+      color: white;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .qr-generator-header h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .qr-generator-body {
+      padding: 20px;
+    }
+
+    .qr-code-display {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .qr-info {
+      margin-top: 15px;
+      padding: 15px;
+      background: var(--surface-muted);
+      border-radius: 8px;
+      text-align: left;
+    }
+
+    .qr-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .qr-codes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      padding: 15px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .qr-code-item {
+      text-align: center;
+      padding: 15px;
+      border: 2px solid #e1ecf7;
+      border-radius: 12px;
+      background: #f9fcff;
+    }
+
+    .qr-code-item h5 {
+      margin: 0 0 10px;
+      color: #20324f;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .qr-code-item .qr-id {
+      color: #6b80a0;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .qr-code-item .qr-code {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+      border: 1px solid #dce6f5;
+      padding: 5px;
+      background: white;
+      border-radius: 8px;
+    }
     #workerList {
       position: absolute;
       top: calc(100% + 6px);
@@ -674,6 +909,8 @@
             <div id="workerList" class="hidden"></div>
           </div>
           <input type="hidden" id="wId" />
+          <button class="btn-qr" onclick="toggleQRScanner()" type="button">📷 QR-код</button>
+          <button class="btn-qr" onclick="showQRGenerator()" type="button">🏷 Генерировать QR</button>
           <button class="btn-ghost" type="button" onclick="toggleEmployeeForm()">+ Добавить нового сотрудника</button>
         </div>
 
@@ -749,6 +986,32 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div id="qrScanner" class="qr-scanner hidden">
+    <div class="qr-scanner-header">
+      <h4>📷 Сканирование QR-кода сотрудника</h4>
+      <button class="btn-close" onclick="toggleQRScanner()" type="button">×</button>
+    </div>
+    <div style="position: relative;">
+      <video id="qrVideo" class="qr-video"></video>
+      <div class="qr-scanner-overlay"></div>
+    </div>
+    <canvas id="qrScannerCanvas" class="hidden"></canvas>
+    <div class="qr-scanning-hint">Наведите камеру на QR-код сотрудника</div>
+    <div id="qrResult" class="qr-result"></div>
+  </div>
+
+  <!-- QR Generator Modal -->
+  <div id="qrModal" class="history-modal hidden" onclick="onQRModalBackdrop(event)">
+    <div class="history-modal-card">
+      <div class="history-modal-head">
+        <h4 class="history-modal-title">🏷 QR-коды сотрудников</h4>
+        <button class="history-close" type="button" onclick="closeQRModal()">&times;</button>
+      </div>
+      <div id="qrCodesList" class="qr-codes-grid"></div>
+    </div>
   </div>
 
   <script>
@@ -1756,6 +2019,261 @@
         document.getElementById("workerList").classList.add("hidden");
       }
     });
+
+    function toggleQRScanner() {
+      const scanner = document.getElementById('qrScanner');
+      scanner.classList.toggle('hidden');
+      
+      if (!scanner.classList.contains('hidden')) {
+        // Start camera for QR scanning
+        startQRScanner();
+      } else {
+        // Stop camera
+        stopQRScanner();
+      }
+    }
+
+    function showQRGenerator() {
+      const generator = document.getElementById('qrGenerator');
+      if (generator) {
+        generator.classList.toggle('hidden');
+      } else {
+        // Create QR generator modal if it doesn't exist
+        createQRGenerator();
+      }
+    }
+
+    function startQRScanner() {
+      const video = document.getElementById('qrVideo');
+      const canvas = document.getElementById('qrScannerCanvas');
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+            
+            // Start scanning loop
+            scanQRCode(video, canvas, context);
+          })
+          .catch(function(error) {
+            console.error('Error accessing camera:', error);
+            showStatus('Ошибка доступа к камере', 'error');
+          });
+      }
+    }
+    
+    function scanQRCode(video, canvas, context) {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+        
+        if (code) {
+          // QR code found
+          handleQRCodeData(code.data);
+          return; // Stop scanning
+        }
+      }
+      
+      // Continue scanning
+      requestAnimationFrame(() => scanQRCode(video, canvas, context));
+    }
+    
+    function handleQRCodeData(qrData) {
+      try {
+        const data = JSON.parse(qrData);
+        
+        if (data.type === 'employee' && data.name && data.id) {
+          // Auto-select employee
+          selectEmployeeByQR(data);
+          toggleQRScanner(); // Close scanner
+        } else {
+          showStatus('Недействительный QR-код сотрудника', 'error');
+        }
+      } catch (error) {
+        showStatus('Ошибка чтения QR-кода', 'error');
+      }
+    }
+    
+    function selectEmployeeByQR(employeeData) {
+      // Find employee in the list
+      const employees = getAllEmployees();
+      const employee = employees.find(emp => 
+        emp.name.toLowerCase() === employeeData.name.toLowerCase() ||
+        emp.id === employeeData.id
+      );
+      
+      if (employee) {
+        // Select employee
+        document.getElementById('wSearch').value = employee.name;
+        document.getElementById('wId').value = employee.id;
+        
+        // Hide worker list
+        document.getElementById('workerList').classList.add('hidden');
+        
+        showStatus(`Сотрудник ${employee.name} выбран`, 'success');
+      } else {
+        // Employee not found - offer to add
+        if (confirm(`Сотрудник "${employeeData.name}" не найден. Добавить нового?`)) {
+          addEmployeeFromQR(employeeData);
+        }
+      }
+    }
+    
+    function addEmployeeFromQR(employeeData) {
+      // Add new employee to the system
+      const newEmployee = {
+        id: employeeData.id,
+        name: employeeData.name,
+        active: true
+      };
+      
+      // Here you would save to server
+      saveEmployee(newEmployee).then(() => {
+        // Select the new employee
+        document.getElementById('wSearch').value = newEmployee.name;
+        document.getElementById('wId').value = newEmployee.id;
+        document.getElementById('workerList').classList.add('hidden');
+        
+        showStatus(`Новый сотрудник ${newEmployee.name} добавлен и выбран`, 'success');
+        loadEmployees(); // Refresh employee list
+      }).catch(error => {
+        showStatus('Ошибка добавления сотрудника', 'error');
+      });
+    }
+    
+    function getAllEmployees() {
+      // Get all employees from the system
+      const workerList = document.getElementById('workerList');
+      // This should return the list of employees
+      // Implementation depends on how you store employees
+      return window.employees || [];
+    }
+    
+    async function saveEmployee(employee) {
+      // Save employee to server
+      const response = await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(employee)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save employee');
+      }
+      
+      return response.json();
+    }
+
+    function stopQRScanner() {
+      const video = document.getElementById('qrVideo');
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+    }
+
+    function createQRGenerator() {
+      // Create QR generator modal
+      const modal = document.createElement('div');
+      modal.id = 'qrGenerator';
+      modal.className = 'qr-generator-modal';
+      modal.innerHTML = `
+        <div class="qr-generator-content">
+          <div class="qr-generator-header">
+            <h4>🏷 Генератор QR-кода</h4>
+            <button class="btn-close" onclick="showQRGenerator()">×</button>
+          </div>
+          <div class="qr-generator-body">
+            <div class="field">
+              <label for="qrEmployeeName">Имя сотрудника</label>
+              <input type="text" id="qrEmployeeName" placeholder="Введите имя сотрудника">
+            </div>
+            <button class="btn-primary" onclick="generateEmployeeQR()">Сгенерировать QR</button>
+            <div id="qrCodeDisplay" class="qr-code-display"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function generateEmployeeQR() {
+      const employeeName = document.getElementById('qrEmployeeName').value;
+      if (!employeeName) {
+        showStatus('Введите имя сотрудника', 'error');
+        return;
+      }
+      
+      // Generate unique employee ID based on name
+      const employeeId = 'EMP_' + employeeName.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+      
+      // QR code data containing employee info
+      const qrData = JSON.stringify({
+        id: employeeId,
+        name: employeeName,
+        type: 'employee'
+      });
+      
+      const qrDisplay = document.getElementById('qrCodeDisplay');
+      
+      // Clear previous QR code
+      qrDisplay.innerHTML = '';
+      
+      // Create canvas for QR code
+      const canvas = document.createElement('canvas');
+      canvas.id = 'qrGeneratorCanvas';
+      qrDisplay.appendChild(canvas);
+      
+      // Generate real QR code
+      QRCode.toCanvas(canvas, qrData, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#20324f',
+          light: '#ffffff'
+        }
+      }, function (error) {
+        if (error) {
+          console.error('QR code generation error:', error);
+          qrDisplay.innerHTML = '<p class="error">Ошибка генерации QR-кода</p>';
+          return;
+        }
+        
+        // Add employee info and download button
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'qr-info';
+        infoDiv.innerHTML = `
+          <p><strong>Сотрудник:</strong> ${employeeName}</p>
+          <p><strong>ID:</strong> ${employeeId}</p>
+          <button class="btn-primary btn-small" onclick="downloadQR('${employeeId}', '${employeeName}')">
+            � Скачать QR-код
+          </button>
+        `;
+        qrDisplay.appendChild(infoDiv);
+        
+        showStatus('QR-код успешно создан', 'success');
+      });
+    }
+    
+    function downloadQR(employeeId, employeeName) {
+      const canvas = document.getElementById('qrGeneratorCanvas');
+      if (!canvas) return;
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `QR_${employeeName.replace(/\s+/g, '_')}_${employeeId}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      showStatus('QR-код скачан', 'success');
+    }
 
     loadEmployees();
   // updTotal(); // Удалено - больше не нужно при загрузке

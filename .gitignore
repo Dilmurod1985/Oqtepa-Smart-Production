@@ -1,9 +1,39 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
-.vs/
+.env.local
+.env.production
+
+# Logs
+log.json
+*.log
+
+# Runtime data
+stocks.json
 .DS_Store
-Oqtepa Smart Production/
+
+# IDE and editor files
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # Exclude git metadata and nested git repositories
 .git/
 **/.git/
+
+# Bytecoder cache
+.bytecoder/
 
