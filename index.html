@@ -594,6 +594,18 @@
       font-size: 14px;
     }
 
+    .product-info {
+      background: var(--surface-muted);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .product-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
     .btn-small {
       padding: 8px 16px;
       font-size: 14px;
@@ -949,6 +961,8 @@
                   <option value="WENDY'S 50/50">WENDY'S 50/50</option>
                   <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
                 </select>
+                <input type="text" class="pFirm" placeholder="Фирма" oninput="updateProductTotal(0)" />
+                <button class="btn-qr btn-small" onclick="generateProductQR(0)" type="button" title="Сгенерировать QR-код товара">🏷</button>
               </div>
               <div class="field-grid">
                 <div class="field">
@@ -1666,6 +1680,8 @@
             <option value="WENDY'S 50/50">WENDY'S 50/50</option>
             <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
           </select>
+          <input type="text" class="pFirm" placeholder="Фирма" oninput="updateProductTotal(${newIndex})" />
+          <button class="btn-qr btn-small" onclick="generateProductQR(${newIndex})" type="button" title="Сгенерировать QR-код товара">🏷</button>
         </div>
         <div class="field-grid">
           <div class="field">
@@ -2273,6 +2289,123 @@
       link.click();
       
       showStatus('QR-код скачан', 'success');
+    }
+
+    function generateProductQR(productIndex) {
+      const productItem = document.querySelector(`[data-index="${productIndex}"]`);
+      if (!productItem) return;
+      
+      const productType = productItem.querySelector('.pType').value;
+      const firm = productItem.querySelector('.pFirm').value || '';
+      const caliber = productItem.querySelector('.pCal').value || '0';
+      const count = productItem.querySelector('.pCount').value || '0';
+      const totalKg = productItem.querySelector('.productKg').textContent || '0';
+      
+      // Generate unique product ID
+      const productId = 'PROD_' + productType.replace(/\s+/g, '_') + '_' + Date.now();
+      
+      // Create full product name with firm
+      const fullProductName = firm ? `${firm} ${productType}` : productType;
+      
+      // QR code data containing product info
+      const qrData = JSON.stringify({
+        id: productId,
+        type: 'product',
+        name: fullProductName,
+        productType: productType,
+        firm: firm,
+        caliber: caliber,
+        count: count,
+        totalKg: totalKg
+      });
+      
+      // Create modal for product QR
+      createProductQRModal(fullProductName, caliber, count, totalKg, qrData, productId);
+    }
+    
+    function createProductQRModal(fullProductName, caliber, count, totalKg, qrData, productId) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById('productQRModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'productQRModal';
+      modal.className = 'qr-generator-modal';
+      modal.innerHTML = `
+        <div class="qr-generator-content">
+          <div class="qr-generator-header">
+            <h4>🏷 QR-код товара</h4>
+            <button class="btn-close" onclick="closeProductQRModal()">×</button>
+          </div>
+          <div class="qr-generator-body">
+            <div class="product-info">
+              <p><strong>Товар:</strong> ${fullProductName}</p>
+              <p><strong>Калибр:</strong> ${caliber} кг</p>
+              <p><strong>Количество:</strong> ${count} шт</p>
+              <p><strong>Итого:</strong> ${totalKg} кг</p>
+            </div>
+            <div id="productQRCodeDisplay" class="qr-code-display"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Generate QR code
+      setTimeout(() => {
+        const qrDisplay = document.getElementById('productQRCodeDisplay');
+        qrDisplay.innerHTML = '';
+        
+        const canvas = document.createElement('canvas');
+        canvas.id = 'productQRCanvas';
+        qrDisplay.appendChild(canvas);
+        
+        QRCode.toCanvas(canvas, qrData, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#20324f',
+            light: '#ffffff'
+          }
+        }, function (error) {
+          if (error) {
+            console.error('QR code generation error:', error);
+            qrDisplay.innerHTML = '<p class="error">Ошибка генерации QR-кода</p>';
+            return;
+          }
+          
+          // Add download button
+          const downloadBtn = document.createElement('button');
+          downloadBtn.className = 'btn-primary btn-small';
+          downloadBtn.textContent = '📥 Скачать QR-код';
+          downloadBtn.onclick = () => downloadProductQR(productId, fullProductName);
+          qrDisplay.appendChild(downloadBtn);
+          
+          showStatus('QR-код товара создан', 'success');
+        });
+      }, 100);
+    }
+    
+    function closeProductQRModal() {
+      const modal = document.getElementById('productQRModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    function downloadProductQR(productId, fullProductName) {
+      const canvas = document.getElementById('productQRCanvas');
+      if (!canvas) return;
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `QR_Product_${fullProductName.replace(/\s+/g, '_')}_${productId}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      showStatus('QR-код товара скачан', 'success');
     }
 
     loadEmployees();
