@@ -2109,12 +2109,9 @@
       // Generate unique employee ID 
       const qrEmployeeId = 'EMP_' + employeeName.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
       
-      // QR code data containing employee info
-      const qrData = JSON.stringify({
-        id: qrEmployeeId,
-        name: employeeName,
-        type: 'employee'
-      });
+      // QR code data in compact format for small labels
+      const compactName = employeeName.length > 15 ? employeeName.substring(0, 15) : employeeName;
+      const qrData = `${compactName} | ID${employeeId}`;
       
       // Create modal with pre-filled data
       createEmployeeQRModalDirect(employeeName, employeeId, qrData, qrEmployeeId);
@@ -2158,8 +2155,8 @@
         qrDisplay.appendChild(canvas);
         
         QRCode.toCanvas(canvas, qrData, {
-          width: 300,
-          margin: 4,
+          width: 150,
+          margin: 2,
           color: {
             dark: '#000000',
             light: '#ffffff'
@@ -2171,15 +2168,30 @@
             return;
           }
           
-          // Add download button
+          // Add download buttons
           const infoDiv = document.createElement('div');
           infoDiv.className = 'qr-info';
-          infoDiv.innerHTML = `
-            <p><strong>ID:</strong> ${qrEmployeeId}</p>
-            <button class="btn-primary btn-small" onclick="downloadQR('${qrEmployeeId}', '${employeeName}')">
-              📥 Скачать QR-код
-            </button>
-          `;
+          
+          const idText = document.createElement('p');
+          idText.innerHTML = `<strong>ID:</strong> ${qrEmployeeId}`;
+          infoDiv.appendChild(idText);
+          
+          const buttonsDiv = document.createElement('div');
+          buttonsDiv.className = 'modal-actions';
+          
+          const qrBtn = document.createElement('button');
+          qrBtn.className = 'btn-primary btn-small';
+          qrBtn.textContent = '📥 Скачать QR-код';
+          qrBtn.onclick = () => downloadQR(qrEmployeeId, employeeName);
+          buttonsDiv.appendChild(qrBtn);
+          
+          const labelBtn = document.createElement('button');
+          labelBtn.className = 'btn-primary btn-small';
+          labelBtn.textContent = '🏷️ Скачать этикетка';
+          labelBtn.onclick = () => downloadEmployeeLabel(employeeName, employeeId);
+          buttonsDiv.appendChild(labelBtn);
+          
+          infoDiv.appendChild(buttonsDiv);
           qrDisplay.appendChild(infoDiv);
           
           showStatus('QR-код сотрудника создан', 'success');
@@ -2245,27 +2257,44 @@
     function handleQRCodeData(qrData) {
       try {
         console.log('QR Data received:', qrData);
-        const data = JSON.parse(qrData);
-        console.log('Parsed QR data:', data);
         
-        // Simple validation: if it has name and id, it's valid
-        if (!data.name || !data.id) {
-          console.log('Invalid QR code - missing name or id:', data);
-          showStatus('Недействительный QR-код', 'error');
-          return;
-        }
-        
-        // Determine type: explicit product or default to employee
-        if (data.type === 'product') {
-          // Handle product QR code
-          console.log('Product QR detected:', data.name);
-          handleProductQR(data);
-          toggleQRScanner(); // Close scanner
+        // Check if it's human-readable format (contains | separator)
+        if (qrData.includes('|')) {
+          // Human-readable format
+          if (qrData.includes('кг') && !qrData.includes('ID')) {
+            // Product format: "ALLMAKON DONER50/50 | 5кг"
+            console.log('Product QR detected (human format):', qrData);
+            handleProductQRFromText(qrData);
+            toggleQRScanner(); // Close scanner
+          } else if (qrData.includes('ID')) {
+            // Employee format: "Абдулло | ID11"
+            console.log('Employee QR detected (human format):', qrData);
+            handleEmployeeQRFromText(qrData);
+            toggleQRScanner(); // Close scanner
+          } else {
+            showStatus('Неизвестный формат QR-кода', 'error');
+          }
         } else {
-          // Default to employee (both old and new employee QR codes)
-          console.log('Employee QR detected:', data.name);
-          selectEmployeeByQR(data);
-          toggleQRScanner(); // Close scanner
+          // Try to parse as JSON (old format)
+          const data = JSON.parse(qrData);
+          console.log('Parsed QR data:', data);
+          
+          if (!data.name || !data.id) {
+            console.log('Invalid QR code - missing name or id:', data);
+            showStatus('Недействительный QR-код', 'error');
+            return;
+          }
+          
+          // Determine type: explicit product or default to employee
+          if (data.type === 'product') {
+            console.log('Product QR detected:', data.name);
+            handleProductQR(data);
+            toggleQRScanner(); // Close scanner
+          } else {
+            console.log('Employee QR detected:', data.name);
+            selectEmployeeByQR(data);
+            toggleQRScanner(); // Close scanner
+          }
         }
       } catch (error) {
         console.error('QR parsing error:', error);
@@ -2277,6 +2306,44 @@
     function handleProductQR(productData) {
       // Show product information modal
       createProductScannedModal(productData);
+    }
+    
+    function handleProductQRFromText(qrText) {
+      // Parse new compact product format: "ALLMAKON DONER50/50 | 5кг"
+      const parts = qrText.split('|').map(part => part.trim());
+      const productInfo = parts[0]; // "ALLMAKON DONER50/50"
+      const caliberMatch = parts[1]?.match(/([\d.]+)кг/);
+      
+      // Extract firm and type from compact format
+      const words = productInfo.split(' ');
+      const firm = words[0] || '';
+      const productType = words.slice(1).join(' ').replace(/([A-Z])/g, ' $1').trim(); // Add spaces between capitals
+      
+      const productData = {
+        name: `${firm} ${productType}`,
+        productType: productType,
+        firm: firm,
+        caliber: caliberMatch ? caliberMatch[1] : '0',
+        count: '0',
+        totalKg: caliberMatch ? caliberMatch[1] : '0'
+      };
+      
+      createProductScannedModal(productData);
+    }
+    
+    function handleEmployeeQRFromText(qrText) {
+      // Parse compact employee format: "Абдулло | ID11"
+      const parts = qrText.split('|').map(part => part.trim());
+      const employeeName = parts[0];
+      const idMatch = parts[1]?.match(/ID(.+)/);
+      const employeeId = idMatch ? idMatch[1] : '';
+      
+      const employeeData = {
+        name: employeeName,
+        id: employeeId
+      };
+      
+      selectEmployeeByQR(employeeData);
     }
     
     function createProductScannedModal(productData) {
@@ -2575,43 +2642,26 @@
         return;
       }
       
-      // Generate unique product ID
-      const productId = 'PROD_' + productType.replace(/\s+/g, '_') + '_' + Date.now();
-      
-      // Create full product name with firm
-      const fullProductName = firm ? `${firm} ${productType}` : productType;
-      
-      // QR code data containing product info
-      const qrData = JSON.stringify({
-        id: productId,
-        type: 'product',
-        name: fullProductName,
-        productType: productType,
+      // Create product data
+      const productData = {
         firm: firm,
+        productType: productType,
         caliber: caliber,
         count: count,
         totalKg: totalKg
-      });
+      };
       
-      console.log('Generated QR data for product:', qrData);
+      console.log('Product data for QR:', productData);
       
-      // Create modal for product QR
-      createProductQRModal(fullProductName, caliber, count, totalKg, qrData, productId);
+      // Create modal and generate QR
+      createProductQRModalNew(productData);
     }
     
-    function createProductQRModal(fullProductName, caliber, count, totalKg, qrData, productId) {
-      // Remove existing modal if any
+    function createProductQRModalNew(productData) {
+      // Remove existing modal
       const existingModal = document.getElementById('productQRModal');
       if (existingModal) {
         existingModal.remove();
-      }
-      
-      // Parse product data to get firm info
-      let productData;
-      try {
-        productData = JSON.parse(qrData);
-      } catch(e) {
-        productData = {};
       }
       
       // Create modal
@@ -2620,88 +2670,242 @@
       modal.className = 'qr-generator-modal';
       modal.onclick = function(e) {
         if (e.target === modal) {
-          closeProductQRModal();
+          closeProductQRModalNew();
         }
       };
+      
       modal.innerHTML = `
         <div class="qr-generator-content">
           <div class="qr-generator-header">
             <h4>🏷 QR-код товара</h4>
-            <button class="btn-close" onclick="closeProductQRModal()">×</button>
+            <button class="btn-close" onclick="closeProductQRModalNew()">×</button>
           </div>
           <div class="qr-generator-body">
             <div class="product-info">
-              <p><strong>Товар:</strong> ${fullProductName}</p>
-              ${productData.firm ? `<p><strong>Фирма:</strong> ${productData.firm}</p>` : ''}
-              <p><strong>Тип:</strong> ${productData.productType || 'N/A'}</p>
-              <p><strong>Калибр:</strong> ${caliber} кг</p>
-              <p><strong>Количество:</strong> ${count} шт</p>
-              <p><strong>Итого:</strong> ${totalKg} кг</p>
+              <p><strong>Фирма:</strong> ${productData.firm}</p>
+              <p><strong>Тип:</strong> ${productData.productType}</p>
+              <p><strong>Калибр:</strong> ${productData.caliber} кг</p>
             </div>
             <div id="productQRCodeDisplay" class="qr-code-display"></div>
           </div>
         </div>
       `;
+      
       document.body.appendChild(modal);
       
-      // Generate QR code
+      // Generate QR code after modal is added
       setTimeout(() => {
-        const qrDisplay = document.getElementById('productQRCodeDisplay');
-        qrDisplay.innerHTML = '';
-        
-        const canvas = document.createElement('canvas');
-        canvas.id = 'productQRCanvas';
-        qrDisplay.appendChild(canvas);
-        
-        QRCode.toCanvas(canvas, qrData, {
-          width: 300,
-          margin: 4,
-          color: {
-            dark: '#000000',
-            light: '#ffffff'
-          }
-        }, function (error) {
-          if (error) {
-            console.error('QR code generation error:', error);
-            qrDisplay.innerHTML = '<p class="error">Ошибка генерации QR-кода</p>';
-            return;
-          }
-          
-          // Add download button
-          const downloadBtn = document.createElement('button');
-          downloadBtn.className = 'btn-primary btn-small';
-          downloadBtn.textContent = '📥 Скачать QR-код';
-          downloadBtn.onclick = () => downloadProductQR(productId, fullProductName);
-          qrDisplay.appendChild(downloadBtn);
-          
-          showStatus('QR-код товара создан', 'success');
-          
-          // Auto-close modal after 3 seconds
-          setTimeout(() => {
-            closeProductQRModal();
-          }, 3000);
-        });
+        generateProductQRCode(productData);
       }, 100);
     }
     
-    function closeProductQRModal() {
+    function generateProductQRCode(productData) {
+      const qrDisplay = document.getElementById('productQRCodeDisplay');
+      if (!qrDisplay) return;
+      
+      qrDisplay.innerHTML = '';
+      
+      // Create QR data
+      const qrData = `${productData.firm} ${productData.productType.replace(/\s+/g, '')} | ${productData.caliber}кг`;
+      
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      canvas.id = 'productQRCanvas';
+      qrDisplay.appendChild(canvas);
+      
+      // Generate QR code
+      QRCode.toCanvas(canvas, qrData, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      }, function (error) {
+        if (error) {
+          console.error('QR generation error:', error);
+          qrDisplay.innerHTML = '<p class="error">Ошибка генерации QR-кода</p>';
+          return;
+        }
+        
+        // Add buttons
+        addProductQRButtons(productData);
+        
+        showStatus('QR-код товара создан', 'success');
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+          closeProductQRModalNew();
+        }, 3000);
+      });
+    }
+    
+    function addProductQRButtons(productData) {
+      const qrDisplay = document.getElementById('productQRCodeDisplay');
+      if (!qrDisplay) return;
+      
+      const buttonsDiv = document.createElement('div');
+      buttonsDiv.className = 'modal-actions';
+      
+      // QR download button
+      const qrBtn = document.createElement('button');
+      qrBtn.className = 'btn-primary btn-small';
+      qrBtn.textContent = '📥 Скачать QR-код';
+      qrBtn.onclick = () => downloadProductQRNew(productData);
+      buttonsDiv.appendChild(qrBtn);
+      
+      // Label download button
+      const labelBtn = document.createElement('button');
+      labelBtn.className = 'btn-primary btn-small';
+      labelBtn.textContent = '🏷️ Скачать этикетку';
+      labelBtn.onclick = () => downloadProductLabelNew(productData);
+      buttonsDiv.appendChild(labelBtn);
+      
+      qrDisplay.appendChild(buttonsDiv);
+    }
+    
+    function closeProductQRModalNew() {
       const modal = document.getElementById('productQRModal');
       if (modal) {
         modal.remove();
       }
     }
     
-    function downloadProductQR(productId, fullProductName) {
+    function downloadProductQRNew(productData) {
       const canvas = document.getElementById('productQRCanvas');
       if (!canvas) return;
       
-      // Create download link
       const link = document.createElement('a');
-      link.download = `QR_Product_${fullProductName.replace(/\s+/g, '_')}_${productId}.png`;
+      link.download = `QR_${productData.firm}_${productData.productType.replace(/\s+/g, '_')}.png`;
       link.href = canvas.toDataURL();
       link.click();
       
       showStatus('QR-код товара скачан', 'success');
+    }
+    
+    function downloadProductLabelNew(productData) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Label size
+      canvas.width = 200;
+      canvas.height = 120;
+      
+      // White background
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Black border
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+      
+      // Text content
+      ctx.fillStyle = 'black';
+      ctx.font = 'bold 14px Arial';
+      ctx.fillText(productData.firm.toUpperCase(), 10, 25);
+      
+      ctx.font = '12px Arial';
+      ctx.fillText(productData.productType, 10, 45);
+      
+      // Large caliber text to fill space
+      ctx.font = 'bold 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${productData.caliber} кг`, canvas.width / 2 - 40, 85);
+      ctx.textAlign = 'left';
+      
+      // Generate QR for label
+      const qrData = `${productData.firm} ${productData.productType.replace(/\s+/g, '')} | ${productData.caliber}кг`;
+      
+      QRCode.toDataURL(qrData, {
+        width: 80,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      }, function (error, url) {
+        if (error) {
+          console.error('Label QR error:', error);
+          return;
+        }
+        
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, canvas.width - 90, canvas.height - 90, 80, 80);
+          
+          const link = document.createElement('a');
+          link.download = `Label_${productData.firm}_${productData.productType.replace(/\s+/g, '_')}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+          
+          showStatus('Этикетка скачана', 'success');
+        };
+        img.src = url;
+      });
+    }
+    
+    function downloadEmployeeLabel(employeeName, employeeId) {
+      // Create a canvas for the employee label
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Label size (suitable for ID cards)
+      canvas.width = 200;
+      canvas.height = 100;
+      
+      // White background
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Black border
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+      
+      // Text content
+      ctx.fillStyle = 'black';
+      ctx.font = 'bold 14px Arial';
+      ctx.fillText('СОТРУДНИК', 10, 25);
+      
+      ctx.font = 'bold 12px Arial';
+      const displayName = employeeName.length > 20 ? employeeName.substring(0, 20) : employeeName;
+      ctx.fillText(displayName.toUpperCase(), 10, 45);
+      
+      ctx.font = '11px Arial';
+      ctx.fillText(`ID: ${employeeId}`, 10, 65);
+      
+      // Generate QR code for the label
+      const qrData = `${employeeName} | ID${employeeId}`;
+      
+      QRCode.toDataURL(qrData, {
+        width: 50,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      }, function (error, url) {
+        if (error) {
+          console.error('QR generation error:', error);
+          return;
+        }
+        
+        // Draw QR code on the right side
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, canvas.width - 60, canvas.height - 60, 50, 50);
+          
+          // Download the label
+          const link = document.createElement('a');
+          link.download = `Employee_${employeeName.replace(/\s+/g, '_')}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+          
+          showStatus('Этикетка сотрудника скачана', 'success');
+        };
+        img.src = url;
+      });
     }
 
     loadEmployees();
