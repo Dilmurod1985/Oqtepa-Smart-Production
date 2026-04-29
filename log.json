@@ -1531,5 +1531,37 @@
       "shortageDumba": 2
     },
     "isUndone": false
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek (ID: 41)",
+    "workerId": "41",
+    "product": "",
+    "firm": "ALLMAKON",
+    "caliber": "10 кг",
+    "count": 25,
+    "totalKg": 250,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "id": "entry_1777370271376_izieq2",
+    "timestamp": "2026-04-28T09:57:51.377Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
   }
 ]

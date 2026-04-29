@@ -849,6 +849,16 @@
       .summary-bar { font-size: 22px; }
       .history-item, .history-side { flex-direction: column; align-items: flex-start; }
     }
+    
+    /* Hide number input arrows */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
   </style>
 </head>
 <body>
@@ -927,9 +937,9 @@
         </div>
 
         <div class="field-grid-3">
-          <div class="field"><label for="rL">Лахм</label><input id="rL" type="number" step="0.1" placeholder="0" /></div>
-          <div class="field"><label for="rK">Кийма</label><input id="rK" type="number" step="0.1" placeholder="0" /></div>
-          <div class="field"><label for="rD">Думба</label><input id="rD" type="number" step="0.1" placeholder="0" /></div>
+          <div class="field"><label for="rL">Лахм</label><input id="rL" type="number" step="0.1" placeholder="" /></div>
+          <div class="field"><label for="rK">Кийма</label><input id="rK" type="number" step="0.1" placeholder="" /></div>
+          <div class="field"><label for="rD">Думба</label><input id="rD" type="number" step="0.1" placeholder="" /></div>
         </div>
 
         <button class="btn-secondary" onclick="submitData('RAW')">Обновить склад</button>
@@ -988,20 +998,19 @@
               </div>
               <div class="field-grid">
                 <div class="field">
-                  <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(0)" />
+                  <input class="pCal" type="number" step="0.1" min="0" placeholder="" oninput="updateProductTotal(0)" />
                 </div>
                 <div class="field">
-                  <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(0)" />
+                  <input class="pCount" type="number" min="1" placeholder="" oninput="updateProductTotal(0)" />
                 </div>
               </div>
-              <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
             </div>
           </div>
           
           <button class="btn-secondary" onclick="addProductItem()" style="margin-top: 10px;">+ Добавить еще продукт</button>
         </div>
 
-        <div id="totalTxt" class="summary-bar">Общий итог: <span id="overallTotal">0.0</span> кг</div>
+        <div id="totalTxt" class="summary-bar">Общий итог: <span id="overallTotal"></span> кг</div>
 
         <button class="btn-main" onclick="submitMultipleProducts()">ЗАФИКСИРОВАТЬ ВСЕ</button>
       </div>
@@ -1722,13 +1731,12 @@
         </div>
         <div class="field-grid">
           <div class="field">
-            <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(${newIndex})" />
+            <input class="pCal" type="number" step="0.1" min="0" placeholder="" oninput="updateProductTotal(${newIndex})" />
           </div>
           <div class="field">
-            <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(${newIndex})" />
+            <input class="pCount" type="number" min="1" placeholder="" oninput="updateProductTotal(${newIndex})" />
           </div>
         </div>
-        <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
       `;
       
       container.appendChild(productItem);
@@ -1743,14 +1751,7 @@
     }
 
     function updateProductTotal(index) {
-      const item = document.querySelector(`[data-index="${index}"]`);
-      if (!item) return;
-      
-      const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
-      const count = parseFloat(item.querySelector('.pCount').value) || 0;
-      const total = caliber * count;
-      
-      item.querySelector('.productKg').textContent = Number.isInteger(total) ? total : total.toFixed(1);
+      // Update only overall total since individual totals are removed
       updateOverallTotal();
     }
 
@@ -1759,11 +1760,17 @@
       let total = 0;
       
       products.forEach(item => {
-        const kgText = item.querySelector('.productKg').textContent;
-        total += parseFloat(kgText) || 0;
+        const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
+        const count = parseFloat(item.querySelector('.pCount').value) || 0;
+        total += caliber * count;
       });
       
-      document.getElementById('overallTotal').textContent = Number.isInteger(total) ? total : total.toFixed(1);
+      // Show empty if total is 0, otherwise show the value
+      if (total === 0) {
+        document.getElementById('overallTotal').textContent = '';
+      } else {
+        document.getElementById('overallTotal').textContent = Number.isInteger(total) ? total : total.toFixed(1);
+      }
     }
 
     async function submitMultipleProducts() {
@@ -1780,11 +1787,12 @@
       
       for (const item of productItems) {
         const product = item.querySelector('.pType').value;
+        const firm = item.querySelector('.pFirm').value || '';
         const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
         const count = parseInt(item.querySelector('.pCount').value) || 0;
         
         if (caliber > 0 && count > 0) {
-          products.push({ product, caliber, count });
+          products.push({ product, firm, caliber, count });
         }
       }
       
@@ -1805,6 +1813,7 @@
             workerName: workerName,
             workerId: workerId,
             product: prod.product,
+            firm: prod.firm,
             caliber: `${prod.caliber} кг`,
             count: prod.count,
             totalKg: prod.caliber * prod.count
@@ -1878,16 +1887,17 @@
               <option value="WENDY'S 50/50">WENDY'S 50/50</option>
               <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
             </select>
+            <input class="pFirm" type="text" placeholder="Фирма *" required value="${window.currentFirm || curWS || ''}" />
+            <button class="btn-qr btn-small" onclick="generateProductQR(0)" type="button" title="Сгенерировать QR-код товара">🏷</button>
           </div>
           <div class="field-grid">
             <div class="field">
-              <input class="pCal" type="number" step="0.1" min="0" placeholder="Калибр (кг)" oninput="updateProductTotal(0)" />
+              <input class="pCal" type="number" step="0.1" min="0" placeholder="" oninput="updateProductTotal(0)" />
             </div>
             <div class="field">
-              <input class="pCount" type="number" min="1" placeholder="Кол-во" oninput="updateProductTotal(0)" />
+              <input class="pCount" type="number" min="1" placeholder="" oninput="updateProductTotal(0)" />
             </div>
           </div>
-          <div class="product-total">Итого: <span class="productKg">0.0</span> кг</div>
         </div>
       `;
       productIndex = 1;
@@ -2379,8 +2389,7 @@
               <p><strong>Тип:</strong> ${productType}</p>
               ${firm ? `<p><strong>Фирма:</strong> ${firm}</p>` : '<p style="color: orange;"><strong>Фирма:</strong> не указана</p>'}
               <p><strong>Калибр:</strong> ${productData.caliber} кг</p>
-              <p><strong>Количество:</strong> ${productData.count} шт</p>
-              <p><strong>Итого:</strong> ${productData.totalKg} кг</p>
+              ${productData.count && productData.count !== '0' ? `<p><strong>Количество:</strong> ${productData.count} шт</p>` : ''}
             </div>
             <div class="modal-actions">
               <button class="btn-primary" onclick="addScannedProductToForm('${displayName}', '${productType}', '${firm}', '${productData.caliber}', '${productData.count}')">
@@ -2406,26 +2415,12 @@
     }
     
     function addScannedProductToForm(fullName, productType, firm, caliber, count) {
-      // Get the first empty product item or create new one
-      const productItems = document.querySelectorAll('.product-item');
-      let targetItem = null;
+      // Always use the first product item (index 0)
+      const targetItem = document.querySelector('.product-item[data-index="0"]');
       
-      // Find first empty item or use the last one
-      for (let item of productItems) {
-        const pType = item.querySelector('.pType').value;
-        const pCal = item.querySelector('.pCal').value;
-        const pCount = item.querySelector('.pCount').value;
-        
-        if (!pType && !pCal && !pCount) {
-          targetItem = item;
-          break;
-        }
-      }
-      
-      // If no empty item, create new one
       if (!targetItem) {
-        addProductItem();
-        targetItem = document.querySelector('.product-item:last-child');
+        showStatus('Ошибка: не найдена форма товара', 'error');
+        return;
       }
       
       // Fill the form
@@ -2434,6 +2429,16 @@
       targetItem.querySelector('.pFirm').value = firm;
       targetItem.querySelector('.pCal').value = caliber;
       targetItem.querySelector('.pCount').value = count;
+      
+      // Check if employee is selected
+      const workerDisplay = document.getElementById('workerDisplay').textContent.trim();
+      const workerId = document.getElementById('wId').value.trim();
+      
+      if (!workerDisplay || workerDisplay === 'Не выбран' || !workerId) {
+        // Show message to scan employee QR first
+        showStatus('Сначала выберите сотрудника (сканируйте QR-код сотрудника)', 'warning');
+        return;
+      }
       
       // Update totals
       updateProductTotal(index);
