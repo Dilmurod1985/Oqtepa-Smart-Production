@@ -1253,6 +1253,7 @@
         // Request only today's history
         const res = await fetch(`/api/history/${encodeURIComponent(curWS)}?today=true`);
         const items = await res.json();
+        console.log(`Loaded ${items.length} today's entries for ${curWS}`);
         historyEntries = Array.isArray(items) ? items : [];
         updateProductionSummary(historyEntries);
         renderHistoryList();

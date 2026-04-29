@@ -322,10 +322,12 @@ app.get('/api/history/:ws', (req, res) => {
   // Filter by today's date if requested
   if (today) {
     const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    console.log(`Filtering history for ${workshop}, today: ${todayStr}, total entries before filter: ${entries.length}`);
     entries = entries.filter((entry) => {
       const entryDate = new Date(entry.timestamp).toISOString().split('T')[0];
       return entryDate === todayStr;
     });
+    console.log(`Entries after today filter: ${entries.length}`);
   }
 
   if (Number.isFinite(limit) && limit > 0) {
