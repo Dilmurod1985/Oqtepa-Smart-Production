@@ -1250,7 +1250,8 @@
       list.innerHTML = "";
 
       try {
-        const res = await fetch(`/api/history/${encodeURIComponent(curWS)}`);
+        // Request only today's history
+        const res = await fetch(`/api/history/${encodeURIComponent(curWS)}?today=true`);
         const items = await res.json();
         historyEntries = Array.isArray(items) ? items : [];
         updateProductionSummary(historyEntries);

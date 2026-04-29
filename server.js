@@ -313,10 +313,20 @@ app.post('/api/employees', (req, res) => {
 app.get('/api/history/:ws', (req, res) => {
   const workshop = req.params.ws;
   const limit = Number(req.query.limit || 0);
+  const today = req.query.today === 'true';
 
   let entries = readLogEntries()
     .filter((entry) => entry.workshop === workshop)
     .filter((entry) => !entry.isUndone);
+
+  // Filter by today's date if requested
+  if (today) {
+    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    entries = entries.filter((entry) => {
+      const entryDate = new Date(entry.timestamp).toISOString().split('T')[0];
+      return entryDate === todayStr;
+    });
+  }
 
   if (Number.isFinite(limit) && limit > 0) {
     entries = entries.slice(-limit);

@@ -1,5 +1,18 @@
 [
   {
+    "id": "reset_1777442046426_3lp42q18r",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-04-29T05:54:06.429Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
     "id": "reset_1777290647715_i1nrmh284",
     "category": "RESET",
     "workshop": "ALLMAKON",
