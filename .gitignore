@@ -7,11 +7,12 @@ node_modules/
 .env.production
 
 # Logs
-log.json
 *.log
 
 # Runtime data
 stocks.json
+employees.json
+log.json
 .DS_Store
 
 # IDE and editor files
