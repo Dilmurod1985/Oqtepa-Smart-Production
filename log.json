@@ -1576,5 +1576,257 @@
       "kiyma": 0,
       "dumba": 0
     }
+  },
+  {
+    "mode": "combined-qr",
+    "workshop": "OQTEPA",
+    "workshopName": "OQTEPA",
+    "employeeId": "EMP001",
+    "productId": "LAHM",
+    "type": "expense",
+    "quantity": 1,
+    "unit": "kg",
+    "id": "entry_1777446219743_8366qt",
+    "timestamp": "2026-04-29T07:03:39.748Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "incoming",
+    "quantity": "5",
+    "unit": "kg5",
+    "qrRaw": "",
+    "id": "entry_1777446685137_spq0em",
+    "timestamp": "2026-04-29T07:11:25.139Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "incoming",
+    "quantity": "5",
+    "unit": "kg5",
+    "qrRaw": "",
+    "id": "entry_1777446688450_swhxrp",
+    "timestamp": "2026-04-29T07:11:28.450Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "incoming",
+    "quantity": "5",
+    "unit": "kg5",
+    "qrRaw": "",
+    "id": "entry_1777446776551_lky508",
+    "timestamp": "2026-04-29T07:12:56.551Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "incoming",
+    "quantity": "5",
+    "unit": "kg5",
+    "qrRaw": "",
+    "id": "entry_1777446777131_pkyacw",
+    "timestamp": "2026-04-29T07:12:57.131Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "incoming",
+    "quantity": "5",
+    "unit": "kg5",
+    "qrRaw": "",
+    "id": "entry_1777446777526_u3kgh7",
+    "timestamp": "2026-04-29T07:12:57.526Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "mode": "combined-qr",
+    "workshop": "ALLMAKON",
+    "workshopName": "ALLMAKON",
+    "category": "PROD",
+    "workerId": "41",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "Test product",
+    "caliber": "kg",
+    "count": 5,
+    "totalKg": 5,
+    "type": "Приход",
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "qrRaw": "test",
+    "id": "entry_1777446846478_hzcb25",
+    "timestamp": "2026-04-29T07:14:06.478Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "mode": "combined-qr",
+    "employeeId": "41",
+    "employeeName": "Ibragimov Ozodbek",
+    "productId": "",
+    "productName": "",
+    "workshopName": "ALLMAKON",
+    "workshop": "ALLMAKON",
+    "type": "Приход",
+    "quantity": 10,
+    "unit": "kg",
+    "qrRaw": "{\"employeeId\":\"41\",\"employeeName\":\"Ibragimov Ozodbek\",\"productId\":\"\",\"productName\":\"\",\"workshopName\":\"ALLMAKON\",\"type\":\"incoming\",\"quantity\":10,\"unit\":\"kg\"}",
+    "category": "PROD",
+    "workerId": "41",
+    "workerName": "Ibragimov Ozodbek",
+    "product": "QR product",
+    "caliber": "kg",
+    "count": 10,
+    "totalKg": 10,
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "id": "entry_1777447063221_s47vvi",
+    "timestamp": "2026-04-29T07:17:43.223Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek (ID: 41)",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777450464616_5org7x",
+    "timestamp": "2026-04-29T08:14:24.619Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
   }
 ]

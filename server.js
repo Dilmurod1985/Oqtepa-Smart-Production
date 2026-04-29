@@ -170,6 +170,16 @@ function makeEntryId() {
   return `entry_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function getLocalDateKey(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function applyEntryToStocks(stocks, entry, direction) {
   ensureWorkshopStock(stocks, entry.workshop);
   const factor = direction === 'undo' ? -1 : 1;
@@ -321,11 +331,10 @@ app.get('/api/history/:ws', (req, res) => {
 
   // Filter by today's date if requested
   if (today) {
-    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const todayStr = getLocalDateKey();
     console.log(`Filtering history for ${workshop}, today: ${todayStr}, total entries before filter: ${entries.length}`);
     entries = entries.filter((entry) => {
-      const entryDate = new Date(entry.timestamp).toISOString().split('T')[0];
-      return entryDate === todayStr;
+      return getLocalDateKey(entry.timestamp) === todayStr;
     });
     console.log(`Entries after today filter: ${entries.length}`);
   }
@@ -552,12 +561,12 @@ app.get('/api/daily-stats/:workshop', (req, res) => {
   res.json({
     success: true,
     today: {
-      date: today.toISOString().split('T')[0],
+      date: getLocalDateKey(today),
       ...todayStats,
       entriesCount: todayEntries.length
     },
     yesterday: {
-      date: yesterday.toISOString().split('T')[0],
+      date: getLocalDateKey(yesterday),
       ...yesterdayStats,
       entriesCount: yesterdayEntries.length
     }
@@ -565,9 +574,13 @@ app.get('/api/daily-stats/:workshop', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log('=========================================');
-  console.log('OQTEPA SMART SYSTEM STARTED');
-  console.log(`Port: ${PORT}`);
-  console.log('=========================================');
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log('=========================================');
+    console.log('OQTEPA SMART SYSTEM STARTED');
+    console.log(`Port: ${PORT}`);
+    console.log('=========================================');
+  });
+}
+
+module.exports = { app, getLocalDateKey };
