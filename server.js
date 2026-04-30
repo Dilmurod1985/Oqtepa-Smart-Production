@@ -762,8 +762,8 @@ function checkDailyReset() {
 }
 
 if (require.main === module) {
-  // Initialize last reset date on server start
-  lastDailyResetDate = getTashkentDateKey();
+  // DO NOT initialize lastDailyResetDate on server start - wait for actual time check
+  // This prevents accidental reset on server restart
   
   app.listen(PORT, () => {
     console.log('=========================================');
