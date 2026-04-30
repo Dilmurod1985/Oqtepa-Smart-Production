@@ -1738,6 +1738,7 @@
     function resetProdForm() {
       document.getElementById("wSearch").value = "";
       document.getElementById("wId").value = "";
+      document.getElementById('workerDisplay').textContent = 'Не выбран';
       // Не сбрасываем продукты, чтобы можно было добавлять несколько
       updateOverallTotal();
     }
@@ -1892,8 +1893,12 @@
       // Показываем результат
       if (errorCount === 0) {
         showStatus(`Успешно зафиксировано ${successCount} продуктов`, 'success');
-        // Очищаем форму продуктов, но сохраняем сотрудника
+        // Очищаем форму продуктов и сотрудника, чтобы можно было сразу сканировать нового
         clearProductsForm();
+        // Очищаем данные сотрудника
+        document.getElementById('wSearch').value = '';
+        document.getElementById('wId').value = '';
+        document.getElementById('workerDisplay').textContent = 'Не выбран';
       } else {
         showStatus(`Зафиксировано ${successCount} из ${products.length} продуктов`, 'warning');
       }
