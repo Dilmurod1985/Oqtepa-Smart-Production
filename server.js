@@ -149,11 +149,12 @@ function readLogEntries() {
   const raw = fs.readFileSync(LOG_FILE, 'utf8').trim();
   if (!raw) return [];
 
+  let entries = [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    entries = Array.isArray(parsed) ? parsed : [];
   } catch (_error) {
-    return raw
+    entries = raw
       .split('\n')
       .map((line) => line.trim())
       .filter(Boolean)
@@ -166,6 +167,38 @@ function readLogEntries() {
       })
       .filter(Boolean);
   }
+
+  // Fix entries missing id or timestamp
+  let modified = false;
+  entries.forEach((entry, index) => {
+    if (!entry.id) {
+      entry.id = `migrated_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 5)}`;
+      modified = true;
+    }
+    if (!entry.timestamp) {
+      if (entry.time) {
+        // Try to construct timestamp from today's date and entry.time (HH:mm:ss)
+        try {
+          const today = new Date();
+          const [h, m, s] = entry.time.split(':');
+          today.setHours(parseInt(h) || 0, parseInt(m) || 0, parseInt(s) || 0, 0);
+          entry.timestamp = today.toISOString();
+        } catch (e) {
+          entry.timestamp = new Date().toISOString();
+        }
+      } else {
+        entry.timestamp = new Date().toISOString();
+      }
+      modified = true;
+    }
+  });
+
+  if (modified) {
+    console.log(`Migrated ${entries.length} log entries to include missing IDs and timestamps`);
+    writeJsonFile(LOG_FILE, entries);
+  }
+
+  return entries;
 }
 
 function writeLogEntries(entries) {
@@ -176,7 +209,10 @@ function makeEntryId() {
   return `entry_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function getLocalDateKey(value = new Date()) {
+function getLocalDateKey(value) {
+  // If value is missing, return empty string to avoid matching current date by accident
+  if (!value) return '';
+  
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return '';
 
