@@ -3,6 +3,12 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const STOCKS_FILE = path.join(DATA_DIR, 'stocks.json');
+const LOG_FILE = path.join(DATA_DIR, 'log.json');
+const LOGS_DIR = path.join(DATA_DIR, 'logs');
+const EMPLOYEES_FILE = path.join(DATA_DIR, 'employees.json');
+
 const app = express();
 
 app.use(express.json());
@@ -20,11 +26,6 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
-
-const STOCKS_FILE = path.join(__dirname, 'stocks.json');
-const LOG_FILE = path.join(__dirname, 'log.json');
-const LOGS_DIR = path.join(__dirname, 'logs');
-const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
 // Ensure logs directory exists
 if (!fs.existsSync(LOGS_DIR)) {
