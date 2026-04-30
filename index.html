@@ -2065,12 +2065,14 @@
       const value = Number(baseValue || 0);
       const shortage = Number(shortageValue || 0);
 
-      if (shortage > 0 && value <= 0) {
+      // Если есть нехватка (shortage), показываем её со знаком минус и красным цветом
+      if (shortage > 0) {
         el.innerText = `-${shortage.toFixed(1)}`;
         el.classList.add("negative");
         return;
       }
 
+      // Если остаток 0 и нет нехватки, просто 0.0 (обычный цвет)
       el.innerText = value.toFixed(1);
       el.classList.remove("negative");
     }
