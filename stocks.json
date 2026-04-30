@@ -1,8 +1,8 @@
 {
   "ALLMAKON": {
-    "lahm": 67.2,
-    "kiyma": 58.8,
-    "dumba": 14,
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
     "shortageLahm": 0,
     "shortageKiyma": 0,
     "shortageDumba": 0
@@ -16,9 +16,9 @@
     "shortageDumba": 0
   },
   "VENDIS": {
-    "lahm": 2,
-    "kiyma": 2,
-    "dumba": 1,
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
     "shortageLahm": 0,
     "shortageKiyma": 0,
     "shortageDumba": 0
@@ -32,9 +32,9 @@
     "shortageDumba": 0
   },
   "MISSION": {
-    "lahm": 2,
-    "kiyma": 200,
-    "dumba": 6,
+    "lahm": 0,
+    "kiyma": 0,
+    "dumba": 0,
     "shortageLahm": 0,
     "shortageKiyma": 0,
     "shortageDumba": 0
