@@ -27,9 +27,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Ensure logs directory exists
-if (!fs.existsSync(LOGS_DIR)) {
-  fs.mkdirSync(LOGS_DIR, { recursive: true });
+function ensureDataDirs() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(LOGS_DIR)) {
+      fs.mkdirSync(LOGS_DIR, { recursive: true });
+    }
+  } catch (error) {
+    console.warn('Warning: Could not create data directories:', error.message);
+  }
 }
 
 const DEFAULT_STOCK = {
@@ -59,6 +67,7 @@ const DEFAULT_EMPLOYEES = [
 ];
 
 function readJsonFile(filePath, fallback) {
+  ensureDataDirs();
   if (!fs.existsSync(filePath)) return fallback;
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -69,6 +78,7 @@ function readJsonFile(filePath, fallback) {
 }
 
 function writeJsonFile(filePath, value) {
+  ensureDataDirs();
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
 }
 
@@ -246,6 +256,7 @@ function readLogEntries() {
 }
 
 function readArchiveEntries(date) {
+  ensureDataDirs();
   const archivePath = path.join(LOGS_DIR, `${date}.json`);
   if (!fs.existsSync(archivePath)) return [];
   try {
