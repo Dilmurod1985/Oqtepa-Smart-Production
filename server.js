@@ -642,6 +642,13 @@ app.get('/api/daily-stats/:workshop', (req, res) => {
       } else if (entry.category === 'PROD') {
         production += Number(entry.totalKg || 0);
         productionCount += Number(entry.count || 0);
+        
+        // Add raw material consumption from production
+        if (entry.usage) {
+          stockOut.lahm += Number(entry.usage.lahm || 0);
+          stockOut.kiyma += Number(entry.usage.kiyma || 0);
+          stockOut.dumba += Number(entry.usage.dumba || 0);
+        }
       }
     });
 
