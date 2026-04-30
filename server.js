@@ -684,13 +684,96 @@ app.get('/api/daily-stats/:workshop', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Track last daily reset date to avoid multiple resets per day
+let lastDailyResetDate = '';
+
+function getTashkentDateKey() {
+  // Tashkent is UTC+5
+  const now = new Date();
+  const tashkentNow = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+  return getLocalDateKey(tashkentNow);
+}
+
+function performFullDailyReset() {
+  const todayStr = getTashkentDateKey();
+  
+  if (todayStr === lastDailyResetDate) {
+    console.log(`Daily reset already performed for ${todayStr}`);
+    return;
+  }
+
+  console.log(`Performing full daily reset for ${todayStr}`);
+  
+  // First, ensure all current entries are archived
+  readLogEntries(); // This triggers the archiving logic
+  
+  // Reset production for all workshops
+  const stocks = getStocks();
+  const workshops = Object.keys(stocks);
+  
+  workshops.forEach((workshop) => {
+    const currentStock = { ...stocks[workshop] };
+    stocks[workshop] = {
+      lahm: 0,
+      kiyma: 0,
+      dumba: 0,
+      shortageLahm: currentStock.shortageLahm || 0,
+      shortageKiyma: currentStock.shortageKiyma || 0,
+      shortageDumba: currentStock.shortageDumba || 0
+    };
+    
+    // Add a reset entry for this workshop
+    const entries = readLogEntries();
+    const resetEntry = {
+      id: `auto_reset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      category: 'RESET',
+      workshop: workshop,
+      timestamp: new Date().toISOString(),
+      type: 'Автоматический ежедневный сброс производства',
+      previousStock: {
+        lahm: currentStock.lahm || 0,
+        kiyma: currentStock.kiyma || 0,
+        dumba: currentStock.dumba || 0
+      },
+      isUndone: false
+    };
+    entries.unshift(resetEntry);
+    writeLogEntries(entries);
+  });
+  
+  saveStocks(stocks);
+  
+  lastDailyResetDate = todayStr;
+  console.log('Daily reset completed successfully');
+}
+
+// Check time every minute for daily reset
+function checkDailyReset() {
+  const now = new Date();
+  const tashkentNow = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+  const hours = tashkentNow.getUTCHours();
+  const minutes = tashkentNow.getUTCMinutes();
+  
+  // Check if it's 6:00 AM Tashkent time (UTC+5)
+  if (hours === 6 && minutes === 0) {
+    performFullDailyReset();
+  }
+}
+
 if (require.main === module) {
+  // Initialize last reset date on server start
+  lastDailyResetDate = getTashkentDateKey();
+  
   app.listen(PORT, () => {
     console.log('=========================================');
     console.log('OQTEPA SMART SYSTEM STARTED');
     console.log(`Port: ${PORT}`);
     console.log('=========================================');
   });
+  
+  // Check for daily reset every minute
+  setInterval(checkDailyReset, 60 * 1000);
 }
 
 module.exports = { app, getLocalDateKey };
