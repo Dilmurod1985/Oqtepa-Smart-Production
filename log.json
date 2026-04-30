@@ -1,5 +1,18 @@
 [
   {
+    "id": "reset_1777533412401_p4ahkywhz",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-04-30T07:16:52.401Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 128.60000000000002,
+      "kiyma": 114.39999999999999,
+      "dumba": 27
+    },
+    "isUndone": false
+  },
+  {
     "id": "reset_1777442046426_3lp42q18r",
     "category": "RESET",
     "workshop": "ALLMAKON",
@@ -45,7 +58,8 @@
     "type": "Остаток утро",
     "lahm": 50,
     "kiyma": 50,
-    "dumba": 50
+    "dumba": 50,
+    "id": "migrated_1777533384954_3_01m"
   },
   {
     "workshop": "ALLMAKON",
@@ -54,7 +68,8 @@
     "type": "Приход",
     "lahm": 450,
     "kiyma": 450,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_4_1g6"
   },
   {
     "workshop": "ALLMAKON",
@@ -65,7 +80,8 @@
       "lahm": "64.80",
       "kiyma": "56.70",
       "dumba": "13.50"
-    }
+    },
+    "id": "migrated_1777533384956_5_ii9"
   },
   {
     "workshop": "ALLMAKON",
@@ -74,7 +90,9 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_6_qvc",
+    "timestamp": "2026-04-30T10:06:59.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -83,7 +101,9 @@
     "type": "Приход",
     "lahm": 250,
     "kiyma": 250,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_7_wb6",
+    "timestamp": "2026-04-30T10:07:35.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -98,7 +118,9 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_8_ouj",
+    "timestamp": "2026-04-30T10:08:20.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -107,7 +129,9 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_9_r55",
+    "timestamp": "2026-04-30T10:15:05.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -116,7 +140,9 @@
     "type": "Остаток утро",
     "lahm": 50,
     "kiyma": 50,
-    "dumba": 50
+    "dumba": 50,
+    "id": "migrated_1777533384956_10_9kz",
+    "timestamp": "2026-04-30T10:15:18.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -125,7 +151,9 @@
     "type": "Остаток утро",
     "lahm": 450,
     "kiyma": 450,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_11_fmh",
+    "timestamp": "2026-04-30T10:15:30.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -134,7 +162,9 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_12_rpp",
+    "timestamp": "2026-04-30T10:19:07.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -143,7 +173,9 @@
     "type": "Остаток утро",
     "lahm": 50,
     "kiyma": 50,
-    "dumba": 50
+    "dumba": 50,
+    "id": "migrated_1777533384956_13_beo",
+    "timestamp": "2026-04-30T10:19:20.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -152,7 +184,9 @@
     "type": "Приход",
     "lahm": 250,
     "kiyma": 250,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_14_37h",
+    "timestamp": "2026-04-30T10:19:34.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -167,7 +201,9 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_15_o1m",
+    "timestamp": "2026-04-30T10:20:44.000Z"
   },
   {
     "workshop": "ALLMAKON",
@@ -182,7 +218,8 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_16_avr"
   },
   {
     "date": "2026-04-20T12:38:28.901Z",
@@ -192,7 +229,8 @@
     "type": "Остаток утро",
     "lahm": 150,
     "kiyma": 150,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_17_u99"
   },
   {
     "date": "2026-04-20T12:38:47.944Z",
@@ -202,7 +240,8 @@
     "type": "Приход",
     "lahm": 450,
     "kiyma": 450,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_18_6rc"
   },
   {
     "date": "2026-04-20T12:39:21.467Z",
@@ -218,7 +257,8 @@
       "lahm": "67.20",
       "kiyma": "58.80",
       "dumba": "14.00"
-    }
+    },
+    "id": "migrated_1777533384956_19_939"
   },
   {
     "date": "2026-04-20T12:39:25.686Z",
@@ -234,7 +274,8 @@
       "lahm": "67.20",
       "kiyma": "58.80",
       "dumba": "14.00"
-    }
+    },
+    "id": "migrated_1777533384956_20_dyh"
   },
   {
     "date": "2026-04-20T12:39:41.896Z",
@@ -250,7 +291,10 @@
       "lahm": "67.20",
       "kiyma": "58.80",
       "dumba": "14.00"
-    }
+    },
+    "id": "migrated_1777533384956_21_agp",
+    "isUndone": true,
+    "undoneAt": "2026-04-30T07:17:02.804Z"
   },
   {
     "date": "2026-04-20T12:39:43.727Z",
@@ -266,7 +310,10 @@
       "lahm": "67.20",
       "kiyma": "58.80",
       "dumba": "14.00"
-    }
+    },
+    "id": "migrated_1777533384956_22_rxu",
+    "isUndone": true,
+    "undoneAt": "2026-04-30T07:16:47.044Z"
   },
   {
     "date": "2026-04-20T12:39:45.308Z",
@@ -282,7 +329,10 @@
       "lahm": "67.20",
       "kiyma": "58.80",
       "dumba": "14.00"
-    }
+    },
+    "id": "migrated_1777533384956_23_pq0",
+    "isUndone": true,
+    "undoneAt": "2026-04-30T07:16:42.714Z"
   },
   {
     "date": "2026-04-20T12:43:15.088Z",
@@ -292,7 +342,8 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_24_abs"
   },
   {
     "date": "2026-04-20T12:43:43.163Z",
@@ -302,7 +353,8 @@
     "type": "Приход",
     "lahm": 350,
     "kiyma": 350,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_25_o4u"
   },
   {
     "date": "2026-04-20T12:44:05.120Z",
@@ -312,7 +364,8 @@
     "type": "Остаток утро",
     "lahm": 350,
     "kiyma": 350,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_26_ybx"
   },
   {
     "date": "2026-04-20T12:44:12.501Z",
@@ -322,7 +375,8 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_27_nc9"
   },
   {
     "date": "2026-04-20T12:49:04.503Z",
@@ -332,7 +386,8 @@
     "type": "Остаток утро",
     "lahm": 150,
     "kiyma": 150,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_28_1w6"
   },
   {
     "date": "2026-04-20T12:49:21.231Z",
@@ -342,7 +397,8 @@
     "type": "Приход",
     "lahm": 450,
     "kiyma": 450,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_29_f2q"
   },
   {
     "date": "2026-04-20T12:49:41.584Z",
@@ -358,7 +414,10 @@
       "lahm": "43.20",
       "kiyma": "37.80",
       "dumba": "9.00"
-    }
+    },
+    "id": "migrated_1777533384956_30_96k",
+    "isUndone": true,
+    "undoneAt": "2026-04-30T07:16:35.790Z"
   },
   {
     "date": "2026-04-21T05:55:26.443Z",
@@ -368,7 +427,8 @@
     "type": "Приход",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_31_f24"
   },
   {
     "workshop": "ALLMAKON",
@@ -377,7 +437,8 @@
     "lahm": 50,
     "kiyma": 50,
     "dumba": 50,
-    "timestamp": "2026-04-21T06:54:53.652Z"
+    "timestamp": "2026-04-21T06:54:53.652Z",
+    "id": "migrated_1777533384956_32_ksc"
   },
   {
     "workshop": "ALLMAKON",
@@ -386,7 +447,8 @@
     "lahm": 450,
     "kiyma": 450,
     "dumba": 450,
-    "timestamp": "2026-04-21T06:55:17.650Z"
+    "timestamp": "2026-04-21T06:55:17.650Z",
+    "id": "migrated_1777533384956_33_dlv"
   },
   {
     "workshop": "ALLMAKON",
@@ -402,7 +464,8 @@
       "lahm": "43.20",
       "kiyma": "37.80",
       "dumba": "9.00"
-    }
+    },
+    "id": "migrated_1777533384956_34_7j1"
   },
   {
     "workshop": "ALLMAKON",
@@ -418,7 +481,8 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_35_ok5"
   },
   {
     "workshop": "ALLMAKON",
@@ -427,7 +491,8 @@
     "type": "Остаток утро",
     "lahm": 0,
     "kiyma": 0,
-    "dumba": 0
+    "dumba": 0,
+    "id": "migrated_1777533384956_36_c8f"
   },
   {
     "workshop": "ALLMAKON",
@@ -436,7 +501,8 @@
     "type": "Остаток утро",
     "lahm": 50,
     "kiyma": 50,
-    "dumba": 50
+    "dumba": 50,
+    "id": "migrated_1777533384956_37_a64"
   },
   {
     "workshop": "ALLMAKON",
@@ -445,7 +511,8 @@
     "type": "Приход",
     "lahm": 450,
     "kiyma": 450,
-    "dumba": 150
+    "dumba": 150,
+    "id": "migrated_1777533384956_38_jl6"
   },
   {
     "workshop": "ALLMAKON",
@@ -461,7 +528,8 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_39_kg9"
   },
   {
     "workshop": "ALLMAKON",
@@ -477,7 +545,8 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_40_phl"
   },
   {
     "workshop": "ALLMAKON",
@@ -493,7 +562,8 @@
       "lahm": "45.60",
       "kiyma": "39.90",
       "dumba": "9.50"
-    }
+    },
+    "id": "migrated_1777533384956_41_b1f"
   },
   {
     "workshop": "ALLMAKON",
@@ -509,7 +579,8 @@
       "kiyma": 151.2,
       "dumba": 36
     },
-    "timestamp": "2026-04-22T06:12:22.957Z"
+    "timestamp": "2026-04-22T06:12:22.957Z",
+    "id": "migrated_1777533384956_42_1jo"
   },
   {
     "workshop": "ALLMAKON",
@@ -525,7 +596,8 @@
       "kiyma": 151.2,
       "dumba": 36
     },
-    "timestamp": "2026-04-22T06:12:30.821Z"
+    "timestamp": "2026-04-22T06:12:30.821Z",
+    "id": "migrated_1777533384956_43_g87"
   },
   {
     "workshop": "ALLMAKON",
@@ -541,7 +613,8 @@
       "kiyma": 63,
       "dumba": 15
     },
-    "timestamp": "2026-04-22T06:30:14.775Z"
+    "timestamp": "2026-04-22T06:30:14.775Z",
+    "id": "migrated_1777533384956_44_e1a"
   },
   {
     "workshop": "ALLMAKON",
@@ -557,7 +630,8 @@
       "kiyma": 94.5,
       "dumba": 22.5
     },
-    "timestamp": "2026-04-22T06:33:38.149Z"
+    "timestamp": "2026-04-22T06:33:38.149Z",
+    "id": "migrated_1777533384956_45_9v1"
   },
   {
     "workshop": "ALLMAKON",
@@ -566,7 +640,8 @@
     "lahm": 150,
     "kiyma": 150,
     "dumba": 150,
-    "timestamp": "2026-04-22T06:37:27.069Z"
+    "timestamp": "2026-04-22T06:37:27.069Z",
+    "id": "migrated_1777533384956_46_vch"
   },
   {
     "workshop": "ALLMAKON",
@@ -575,7 +650,8 @@
     "lahm": 450,
     "kiyma": 450,
     "dumba": 50,
-    "timestamp": "2026-04-22T06:37:41.762Z"
+    "timestamp": "2026-04-22T06:37:41.762Z",
+    "id": "migrated_1777533384956_47_65a"
   },
   {
     "workshop": "ALLMAKON",
@@ -591,7 +667,8 @@
       "kiyma": 252,
       "dumba": 60
     },
-    "timestamp": "2026-04-22T06:38:02.927Z"
+    "timestamp": "2026-04-22T06:38:02.927Z",
+    "id": "migrated_1777533384956_48_cz5"
   },
   {
     "workshop": "ALLMAKON",

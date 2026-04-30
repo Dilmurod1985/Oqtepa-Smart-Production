@@ -23,7 +23,13 @@ app.use((req, res, next) => {
 
 const STOCKS_FILE = path.join(__dirname, 'stocks.json');
 const LOG_FILE = path.join(__dirname, 'log.json');
+const LOGS_DIR = path.join(__dirname, 'logs');
 const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
+
+// Ensure logs directory exists
+if (!fs.existsSync(LOGS_DIR)) {
+  fs.mkdirSync(LOGS_DIR, { recursive: true });
+}
 
 const DEFAULT_STOCK = {
   lahm: 0,
@@ -177,7 +183,6 @@ function readLogEntries() {
     }
     if (!entry.timestamp) {
       if (entry.time) {
-        // Try to construct timestamp from today's date and entry.time (HH:mm:ss)
         try {
           const today = new Date();
           const [h, m, s] = entry.time.split(':');
@@ -193,12 +198,60 @@ function readLogEntries() {
     }
   });
 
-  if (modified) {
-    console.log(`Migrated ${entries.length} log entries to include missing IDs and timestamps`);
-    writeJsonFile(LOG_FILE, entries);
+  // Archive entries from previous days
+  const todayStr = getLocalDateKey(new Date());
+  const todayEntries = [];
+  const archivedByDate = {};
+
+  entries.forEach((entry) => {
+    const entryDate = getLocalDateKey(entry.timestamp);
+    if (entryDate === todayStr) {
+      todayEntries.push(entry);
+    } else {
+      if (!archivedByDate[entryDate]) archivedByDate[entryDate] = [];
+      archivedByDate[entryDate].push(entry);
+    }
+  });
+
+  // Write archived entries to their respective files
+  for (const [date, archivedEntries] of Object.entries(archivedByDate)) {
+    const archivePath = path.join(LOGS_DIR, `${date}.json`);
+    let existingArchive = [];
+    if (fs.existsSync(archivePath)) {
+      try {
+        existingArchive = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
+      } catch (e) {
+        existingArchive = [];
+      }
+    }
+    
+    // Merge and remove duplicates by ID
+    const merged = [...existingArchive];
+    archivedEntries.forEach(ae => {
+      if (!merged.some(me => me.id === ae.id)) {
+        merged.push(ae);
+      }
+    });
+    
+    fs.writeFileSync(archivePath, JSON.stringify(merged, null, 2));
+    modified = true;
   }
 
-  return entries;
+  if (modified) {
+    writeJsonFile(LOG_FILE, todayEntries);
+  }
+
+  return todayEntries;
+}
+
+function readArchiveEntries(date) {
+  const archivePath = path.join(LOGS_DIR, `${date}.json`);
+  if (!fs.existsSync(archivePath)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(archivePath, 'utf8'));
+  } catch (e) {
+    return [];
+  }
 }
 
 function writeLogEntries(entries) {
@@ -366,19 +419,27 @@ app.get('/api/history/:ws', (req, res) => {
   const workshop = req.params.ws;
   const limit = Number(req.query.limit || 0);
   const today = req.query.today === 'true';
+  const date = req.query.date; // YYYY-MM-DD
 
-  let entries = readLogEntries()
+  let allEntries = [];
+  if (date) {
+    // Read from archive
+    allEntries = readArchiveEntries(date);
+  } else {
+    // Read from current log (which only has today's data after readLogEntries)
+    allEntries = readLogEntries();
+  }
+
+  let entries = allEntries
     .filter((entry) => entry.workshop === workshop)
     .filter((entry) => !entry.isUndone);
 
-  // Filter by today's date if requested
-  if (today) {
-    const todayStr = getLocalDateKey();
-    console.log(`Filtering history for ${workshop}, today: ${todayStr}, total entries before filter: ${entries.length}`);
+  // Filter by today's date if requested (redundant but safe)
+  if (today && !date) {
+    const todayStr = getLocalDateKey(new Date());
     entries = entries.filter((entry) => {
       return getLocalDateKey(entry.timestamp) === todayStr;
     });
-    console.log(`Entries after today filter: ${entries.length}`);
   }
 
   if (Number.isFinite(limit) && limit > 0) {

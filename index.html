@@ -1041,7 +1041,10 @@
       </div>
 
       <div class="history-wrap">
-        <h3 class="history-title">Последние действия</h3>
+        <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 class="history-title" style="margin: 0;">Последние действия</h3>
+          <input type="date" id="historyDate" onchange="loadHistory()" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+        </div>
         <div id="historyList"></div>
       </div>
 
@@ -1206,6 +1209,12 @@
       // Auto-fill firm fields with current workshop
       updateAllFirmFields(name);
       
+      // Set default date to today
+      const dateInput = document.getElementById("historyDate");
+      if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+      
       await Promise.all([refreshStock(), loadHistory(), loadEmployees()]);
       setM("PROD");
     }
@@ -1272,28 +1281,39 @@
 
     async function loadHistory() {
       const list = document.getElementById("historyList");
+      const dateInput = document.getElementById("historyDate");
+      const selectedDate = dateInput.value;
+      
       list.innerHTML = "";
 
       try {
-        // Request only today's history
-        const res = await fetch(`/api/history/${encodeURIComponent(curWS)}?today=true`);
+        let url = `/api/history/${encodeURIComponent(curWS)}`;
+        if (selectedDate) {
+          url += `?date=${selectedDate}`;
+        } else {
+          url += `?today=true`;
+        }
+
+        const res = await fetch(url);
         const items = await res.json();
-        console.log(`Loaded ${items.length} today's entries for ${curWS}`);
+        console.log(`Loaded ${items.length} entries for ${curWS} (Date: ${selectedDate || 'today'})`);
         historyEntries = Array.isArray(items) ? items : [];
         updateProductionSummary(historyEntries);
         renderHistoryList();
 
-        // Загружаем и отображаем остатки
-      try {
-        const stockRes = await fetch(`/api/get-stock/${encodeURIComponent(curWS)}`);
-        const stockData = await stockRes.json();
-        updateStockView(stockData);
-      } catch (_error) {
-        console.error('Failed to load stocks:', _error);
-      }
+        // Загружаем и отображаем остатки (только если смотрим текущий день)
+        if (!selectedDate || selectedDate === new Date().toISOString().split('T')[0]) {
+          try {
+            const stockRes = await fetch(`/api/get-stock/${encodeURIComponent(curWS)}`);
+            const stockData = await stockRes.json();
+            updateStockView(stockData);
+          } catch (_error) {
+            console.error('Failed to load stocks:', _error);
+          }
+        }
 
-      // Загружаем ежедневную статистику
-      await loadDailyStats();
+        // Загружаем ежедневную статистику
+        await loadDailyStats();
       } catch (_error) {
         list.innerHTML = "";
         historyEntries = [];
@@ -1302,15 +1322,27 @@
     }
 
     function updateProductionSummary(entries) {
-      // Фильтруем только сегодняшние записи
-      const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
-      const todayEnd = new Date(new Date().setHours(23, 59, 59, 999));
+      const dateInput = document.getElementById("historyDate");
+      const selectedDate = dateInput.value;
+      
+      let filterStart, filterEnd;
+      if (selectedDate) {
+        filterStart = new Date(selectedDate);
+        filterStart.setHours(0, 0, 0, 0);
+        filterEnd = new Date(selectedDate);
+        filterEnd.setHours(23, 59, 59, 999);
+      } else {
+        filterStart = new Date();
+        filterStart.setHours(0, 0, 0, 0);
+        filterEnd = new Date();
+        filterEnd.setHours(23, 59, 59, 999);
+      }
       
       const prodEntries = (entries || []).filter((item) => 
         item.category === "PROD" && 
         !item.isUndone &&
-        new Date(item.timestamp) >= todayStart &&
-        new Date(item.timestamp) <= todayEnd
+        new Date(item.timestamp) >= filterStart &&
+        new Date(item.timestamp) <= filterEnd
       );
       
       const totalKg = prodEntries.reduce((sum, item) => sum + Number(item.totalKg || 0), 0);
