@@ -3,11 +3,10 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = process.env.DATA_DIR || '/opt/render/project/src';
-const STOCKS_FILE = path.join(DATA_DIR, 'stocks.json');
-const LOG_FILE = path.join(DATA_DIR, 'log.json');
-const LOGS_DIR = path.join(DATA_DIR, 'logs');
-const EMPLOYEES_FILE = path.join(DATA_DIR, 'employees.json');
+const STOCKS_FILE = path.join(__dirname, 'stocks.json');
+const LOG_FILE = path.join(__dirname, 'log.json');
+const LOGS_DIR = path.join(__dirname, 'logs');
+const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
 const app = express();
 
@@ -29,17 +28,10 @@ app.use((req, res, next) => {
 
 function ensureDataDirs() {
   try {
-    console.log(' DATA_DIR:', DATA_DIR);
+    console.log(' Working directory:', __dirname);
     console.log(' STOCKS_FILE:', STOCKS_FILE);
     console.log(' LOG_FILE:', LOG_FILE);
-    
-    if (!fs.existsSync(DATA_DIR)) {
-      console.log(' Creating DATA_DIR...');
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-      console.log(' DATA_DIR created');
-    } else {
-      console.log(' DATA_DIR exists');
-    }
+    console.log(' LOGS_DIR:', LOGS_DIR);
     
     if (!fs.existsSync(LOGS_DIR)) {
       console.log(' Creating LOGS_DIR...');
