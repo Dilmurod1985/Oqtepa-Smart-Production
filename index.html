@@ -1815,11 +1815,16 @@
     }
 
     async function submitMultipleProducts() {
+      console.log('🔵 submitMultipleProducts called');
+      
       const workerId = document.getElementById('wId').value;
       const workerName = document.getElementById('wSearch').value.trim();
       const workerDisplay = document.getElementById('workerDisplay').textContent.trim();
       
+      console.log('🔵 Employee data:', { workerId, workerName, workerDisplay });
+      
       if (!workerId || workerDisplay === 'Не выбран') {
+        console.log('🔴 Employee validation failed');
         showStatus('Выберите сотрудника', 'error');
         return;
       }
@@ -1827,18 +1832,26 @@
       const products = [];
       const productItems = document.querySelectorAll('.product-item');
       
+      console.log('🔵 Found product items:', productItems.length);
+      
       for (const item of productItems) {
         const product = item.querySelector('.pType').value;
         const firm = item.querySelector('.pFirm').value || '';
         const caliber = parseFloat(item.querySelector('.pCal').value) || 0;
         const count = parseInt(item.querySelector('.pCount').value) || 0;
         
+        console.log('🔵 Product data:', { product, firm, caliber, count });
+        
         if (caliber > 0 && count > 0) {
           products.push({ product, firm, caliber, count });
+          console.log('🟢 Product added to list');
         }
       }
       
+      console.log('🔵 Final products list:', products);
+      
       if (products.length === 0) {
+        console.log('🔴 No valid products found');
         showStatus('Добавьте хотя бы один продукт', 'error');
         return;
       }
@@ -1861,6 +1874,8 @@
             totalKg: prod.caliber * prod.count
           };
           
+          console.log('🔵 Sending data:', data);
+          
           const usageByRecipe = getUsageForCaliber(prod.product, prod.caliber, prod.count);
           if (usageByRecipe) {
             data.usage = {
@@ -1868,6 +1883,7 @@
               kiyma: usageByRecipe.kiyma,
               dumba: usageByRecipe.dumba
             };
+            console.log('🔵 Added usage data:', data.usage);
           }
           
           const res = await fetch('/api/stock', {
@@ -1876,17 +1892,24 @@
             body: JSON.stringify(data)
           });
           
+          console.log('🔵 API response status:', res.status);
+          
           const result = await res.json();
+          console.log('🔵 API response data:', result);
+          
           if (res.ok) {
             successCount++;
             if (result.entry) {
               appendHistoryEntry(result.entry);
             }
+            console.log('🟢 Product submitted successfully');
           } else {
             errorCount++;
+            console.log('🔴 Product submission failed:', result);
           }
         } catch (error) {
           errorCount++;
+          console.log('🔴 API request error:', error);
         }
       }
       
