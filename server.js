@@ -3,7 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DATA_DIR = process.env.DATA_DIR || '/opt/render/project/src';
 const STOCKS_FILE = path.join(DATA_DIR, 'stocks.json');
 const LOG_FILE = path.join(DATA_DIR, 'log.json');
 const LOGS_DIR = path.join(DATA_DIR, 'logs');
