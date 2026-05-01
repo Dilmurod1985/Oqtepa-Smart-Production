@@ -29,14 +29,27 @@ app.use((req, res, next) => {
 
 function ensureDataDirs() {
   try {
+    console.log(' DATA_DIR:', DATA_DIR);
+    console.log(' STOCKS_FILE:', STOCKS_FILE);
+    console.log(' LOG_FILE:', LOG_FILE);
+    
     if (!fs.existsSync(DATA_DIR)) {
+      console.log(' Creating DATA_DIR...');
       fs.mkdirSync(DATA_DIR, { recursive: true });
+      console.log(' DATA_DIR created');
+    } else {
+      console.log(' DATA_DIR exists');
     }
+    
     if (!fs.existsSync(LOGS_DIR)) {
+      console.log(' Creating LOGS_DIR...');
       fs.mkdirSync(LOGS_DIR, { recursive: true });
+      console.log(' LOGS_DIR created');
+    } else {
+      console.log(' LOGS_DIR exists');
     }
   } catch (error) {
-    console.warn('Warning: Could not create data directories:', error.message);
+    console.error(' Failed to create data directories:', error);
   }
 }
 
