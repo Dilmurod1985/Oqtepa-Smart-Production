@@ -1285,7 +1285,6 @@
       const selectedDate = dateInput.value;
       
       list.innerHTML = "";
-
       try {
         let url = `/api/history/${encodeURIComponent(curWS)}`;
         if (selectedDate) {
@@ -1296,10 +1295,13 @@
 
         const res = await fetch(url);
         const items = await res.json();
-        console.log(`Loaded ${items.length} entries for ${curWS} (Date: ${selectedDate || 'today'})`);
+        console.log(`📂 Loaded ${items.length} entries for ${curWS} (Date: ${selectedDate || 'today'})`);
+        console.log('📂 History items:', items);
         historyEntries = Array.isArray(items) ? items : [];
+        console.log('📂 Set historyEntries count:', historyEntries.length);
         updateProductionSummary(historyEntries);
         renderHistoryList();
+        console.log('📂 History loaded and rendered');
 
         // Загружаем и отображаем остатки (только если смотрим текущий день)
         if (!selectedDate || selectedDate === new Date().toISOString().split('T')[0]) {
@@ -1514,9 +1516,12 @@
 
     function appendHistoryEntry(entry) {
       if (!entry) return;
+      console.log('🟢 Adding entry to history:', entry);
       historyEntries.unshift(entry);
+      console.log('🟢 History entries count:', historyEntries.length);
       updateProductionSummary(historyEntries);
       renderHistoryList();
+      console.log('🟢 History rendered');
     }
 
     function buildFixationSummaryText(group) {
@@ -1936,6 +1941,9 @@
       
       // Обновляем статистику
       await loadDailyStats();
+      
+      // Перезагружаем историю чтобы показать новые записи
+      await loadHistory();
       
       document.querySelector('.history-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
