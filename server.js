@@ -724,6 +724,12 @@ function getTashkentDateKey() {
   return getLocalDateKey(tashkentNow);
 }
 
+function scheduleDailyReset() {
+  // DISABLED: Render runs in UTC, causing timezone issues
+  // Use manual reset instead
+  return null;
+}
+
 function performFullDailyReset() {
   const todayStr = getTashkentDateKey();
   
@@ -801,8 +807,8 @@ if (require.main === module) {
     console.log('=========================================');
   });
   
-  // Check for daily reset every minute
-  setInterval(checkDailyReset, 60 * 1000);
+  // DISABLED: Check for daily reset every minute (timezone issues on Render)
+// setInterval(checkDailyReset, 60 * 1000);
 }
 
 module.exports = { app, getLocalDateKey };
