@@ -725,9 +725,20 @@ function getTashkentDateKey() {
 }
 
 function scheduleDailyReset() {
-  // DISABLED: Render runs in UTC, causing timezone issues
-  // Use manual reset instead
-  return null;
+  // Get current time in Tashkent timezone (UTC+5)
+  const now = new Date();
+  const tashkentTime = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+  
+  // Calculate time until midnight Tashkent time
+  const tomorrow = new Date(tashkentTime);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  
+  const timeUntilMidnight = tomorrow.getTime() - tashkentTime.getTime();
+  
+  console.log(`Next daily reset in ${Math.round(timeUntilMidnight / 1000 / 60)} minutes (Tashkent time)`);
+  
+  return timeUntilMidnight;
 }
 
 function performFullDailyReset() {
@@ -790,8 +801,8 @@ function checkDailyReset() {
   const hours = tashkentNow.getUTCHours();
   const minutes = tashkentNow.getUTCMinutes();
   
-  // Check if it's 6:00 AM Tashkent time (UTC+5)
-  if (hours === 6 && minutes === 0) {
+  // Check if it's 00:00 (midnight) Tashkent time (UTC+5)
+  if (hours === 0 && minutes === 0) {
     performFullDailyReset();
   }
 }
@@ -807,8 +818,8 @@ if (require.main === module) {
     console.log('=========================================');
   });
   
-  // DISABLED: Check for daily reset every minute (timezone issues on Render)
-// setInterval(checkDailyReset, 60 * 1000);
+  // Check for daily reset every minute with Tashkent timezone
+setInterval(checkDailyReset, 60 * 1000);
 }
 
 module.exports = { app, getLocalDateKey };
