@@ -1353,7 +1353,7 @@
       // Группируем по комбинации "Продукт + Калибр"
       const byProductCaliber = new Map();
       prodEntries.forEach((item) => {
-        const caliberKey = String(item.caliber || "-").trim().replace(" кг", "") || "-";
+        const caliberKey = String(item.caliber || "-").trim();
         const key = `${item.product || "Без названия"}|${caliberKey}`;
         const prev = Number(byProductCaliber.get(key) || 0);
         byProductCaliber.set(key, prev + Number(item.count || 0));
@@ -1363,7 +1363,7 @@
       const displayText = [...byProductCaliber.entries()]
         .map(([key, qty]) => {
           const [product, caliber] = key.split("|");
-          return `${product} (Калибр ${caliber}: ${qty} шт)`;
+          return `${product} (Калибр ${caliber} кг: ${qty} шт)`;
         })
         .join(", ");
 
@@ -1485,7 +1485,7 @@
           });
 
           const detailLine = entry.category === "PROD"
-            ? `${entry.product} (${entry.caliber}) x ${entry.count} = ${Number(entry.totalKg || 0).toFixed(1)} кг`
+            ? `${entry.product} (${entry.caliber} кг) x ${entry.count} = ${Number(entry.totalKg || 0).toFixed(1)} кг`
             : `${entry.type}: Лахм ${entry.lahm || 0}, Кийма ${entry.kiyma || 0}, Думба ${entry.dumba || 0}`;
           const shortage = entry.shortage || { lahm: 0, kiyma: 0, dumba: 0 };
           const shortageLine = entry.category === "PROD" && (Number(shortage.lahm || 0) > 0 || Number(shortage.kiyma || 0) > 0 || Number(shortage.dumba || 0) > 0)
@@ -1590,7 +1590,7 @@
           
           const byCaliber = new Map();
           prodEntries.forEach((item) => {
-            const key = String(item.caliber || "-").trim().replace(" кг", "") || "-";
+            const key = String(item.caliber || "-").trim();
             const prev = Number(byCaliber.get(key) || 0);
             byCaliber.set(key, prev + Number(item.count || 0));
           });
@@ -1600,7 +1600,7 @@
             .map(([caliber, qty]) => {
               const caliberValue = parseFloat(String(caliber || "").replace(",", "."));
               const caliberLabel = Number.isFinite(caliberValue) ? caliberValue : String(caliber || "-");
-              return `Калибр ${caliberLabel}: ${qty} шт`;
+              return `Калибр ${caliberLabel} кг: ${qty} шт`;
             })
             .join(", ");
 
@@ -1874,7 +1874,7 @@
             workerId: workerId,
             product: prod.product,
             firm: prod.firm,
-            caliber: `${prod.caliber} кг`,
+            caliber: prod.caliber,
             count: prod.count,
             totalKg: prod.caliber * prod.count
           };
