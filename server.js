@@ -454,9 +454,21 @@ app.get('/api/history/:ws', (req, res) => {
   // Filter by today's date if requested (redundant but safe)
   if (today && !date) {
     const todayStr = getLocalDateKey(new Date());
+    console.log('🔵 Today filter - todayStr:', todayStr);
+    console.log('🔵 Today filter - entries before:', entries.length);
     entries = entries.filter((entry) => {
-      return getLocalDateKey(entry.timestamp) === todayStr;
+      const entryDate = getLocalDateKey(entry.timestamp);
+      const matches = entryDate === todayStr;
+      if (!matches) {
+        console.log('🔴 Filtered out entry:', {
+          entryDate,
+          timestamp: entry.timestamp,
+          todayStr
+        });
+      }
+      return matches;
     });
+    console.log('🔵 Today filter - entries after:', entries.length);
   }
 
   if (Number.isFinite(limit) && limit > 0) {

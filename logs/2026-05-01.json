@@ -1,0 +1,98 @@
+[
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777616679453_snat2e",
+    "timestamp": "2026-05-01T06:24:39.473Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777616775071_kebouu",
+    "timestamp": "2026-05-01T06:26:15.071Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 49,
+      "shortageKiyma": 41,
+      "shortageDumba": 10
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ahmedov Ulug'bek",
+    "workerId": "71",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": "10 кг",
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777618712543_e7wyj4",
+    "timestamp": "2026-05-01T06:58:32.547Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 98,
+      "shortageKiyma": 82,
+      "shortageDumba": 20
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  }
+]
