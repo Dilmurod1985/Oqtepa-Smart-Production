@@ -1,0 +1,66 @@
+[
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777700908669_6aib29",
+    "timestamp": "2026-05-02T05:48:28.671Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 147,
+      "shortageKiyma": 123,
+      "shortageDumba": 30
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777701417846_3gdva4",
+    "timestamp": "2026-05-02T05:56:57.851Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 196,
+      "shortageKiyma": 164,
+      "shortageDumba": 40
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  }
+]

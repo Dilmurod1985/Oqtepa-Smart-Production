@@ -1941,9 +1941,6 @@
       // Обновляем статистику
       await loadDailyStats();
       
-      // Перезагружаем историю чтобы показать новые записи
-      await loadHistory();
-      
       document.querySelector('.history-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

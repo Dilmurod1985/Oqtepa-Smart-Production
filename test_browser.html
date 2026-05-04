@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Fixation</title>
+</head>
+<body>
+    <h1>Test Fixation</h1>
+    <button onclick="testFixation()">Test Fixation</button>
+    <button onclick="loadHistory()">Load History</button>
+    <div id="result"></div>
+    <div id="history"></div>
+
+    <script>
+        async function testFixation() {
+            const testData = {
+                workshop: 'ALLMAKON',
+                category: 'PROD',
+                workerName: 'Test Employee',
+                workerId: 'TEST001',
+                product: 'DONER 50/50',
+                firm: 'Test Firm',
+                caliber: 10,
+                count: 1,
+                totalKg: 10
+            };
+
+            try {
+                const response = await fetch('http://localhost:3001/api/stock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <h3>Fixation Result:</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                
+                console.log('Fixation result:', result);
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <pre>${error.message}</pre>
+                `;
+                console.error('Fixation error:', error);
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('http://localhost:3001/api/history/ALLMAKON');
+                const items = await response.json();
+                
+                document.getElementById('history').innerHTML = `
+                    <h3>History (${items.length} items):</h3>
+                    <pre>${JSON.stringify(items, null, 2)}</pre>
+                `;
+                
+                console.log('History loaded:', items);
+            } catch (error) {
+                document.getElementById('history').innerHTML = `
+                    <h3>Error loading history:</h3>
+                    <pre>${error.message}</pre>
+                `;
+                console.error('History error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
