@@ -292,6 +292,28 @@ function getLocalDateKey(value) {
   return `${year}-${month}-${day}`;
 }
 
+function calculateUsageByProduct(product, totalKg) {
+  // Calculate ingredient usage based on product type and total kg
+  const usageRatios = {
+    'DONER 50/50': { lahm: 0.5, kiyma: 0.5, dumba: 0 },
+    'DONER 30/70': { lahm: 0.3, kiyma: 0.7, dumba: 0 },
+    'DONER 60/40': { lahm: 0.6, kiyma: 0.4, dumba: 0 },
+    'DONER 70/30': { lahm: 0.7, kiyma: 0.3, dumba: 0 },
+    'TURK 70/30': { lahm: 0.7, kiyma: 0.3, dumba: 0 },
+    'CITY 50/50': { lahm: 0.5, kiyma: 0.5, dumba: 0 },
+    "WENDY'S 50/50": { lahm: 0.5, kiyma: 0.5, dumba: 0 },
+    'MISSION 100% QIYMA': { lahm: 0, kiyma: 1.0, dumba: 0 }
+  };
+  
+  const ratios = usageRatios[product] || { lahm: 0.5, kiyma: 0.5, dumba: 0 };
+  
+  return {
+    lahm: totalKg * ratios.lahm,
+    kiyma: totalKg * ratios.kiyma,
+    dumba: totalKg * ratios.dumba
+  };
+}
+
 function applyEntryToStocks(stocks, entry, direction) {
   ensureWorkshopStock(stocks, entry.workshop);
   const factor = direction === 'undo' ? -1 : 1;
@@ -333,8 +355,10 @@ function applyEntryToStocks(stocks, entry, direction) {
   if (entry.category === 'PROD') {
     const usage = entry.usage || {};
     
-    // Special logic for MISSION - use ingredients from OQTEPA
-    if (entry.workshop === 'MISSION') {
+    // Special logic for workshops that use ingredients from OQTEPA
+    const workshopsUsingOqtepa = ['MISSION', 'TURK', 'CITY', 'WENDYS'];
+    
+    if (workshopsUsingOqtepa.includes(entry.workshop)) {
       ensureWorkshopStock(stocks, 'OQTEPA');
       const oqtepaTarget = normalizeStock(stocks['OQTEPA']);
       
@@ -360,7 +384,7 @@ function applyEntryToStocks(stocks, entry, direction) {
         result.shortage = shortage;
       }
     } else {
-      // Normal logic for other workshops
+      // Normal logic for other workshops (ALLMAKON)
       const lahmResult = applyDeltaWithShortage(target, 'lahm', 'shortageLahm', -Number(usage.lahm || 0) * factor);
       const kiymaResult = applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', -Number(usage.kiyma || 0) * factor);
       const dumbaResult = applyDeltaWithShortage(target, 'dumba', 'shortageDumba', -Number(usage.dumba || 0) * factor);
@@ -510,11 +534,17 @@ app.post('/api/stock', (req, res) => {
   if (entry.category === 'PROD') {
     entry.count = Number(entry.count || 0);
     entry.totalKg = Number(entry.totalKg || 0);
-    entry.usage = {
-      lahm: Number(entry.usage?.lahm || 0),
-      kiyma: Number(entry.usage?.kiyma || 0),
-      dumba: Number(entry.usage?.dumba || 0)
-    };
+    
+    // Calculate usage automatically if not provided
+    if (!entry.usage || (entry.usage.lahm === 0 && entry.usage.kiyma === 0 && entry.usage.dumba === 0)) {
+      entry.usage = calculateUsageByProduct(entry.product, entry.totalKg);
+    } else {
+      entry.usage = {
+        lahm: Number(entry.usage?.lahm || 0),
+        kiyma: Number(entry.usage?.kiyma || 0),
+        dumba: Number(entry.usage?.dumba || 0)
+      };
+    }
   }
 
   const applyResult = applyEntryToStocks(stocks, entry, 'apply');

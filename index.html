@@ -897,7 +897,7 @@
       <button class="tile" onclick="openWS('CITY')">CITY</button>
       <button class="tile" onclick="openWS(`WENDY'S`)">WENDY'S</button>
       <button class="tile" onclick="openWS('MISSION')">MISSION</button>
-      <button class="tile" onclick="openWS('TURK 70/30')">TURK 70/30</button>
+      <button class="tile" onclick="openWS('TURK')">TURK</button>
     </div>
 
     <section id="panel" class="panel">
@@ -1039,6 +1039,7 @@
         <div id="totalTxt" class="summary-bar">Общий итог: <span id="overallTotal"></span> кг</div>
 
         <button class="btn-main" onclick="submitMultipleProducts()">ЗАФИКСИРОВАТЬ ВСЕ</button>
+        <button class="btn-main" onclick="openUniversalFixation()" style="background: linear-gradient(135deg, #4CAF50, #45a049); margin-top: 10px;">УНИВЕРСАЛЬНАЯ ФИКСАЦИЯ</button>
       </div>
 
       <div class="history-wrap">
@@ -1049,7 +1050,67 @@
         <div id="historyList"></div>
       </div>
 
-      <div id="historyModal" class="history-modal hidden" onclick="onHistoryModalBackdrop(event)">
+      <div id="universalModal" class="history-modal hidden" onclick="onUniversalModalBackdrop(event)">
+    <div class="history-modal-card" style="max-width: 600px;">
+      <div class="history-modal-head">
+        <h4 class="history-modal-title">УНИВЕРСАЛЬНАЯ ФИКСАЦИЯ</h4>
+        <button class="history-close" type="button" onclick="closeUniversalModal()">&times;</button>
+      </div>
+      
+      <div style="padding: 20px;">
+        <!-- Employee Selection -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: bold;">ID сотрудника:</label>
+          <input type="text" id="universalEmployeeId" placeholder="Введите ID сотрудника" oninput="updateUniversalEmployeeName()" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+          <div id="universalEmployeeName" style="margin-top: 5px; font-weight: bold; color: #4CAF50;"></div>
+        </div>
+        
+        <!-- Product List -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 5px; font-weight: bold;">Товары:</label>
+          <div id="universalProductsList">
+            <div class="universal-product-item" data-index="0">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 10px; margin-bottom: 10px;">
+                <select class="universal-product-type" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+                  <option value="">Выберите товар</option>
+                  <option value="DONER 50/50">DONER 50/50</option>
+                  <option value="DONER 30/70">DONER 30/70</option>
+                  <option value="DONER 60/40">DONER 60/40</option>
+                  <option value="DONER 70/30">DONER 70/30</option>
+                  <option value="TURK 70/30">TURK 70/30</option>
+                  <option value="CITY 50/50">CITY 50/50</option>
+                  <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+                  <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+                </select>
+                <input type="number" class="universal-caliber" placeholder="Калибр" step="0.1" min="0" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+                <input type="number" class="universal-count" placeholder="Кол-во" min="1" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+                <select class="universal-firm" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+                  <option value="">Выберите фирму</option>
+                  <option value="ALLMAKON">ALLMAKON</option>
+                  <option value="OQTEPA">OQTEPA</option>
+                  <option value="TURK">TURK</option>
+                  <option value="CITY">CITY</option>
+                  <option value="WENDY'S">WENDY'S</option>
+                  <option value="MISSION">MISSION</option>
+                </select>
+                <button type="button" onclick="removeUniversalProduct(0)" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
+              </div>
+            </div>
+          </div>
+          <button type="button" onclick="addUniversalProduct()" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 8px;">+ Добавить товар</button>
+          
+          <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+            <strong>Общий тоннаж: <span id="universalTotal">0</span> кг</strong>
+          </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="button" onclick="submitUniversalFixation()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold;">ЗАФИКСИРОВАТЬ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="historyModal" class="history-modal hidden" onclick="onHistoryModalBackdrop(event)">
         <div class="history-modal-card">
           <div class="history-modal-head">
             <h4 id="historyModalTitle" class="history-modal-title"></h4>
@@ -3019,6 +3080,271 @@
     const savedFirm = localStorage.getItem('currentFirm');
     if (savedFirm) {
       window.currentFirm = savedFirm;
+    }
+
+    // Universal Fixation Functions
+    let universalProductIndex = 1;
+
+    function openUniversalFixation() {
+      document.getElementById('universalModal').classList.remove('hidden');
+      // Reset form
+      document.getElementById('universalEmployeeId').value = '';
+      resetUniversalProducts();
+    }
+
+    function closeUniversalModal() {
+      document.getElementById('universalModal').classList.add('hidden');
+    }
+
+    function onUniversalModalBackdrop(event) {
+      if (event.target.id === 'universalModal') {
+        closeUniversalModal();
+      }
+    }
+
+    function resetUniversalProducts() {
+      document.getElementById('universalProductsList').innerHTML = `
+        <div class="universal-product-item" data-index="0">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 10px; margin-bottom: 10px;">
+            <select class="universal-product-type" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+              <option value="">Выберите товар</option>
+              <option value="DONER 50/50">DONER 50/50</option>
+              <option value="DONER 30/70">DONER 30/70</option>
+              <option value="DONER 60/40">DONER 60/40</option>
+              <option value="DONER 70/30">DONER 70/30</option>
+              <option value="TURK 70/30">TURK 70/30</option>
+              <option value="CITY 50/50">CITY 50/50</option>
+              <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+              <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+            </select>
+            <input type="number" class="universal-caliber" placeholder="Калибр" step="0.1" min="0" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
+            <input type="number" class="universal-count" placeholder="Кол-во" min="1" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
+            <select class="universal-firm" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+              <option value="">Выберите фирму</option>
+              <option value="ALLMAKON">ALLMAKON</option>
+              <option value="OQTEPA">OQTEPA</option>
+              <option value="TURK">TURK</option>
+              <option value="CITY">CITY</option>
+              <option value="WENDY'S">WENDY'S</option>
+              <option value="MISSION">MISSION</option>
+            </select>
+            <button type="button" onclick="removeUniversalProduct(0)" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
+          </div>
+        </div>
+      `;
+      universalProductIndex = 1;
+      updateUniversalTotal();
+    }
+
+    function addUniversalProduct() {
+      const container = document.getElementById('universalProductsList');
+      const newProduct = document.createElement('div');
+      newProduct.className = 'universal-product-item';
+      newProduct.setAttribute('data-index', universalProductIndex);
+      newProduct.innerHTML = `
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto; gap: 10px; margin-bottom: 10px;">
+          <select class="universal-product-type" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+            <option value="">Выберите товар</option>
+            <option value="DONER 50/50">DONER 50/50</option>
+            <option value="DONER 30/70">DONER 30/70</option>
+            <option value="DONER 60/40">DONER 60/40</option>
+            <option value="DONER 70/30">DONER 70/30</option>
+            <option value="TURK 70/30">TURK 70/30</option>
+            <option value="CITY 50/50">CITY 50/50</option>
+            <option value="WENDY'S 50/50">WENDY'S 50/50</option>
+            <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+          </select>
+          <input type="number" class="universal-caliber" placeholder="Калибр" step="0.1" min="0" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
+          <input type="number" class="universal-count" placeholder="Кол-во" min="1" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
+          <select class="universal-firm" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
+            <option value="">Выберите фирму</option>
+            <option value="ALLMAKON">ALLMAKON</option>
+            <option value="OQTEPA">OQTEPA</option>
+            <option value="TURK">TURK</option>
+            <option value="CITY">CITY</option>
+            <option value="WENDY'S">WENDY'S</option>
+            <option value="MISSION">MISSION</option>
+          </select>
+          <button type="button" onclick="removeUniversalProduct(${universalProductIndex})" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
+        </div>
+      `;
+      container.appendChild(newProduct);
+      universalProductIndex++;
+      updateUniversalTotal();
+    }
+
+    function removeUniversalProduct(index) {
+      const item = document.querySelector(`.universal-product-item[data-index="${index}"]`);
+      if (item) {
+        item.remove();
+        updateUniversalTotal();
+      }
+    }
+
+    function updateUniversalEmployeeName() {
+      const employeeId = document.getElementById('universalEmployeeId').value.trim();
+      const nameDisplay = document.getElementById('universalEmployeeName');
+      
+      if (!employeeId) {
+        nameDisplay.textContent = '';
+        return;
+      }
+      
+      // Find employee by ID
+      const employees = getAllEmployees();
+      const employee = employees.find(emp => emp.id === employeeId);
+      
+      if (employee) {
+        nameDisplay.textContent = employee.name;
+        nameDisplay.style.color = '#4CAF50';
+      } else {
+        nameDisplay.textContent = 'Сотрудник не найден';
+        nameDisplay.style.color = '#f44336';
+      }
+    }
+
+    function updateUniversalTotal() {
+      const productItems = document.querySelectorAll('.universal-product-item');
+      let totalKg = 0;
+      
+      productItems.forEach(item => {
+        const caliber = parseFloat(item.querySelector('.universal-caliber').value) || 0;
+        const count = parseInt(item.querySelector('.universal-count').value) || 0;
+        totalKg += caliber * count;
+      });
+      
+      const totalDisplay = document.getElementById('universalTotal');
+      if (totalDisplay) {
+        totalDisplay.textContent = Number.isInteger(totalKg) ? totalKg : totalKg.toFixed(1);
+      }
+    }
+
+    function getWorkshopForProduct(productType) {
+      // Define which workshop each product belongs to
+      const productWorkshops = {
+        'DONER 50/50': 'ALLMAKON',
+        'DONER 30/70': 'ALLMAKON',
+        'DONER 60/40': 'ALLMAKON',
+        'DONER 70/30': 'ALLMAKON',
+        'TURK 70/30': 'TURK',
+        'CITY 50/50': 'CITY',
+        "WENDY'S 50/50": 'WENDYS',
+        'MISSION 100% QIYMA': 'MISSION'
+      };
+      
+      return productWorkshops[productType] || 'ALLMAKON'; // Default to ALLMAKON
+    }
+
+    async function submitUniversalFixation() {
+      const employeeId = document.getElementById('universalEmployeeId').value.trim();
+      
+      if (!employeeId) {
+        showStatus('Введите ID сотрудника', 'error');
+        return;
+      }
+
+      // Get all products
+      const productItems = document.querySelectorAll('.universal-product-item');
+      const products = [];
+
+      productItems.forEach(item => {
+        const productType = item.querySelector('.universal-product-type').value;
+        const caliber = parseFloat(item.querySelector('.universal-caliber').value) || 0;
+        const count = parseInt(item.querySelector('.universal-count').value) || 0;
+        const firm = item.querySelector('.universal-firm').value;
+
+        if (productType && caliber > 0 && count > 0 && firm) {
+          products.push({
+            product: productType,
+            caliber: caliber,
+            count: count,
+            firm: firm,
+            workshop: getWorkshopForProduct(productType)
+          });
+        }
+      });
+
+      if (products.length === 0) {
+        showStatus('Добавьте хотя бы один товар', 'error');
+        return;
+      }
+
+      console.log('🔵 Universal fixation - products:', products);
+
+      // Group products by workshop
+      const productsByWorkshop = {};
+      products.forEach(product => {
+        if (!productsByWorkshop[product.workshop]) {
+          productsByWorkshop[product.workshop] = [];
+        }
+        productsByWorkshop[product.workshop].push(product);
+      });
+
+      console.log('🔵 Universal fixation - grouped by workshop:', productsByWorkshop);
+
+      // Submit to each workshop
+      let totalSuccess = 0;
+      let totalErrors = 0;
+
+      for (const [workshop, workshopProducts] of Object.entries(productsByWorkshop)) {
+        console.log(`🔵 Submitting to workshop: ${workshop}, products: ${workshopProducts.length}`);
+        
+        for (const product of workshopProducts) {
+          try {
+            const data = {
+              workshop: workshop,
+              category: 'PROD',
+              workerName: `ID: ${employeeId}`,
+              workerId: employeeId,
+              product: product.product,
+              firm: product.firm,
+              caliber: product.caliber,
+              count: product.count,
+              totalKg: product.caliber * product.count
+            };
+
+            console.log('🔵 Sending data:', data);
+
+            const response = await fetch('/api/stock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              totalSuccess++;
+              if (result.entry) {
+                appendHistoryEntry(result.entry);
+              }
+              console.log('🟢 Product submitted successfully to', workshop);
+            } else {
+              totalErrors++;
+              console.log('🔴 Product submission failed:', result);
+            }
+          } catch (error) {
+            totalErrors++;
+            console.log('🔴 API request error:', error);
+          }
+        }
+      }
+
+      // Show result
+      if (totalErrors === 0) {
+        showStatus(`Успешно зафиксировано ${totalSuccess} продуктов в ${Object.keys(productsByWorkshop).length} цехах`, 'success');
+        closeUniversalModal();
+      } else {
+        showStatus(`Зафиксировано ${totalSuccess} из ${totalSuccess + totalErrors} продуктов`, 'warning');
+      }
+
+      // Update stock view for current workshop
+      fetch(`/api/get-stock/${encodeURIComponent(curWS)}`)
+        .then(res => res.json())
+        .then(data => {
+          updateStockView(data);
+        })
+        .catch(err => console.error('Failed to update stock view:', err));
     }
     
   // updTotal(); // Удалено - больше не нужно при загрузке

@@ -1,0 +1,292 @@
+[
+  {
+    "id": "reset_1777884551800_589f9fuyq",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-05-04T08:49:11.823Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "id": "reset_1777882531011_8ldvzlxn3",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-05-04T08:15:31.011Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "id": "reset_1777882504351_8bn2wujl5",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-05-04T08:15:04.351Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "id": "reset_1777882496915_s18vbmeii",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-05-04T08:14:56.915Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "id": "reset_1777882491205_f5l1qi697",
+    "category": "RESET",
+    "workshop": "ALLMAKON",
+    "timestamp": "2026-05-04T08:14:51.206Z",
+    "type": "Ежедневный сброс производства",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "isUndone": false
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1777882445762_s69r1t",
+    "timestamp": "2026-05-04T08:14:05.764Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 245,
+      "shortageKiyma": 205,
+      "shortageDumba": 50
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Test Employee",
+    "workerId": "TEST001",
+    "product": "DONER 50/50",
+    "firm": "Test Firm",
+    "caliber": 10,
+    "count": 1,
+    "totalKg": 10,
+    "id": "entry_1777883105046_a2nkr5",
+    "timestamp": "2026-05-04T08:25:05.049Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 294,
+      "shortageKiyma": 246,
+      "shortageDumba": 60
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Ibragimov Ozodbek",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 8,
+    "totalKg": 80,
+    "usage": {
+      "lahm": 39.2,
+      "kiyma": 32.8,
+      "dumba": 8
+    },
+    "id": "entry_1777885634643_pghwu7",
+    "timestamp": "2026-05-04T09:07:14.644Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 294,
+      "shortageKiyma": 246,
+      "shortageDumba": 60
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 39.2,
+      "kiyma": 32.8,
+      "dumba": 8
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "ID: 11",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "firm": "allmakon",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1777889642793_lbt0xh",
+    "timestamp": "2026-05-04T10:14:02.794Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 333.2,
+      "shortageKiyma": 278.8,
+      "shortageDumba": 68
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "TURK",
+    "category": "PROD",
+    "workerName": "ID: 11",
+    "workerId": "11",
+    "product": "TURK 70/30",
+    "firm": "TURK",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1777891391261_li72t6",
+    "timestamp": "2026-05-04T10:43:11.261Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "MISSION",
+    "category": "PROD",
+    "workerName": "ID: 41",
+    "workerId": "41",
+    "product": "MISSION 100% QIYMA",
+    "firm": "MISSION",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1777891716553_0ar5qa",
+    "timestamp": "2026-05-04T10:48:36.559Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 0,
+      "shortageKiyma": 0,
+      "shortageDumba": 0
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "sourceWorkshop": "OQTEPA"
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "ID: 0.7",
+    "workerId": "0.7",
+    "product": "DONER 50/50",
+    "firm": "OQTEPA",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1777894780245_jcyis2",
+    "timestamp": "2026-05-04T11:39:40.253Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 333.2,
+      "shortageKiyma": 278.8,
+      "shortageDumba": 68
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0
+    }
+  }
+]
