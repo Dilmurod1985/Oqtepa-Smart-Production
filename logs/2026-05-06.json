@@ -1,0 +1,98 @@
+[
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "Adullo brigadir",
+    "workerId": "11",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "usage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    },
+    "id": "entry_1778061820647_ia5bax",
+    "timestamp": "2026-05-06T10:03:40.648Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 333.2,
+      "shortageKiyma": 278.8,
+      "shortageDumba": 68
+    },
+    "isUndone": false,
+    "shortage": {
+      "lahm": 49,
+      "kiyma": 41,
+      "dumba": 10
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "ID: 41",
+    "workerId": "41",
+    "product": "DONER 50/50",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1778061841831_7gqxyi",
+    "timestamp": "2026-05-06T10:04:01.831Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 382.2,
+      "shortageKiyma": 319.8,
+      "shortageDumba": 78
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 50,
+      "kiyma": 50,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 50,
+      "kiyma": 50,
+      "dumba": 0
+    }
+  },
+  {
+    "workshop": "ALLMAKON",
+    "category": "PROD",
+    "workerName": "ID: 0.7",
+    "workerId": "0.7",
+    "product": "DONER 30/70",
+    "firm": "ALLMAKON",
+    "caliber": 10,
+    "count": 10,
+    "totalKg": 100,
+    "id": "entry_1778061888674_xofxxi",
+    "timestamp": "2026-05-06T10:04:48.674Z",
+    "previousStock": {
+      "lahm": 0,
+      "kiyma": 0,
+      "dumba": 0,
+      "shortageLahm": 432.2,
+      "shortageKiyma": 369.8,
+      "shortageDumba": 78
+    },
+    "isUndone": false,
+    "usage": {
+      "lahm": 30,
+      "kiyma": 70,
+      "dumba": 0
+    },
+    "shortage": {
+      "lahm": 30,
+      "kiyma": 70,
+      "dumba": 0
+    }
+  }
+]

@@ -1343,12 +1343,22 @@
 
     async function loadHistory() {
       const list = document.getElementById("historyList");
-      const dateInput = document.getElementById("historyDate");
-      const selectedDate = dateInput.value;
+      list.innerHTML = '<div class="spinner"></div>';
       
-      list.innerHTML = "";
       try {
+        // Try to load from localStorage first
+        const localHistory = localStorage.getItem(`history_${curWS}`);
+        if (localHistory) {
+          historyEntries = JSON.parse(localHistory);
+          console.log('📂 Loaded from localStorage:', historyEntries.length, 'entries');
+          updateProductionSummary(historyEntries);
+          renderHistoryList();
+        }
+        
+        // Then load from server and merge
         let url = `/api/history/${encodeURIComponent(curWS)}`;
+        const dateInput = document.getElementById("historyDate");
+        const selectedDate = dateInput.value;
         if (selectedDate) {
           url += `?date=${selectedDate}`;
         }
@@ -1357,8 +1367,17 @@
         const items = await res.json();
         console.log(`📂 Loaded ${items.length} entries for ${curWS} (Date: ${selectedDate || 'today'})`);
         console.log('📂 History items:', items);
-        historyEntries = Array.isArray(items) ? items : [];
-        console.log('📂 Set historyEntries count:', historyEntries.length);
+        
+        // Merge server data with local data
+        const serverIds = new Set(items.map(item => item.id));
+        const localOnly = historyEntries.filter(item => !serverIds.has(item.id));
+        historyEntries = [...items, ...localOnly];
+        
+        console.log('📂 Merged historyEntries count:', historyEntries.length);
+        
+        // Save merged data back to localStorage
+        localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
+        
         updateProductionSummary(historyEntries);
         renderHistoryList();
         console.log('📂 History loaded and rendered');
@@ -1579,9 +1598,31 @@
       console.log('🟢 Adding entry to history:', entry);
       historyEntries.unshift(entry);
       console.log('🟢 History entries count:', historyEntries.length);
+      
+      // Save to localStorage
+      localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
+      
       updateProductionSummary(historyEntries);
       renderHistoryList();
       console.log('🟢 History rendered');
+    }
+
+    function removeHistoryEntry(entryId) {
+      historyEntries = historyEntries.filter((item) => item.id !== entryId);
+      
+      // Save to localStorage
+      localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
+      
+      updateProductionSummary(historyEntries);
+      renderHistoryList();
+
+      if (openedHistoryGroupKey) {
+        const group = groupedHistory.find((item) => item.key === openedHistoryGroupKey);
+        if (group) {
+          group.entries = group.entries.filter((item) => item.id !== entryId);
+          buildFixationSummaryText(group);
+        }
+      }
     }
 
     function buildFixationSummaryText(group) {
@@ -1604,25 +1645,32 @@
         .map(([caliber, qty]) => `${caliber}: ${qty} шт`)
         .join(", ");
 
-      return `${group.meta}. Общий тоннаж: ${totalKg.toFixed(1)} кг. По калибрам: ${caliberText || "нет данных"}.`;
+      document.getElementById('todayProductionCalibers').textContent = caliberText || "По калибрам: нет данных";
     }
+  } catch (error) {
+    console.error('Failed to load daily stats:', error);
+  }
+}
 
-    function removeHistoryEntry(entryId) {
-      historyEntries = historyEntries.filter((item) => item.id !== entryId);
-      updateProductionSummary(historyEntries);
-      renderHistoryList();
+function setM(mode) {
+  currentMode = mode;
+  document.getElementById("secRaw").classList.toggle("hidden", mode !== "RAW");
+  document.getElementById("secProd").classList.toggle("hidden", mode !== "PROD");
+  document.getElementById("mRaw").classList.toggle("active", mode === "RAW");
+  document.getElementById("mProd").classList.toggle("active", mode === "PROD");
+  document.getElementById("prodSummaryCard").classList.toggle("hidden", mode !== "PROD");
+  renderHistoryList();
+}
 
-      if (openedHistoryGroupKey) {
-        const stillExists = groupedHistory.some((item) => item.key === openedHistoryGroupKey);
-        if (stillExists) {
-          openHistoryFixation(openedHistoryGroupKey);
-        } else {
-          closeHistoryModal();
-        }
-      }
-    }
+function filterW() {
+  const value = document.getElementById("wSearch").value.trim().toLowerCase();
+  const list = document.getElementById("workerList");
+  list.innerHTML = "";
 
-    async function loadDailyStats() {
+  if (!value) {
+    list.classList.add("hidden");
+    return;
+  }
       if (!curWS) return;
 
       try {
