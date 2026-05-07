@@ -9,6 +9,9 @@ const LOGS_DIR = path.join(__dirname, 'logs');
 const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
 const app = express();
+const asyncRoute = (handler) => (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
+};
 
 app.use(express.json());
 
@@ -71,6 +74,26 @@ const DEFAULT_EMPLOYEES = [
   { id: '0.5', name: 'Qayumova Dilnoza' }, { id: 'staj-1', name: 'Maxkamov Jahongir' }, { id: 'staj-2', name: "Turg'unboyev Asadbek" }
 ];
 
+const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
+let pgPool = null;
+
+function getPgPool() {
+  if (!USE_POSTGRES) return null;
+  if (pgPool) return pgPool;
+
+  try {
+    const { Pool } = require('pg');
+    pgPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.PGSSLMODE === 'disable' ? false : { rejectUnauthorized: false }
+    });
+    return pgPool;
+  } catch (error) {
+    console.error('PostgreSQL is enabled but package "pg" is not installed:', error.message);
+    throw error;
+  }
+}
+
 function readJsonFile(filePath, fallback) {
   ensureDataDirs();
   if (!fs.existsSync(filePath)) return fallback;
@@ -87,11 +110,11 @@ function writeJsonFile(filePath, value) {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2));
 }
 
-function getStocks() {
+function getStocksFromFiles() {
   return readJsonFile(STOCKS_FILE, {});
 }
 
-function saveStocks(stocks) {
+function saveStocksToFiles(stocks) {
   writeJsonFile(STOCKS_FILE, stocks);
 }
 
@@ -148,7 +171,7 @@ function applyDeltaWithShortage(target, stockKey, shortageKey, delta) {
   return { shortageAdded: missing };
 }
 
-function getEmployees() {
+function getEmployeesFromFiles() {
   const stored = readJsonFile(EMPLOYEES_FILE, []);
   const merged = [...DEFAULT_EMPLOYEES];
 
@@ -161,11 +184,11 @@ function getEmployees() {
   return merged;
 }
 
-function saveEmployees(employees) {
+function saveEmployeesToFiles(employees) {
   writeJsonFile(EMPLOYEES_FILE, employees);
 }
 
-function readLogEntries() {
+function readCurrentLogFileEntries() {
   if (!fs.existsSync(LOG_FILE)) return [];
 
   const raw = fs.readFileSync(LOG_FILE, 'utf8').trim();
@@ -260,7 +283,7 @@ function readLogEntries() {
   return todayEntries;
 }
 
-function readArchiveEntries(date) {
+function readArchiveEntriesFromFiles(date) {
   ensureDataDirs();
   const archivePath = path.join(LOGS_DIR, `${date}.json`);
   if (!fs.existsSync(archivePath)) return [];
@@ -271,7 +294,7 @@ function readArchiveEntries(date) {
   }
 }
 
-function writeLogEntries(entries) {
+function writeLogEntriesToFiles(entries) {
   writeJsonFile(LOG_FILE, entries);
 }
 
@@ -290,6 +313,264 @@ function getLocalDateKey(value) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function readAllLogEntriesFromFiles() {
+  const entriesById = new Map();
+
+  readCurrentLogFileEntries().forEach((entry) => {
+    if (entry.id) entriesById.set(entry.id, entry);
+  });
+
+  ensureDataDirs();
+  if (fs.existsSync(LOGS_DIR)) {
+    fs.readdirSync(LOGS_DIR)
+      .filter((fileName) => fileName.endsWith('.json'))
+      .forEach((fileName) => {
+        const archiveDate = path.basename(fileName, '.json');
+        readArchiveEntriesFromFiles(archiveDate).forEach((entry) => {
+          if (entry.id) entriesById.set(entry.id, entry);
+        });
+      });
+  }
+
+  return [...entriesById.values()];
+}
+
+async function initPostgresStorage() {
+  if (!USE_POSTGRES) return;
+
+  const pool = getPgPool();
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS stock_balances (
+      workshop TEXT PRIMARY KEY,
+      lahm NUMERIC NOT NULL DEFAULT 0,
+      kiyma NUMERIC NOT NULL DEFAULT 0,
+      dumba NUMERIC NOT NULL DEFAULT 0,
+      shortage_lahm NUMERIC NOT NULL DEFAULT 0,
+      shortage_kiyma NUMERIC NOT NULL DEFAULT 0,
+      shortage_dumba NUMERIC NOT NULL DEFAULT 0,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS employees (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS stock_entries (
+      id TEXT PRIMARY KEY,
+      workshop TEXT NOT NULL,
+      category TEXT NOT NULL,
+      entry_timestamp TIMESTAMPTZ NOT NULL,
+      is_undone BOOLEAN NOT NULL DEFAULT false,
+      undone_at TIMESTAMPTZ,
+      payload JSONB NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_stock_entries_workshop_date
+      ON stock_entries (workshop, entry_timestamp DESC);
+  `);
+
+  await seedPostgresFromFiles();
+}
+
+async function seedPostgresFromFiles() {
+  const pool = getPgPool();
+  const { rows } = await pool.query(`
+    SELECT
+      (SELECT COUNT(*)::int FROM stock_balances) AS stocks_count,
+      (SELECT COUNT(*)::int FROM employees) AS employees_count,
+      (SELECT COUNT(*)::int FROM stock_entries) AS entries_count
+  `);
+  const counts = rows[0] || {};
+
+  if (!counts.stocks_count) {
+    const stocks = getStocksFromFiles();
+    for (const [workshop, stock] of Object.entries(stocks)) {
+      await saveOneStockToPostgres(workshop, stock);
+    }
+  }
+
+  if (!counts.employees_count) {
+    for (const employee of getEmployeesFromFiles()) {
+      await pool.query(
+        `INSERT INTO employees (id, name) VALUES ($1, $2)
+         ON CONFLICT (id) DO NOTHING`,
+        [String(employee.id), employee.name]
+      );
+    }
+  }
+
+  if (!counts.entries_count) {
+    for (const entry of readAllLogEntriesFromFiles()) {
+      await saveEntryToPostgres(entry);
+    }
+  }
+}
+
+async function getStocks() {
+  if (!USE_POSTGRES) return getStocksFromFiles();
+
+  const { rows } = await getPgPool().query('SELECT * FROM stock_balances');
+  const stocks = {};
+  rows.forEach((row) => {
+    stocks[row.workshop] = normalizeStock({
+      lahm: row.lahm,
+      kiyma: row.kiyma,
+      dumba: row.dumba,
+      shortageLahm: row.shortage_lahm,
+      shortageKiyma: row.shortage_kiyma,
+      shortageDumba: row.shortage_dumba
+    });
+  });
+  return stocks;
+}
+
+async function saveOneStockToPostgres(workshop, stock) {
+  const normalized = normalizeStock(stock);
+  await getPgPool().query(
+    `INSERT INTO stock_balances
+      (workshop, lahm, kiyma, dumba, shortage_lahm, shortage_kiyma, shortage_dumba, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+     ON CONFLICT (workshop) DO UPDATE SET
+      lahm = EXCLUDED.lahm,
+      kiyma = EXCLUDED.kiyma,
+      dumba = EXCLUDED.dumba,
+      shortage_lahm = EXCLUDED.shortage_lahm,
+      shortage_kiyma = EXCLUDED.shortage_kiyma,
+      shortage_dumba = EXCLUDED.shortage_dumba,
+      updated_at = now()`,
+    [
+      workshop,
+      normalized.lahm,
+      normalized.kiyma,
+      normalized.dumba,
+      normalized.shortageLahm,
+      normalized.shortageKiyma,
+      normalized.shortageDumba
+    ]
+  );
+}
+
+async function saveStocks(stocks) {
+  if (!USE_POSTGRES) {
+    saveStocksToFiles(stocks);
+    return;
+  }
+
+  for (const [workshop, stock] of Object.entries(stocks)) {
+    await saveOneStockToPostgres(workshop, stock);
+  }
+}
+
+async function getEmployees() {
+  if (!USE_POSTGRES) return getEmployeesFromFiles();
+
+  const { rows } = await getPgPool().query('SELECT id, name FROM employees ORDER BY name');
+  const merged = [...DEFAULT_EMPLOYEES];
+  rows.forEach((employee) => {
+    if (!merged.some((item) => String(item.id) === String(employee.id))) {
+      merged.push({ id: String(employee.id), name: employee.name });
+    }
+  });
+  return merged;
+}
+
+async function saveEmployee(employee) {
+  if (!USE_POSTGRES) {
+    const storedOnly = readJsonFile(EMPLOYEES_FILE, []);
+    storedOnly.push(employee);
+    saveEmployeesToFiles(storedOnly);
+    return;
+  }
+
+  await getPgPool().query(
+    `INSERT INTO employees (id, name) VALUES ($1, $2)
+     ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`,
+    [String(employee.id), employee.name]
+  );
+}
+
+function normalizeDbEntry(row) {
+  const payload = row.payload || {};
+  return {
+    ...payload,
+    id: row.id,
+    workshop: row.workshop,
+    category: row.category,
+    timestamp: row.entry_timestamp ? new Date(row.entry_timestamp).toISOString() : payload.timestamp,
+    isUndone: Boolean(row.is_undone),
+    undoneAt: row.undone_at ? new Date(row.undone_at).toISOString() : payload.undoneAt
+  };
+}
+
+async function readLogEntries() {
+  if (!USE_POSTGRES) return readCurrentLogFileEntries();
+
+  const todayStr = getLocalDateKey(new Date());
+  return readEntriesByDate(todayStr);
+}
+
+async function readEntriesByDate(date) {
+  if (!USE_POSTGRES) {
+    const todayStr = getLocalDateKey(new Date());
+    return date && date !== todayStr ? readArchiveEntriesFromFiles(date) : readCurrentLogFileEntries();
+  }
+
+  const { rows } = await getPgPool().query(
+    `SELECT * FROM stock_entries
+     WHERE entry_timestamp >= $1::date
+       AND entry_timestamp < ($1::date + interval '1 day')
+     ORDER BY entry_timestamp ASC`,
+    [date || getLocalDateKey(new Date())]
+  );
+  return rows.map(normalizeDbEntry);
+}
+
+async function saveEntryToPostgres(entry) {
+  await getPgPool().query(
+    `INSERT INTO stock_entries
+      (id, workshop, category, entry_timestamp, is_undone, undone_at, payload)
+     VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+     ON CONFLICT (id) DO UPDATE SET
+      workshop = EXCLUDED.workshop,
+      category = EXCLUDED.category,
+      entry_timestamp = EXCLUDED.entry_timestamp,
+      is_undone = EXCLUDED.is_undone,
+      undone_at = EXCLUDED.undone_at,
+      payload = EXCLUDED.payload`,
+    [
+      entry.id,
+      entry.workshop,
+      entry.category,
+      entry.timestamp || new Date().toISOString(),
+      Boolean(entry.isUndone),
+      entry.undoneAt || null,
+      JSON.stringify(entry)
+    ]
+  );
+}
+
+async function writeLogEntries(entries) {
+  if (!USE_POSTGRES) {
+    writeLogEntriesToFiles(entries);
+    return;
+  }
+
+  for (const entry of entries) {
+    await saveEntryToPostgres(entry);
+  }
+}
+
+async function findEntryById(entryId) {
+  if (!USE_POSTGRES) {
+    return (await readLogEntries()).find((item) => item.id === entryId);
+  }
+
+  const { rows } = await getPgPool().query('SELECT * FROM stock_entries WHERE id = $1', [entryId]);
+  return rows[0] ? normalizeDbEntry(rows[0]) : null;
 }
 
 function calculateUsageByProduct(product, totalKg) {
@@ -426,16 +707,16 @@ function buildHistoryItem(entry) {
   };
 }
 
-app.get('/api/get-stock/:ws', (req, res) => {
-  const stocks = getStocks();
+app.get('/api/get-stock/:ws', asyncRoute(async (req, res) => {
+  const stocks = await getStocks();
   res.json(toClientStock(stocks[req.params.ws] || DEFAULT_STOCK));
-});
+}));
 
-app.get('/api/employees', (_req, res) => {
-  res.json(getEmployees());
-});
+app.get('/api/employees', asyncRoute(async (_req, res) => {
+  res.json(await getEmployees());
+}));
 
-app.post('/api/employees', (req, res) => {
+app.post('/api/employees', asyncRoute(async (req, res) => {
   const name = String(req.body.name || '').trim();
   const id = String(req.body.id || '').trim();
 
@@ -443,32 +724,29 @@ app.post('/api/employees', (req, res) => {
     return res.status(400).json({ error: 'РЈРєР°Р¶РёС‚Рµ РёРјСЏ Рё ID СЃРѕС‚СЂСѓРґРЅРёРєР°' });
   }
 
-  const employees = getEmployees();
+  const employees = await getEmployees();
   if (employees.some((employee) => String(employee.id) === id)) {
     return res.status(400).json({ error: 'РЎРѕС‚СЂСѓРґРЅРёРє СЃ С‚Р°РєРёРј ID СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚' });
   }
 
-  const storedOnly = readJsonFile(EMPLOYEES_FILE, []);
   const newEmployee = { id, name };
-  storedOnly.push(newEmployee);
-  saveEmployees(storedOnly);
+  await saveEmployee(newEmployee);
 
-  res.json({ success: true, employee: newEmployee, employees: getEmployees() });
-});
+  res.json({ success: true, employee: newEmployee, employees: await getEmployees() });
+}));
 
-app.get('/api/history/:ws', (req, res) => {
+app.get('/api/history/:ws', asyncRoute(async (req, res) => {
   const workshop = req.params.ws;
   const limit = Number(req.query.limit || 0);
   const today = req.query.today === 'true';
   const date = req.query.date; // YYYY-MM-DD
+  const todayStr = getLocalDateKey(new Date());
 
   let allEntries = [];
   if (date) {
-    // Read from archive
-    allEntries = readArchiveEntries(date);
+    allEntries = await readEntriesByDate(date);
   } else {
-    // Read from current log (which only has today's data after readLogEntries)
-    allEntries = readLogEntries();
+    allEntries = await readLogEntries();
   }
 
   let entries = allEntries
@@ -477,7 +755,6 @@ app.get('/api/history/:ws', (req, res) => {
 
   // Filter by today's date if requested (redundant but safe)
   if (today && !date) {
-    const todayStr = getLocalDateKey(new Date());
     console.log('🔵 Today filter - todayStr:', todayStr);
     console.log('🔵 Today filter - entries before:', entries.length);
     entries = entries.filter((entry) => {
@@ -504,9 +781,9 @@ app.get('/api/history/:ws', (req, res) => {
     .map(buildHistoryItem);
 
   res.json(result);
-});
+}));
 
-app.post('/api/stock', (req, res) => {
+app.post('/api/stock', asyncRoute(async (req, res) => {
   const data = req.body;
   const workshop = data.workshop;
 
@@ -514,7 +791,7 @@ app.post('/api/stock', (req, res) => {
     return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ workshop' });
   }
 
-  const stocks = getStocks();
+  const stocks = await getStocks();
   ensureWorkshopStock(stocks, workshop);
 
   const entry = {
@@ -548,11 +825,11 @@ app.post('/api/stock', (req, res) => {
   }
 
   const applyResult = applyEntryToStocks(stocks, entry, 'apply');
-  saveStocks(stocks);
+  await saveStocks(stocks);
 
-  const entries = readLogEntries();
+  const entries = await readLogEntries();
   entries.push(entry);
-  writeLogEntries(entries);
+  await writeLogEntries(entries);
 
   res.json({
     success: true,
@@ -561,17 +838,17 @@ app.post('/api/stock', (req, res) => {
     entry: buildHistoryItem(entry),
     message: 'РћРїРµСЂР°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°'
   });
-});
+}));
 
-app.post('/api/undo', (req, res) => {
+app.post('/api/undo', asyncRoute(async (req, res) => {
   const entryId = String(req.body.entryId || '').trim();
 
   if (!entryId) {
     return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ entryId' });
   }
 
-  const entries = readLogEntries();
-  const entry = entries.find((item) => item.id === entryId);
+  const entries = await readLogEntries();
+  const entry = USE_POSTGRES ? await findEntryById(entryId) : entries.find((item) => item.id === entryId);
 
   if (!entry) {
     return res.status(404).json({ error: 'РћРїРµСЂР°С†РёСЏ РЅРµ РЅР°Р№РґРµРЅР°' });
@@ -581,30 +858,34 @@ app.post('/api/undo', (req, res) => {
     return res.status(400).json({ error: 'РћРїРµСЂР°С†РёСЏ СѓР¶Рµ РѕС‚РјРµРЅРµРЅР°' });
   }
 
-  const stocks = getStocks();
+  const stocks = await getStocks();
   applyEntryToStocks(stocks, entry, 'undo');
-  saveStocks(stocks);
+  await saveStocks(stocks);
 
   entry.isUndone = true;
   entry.undoneAt = new Date().toISOString();
-  writeLogEntries(entries);
+  if (USE_POSTGRES) {
+    await saveEntryToPostgres(entry);
+  } else {
+    await writeLogEntries(entries);
+  }
 
   res.json({
     success: true,
     currentStock: toClientStock(stocks[entry.workshop]),
     message: 'РћРїРµСЂР°С†РёСЏ РѕС‚РјРµРЅРµРЅР°'
   });
-});
+}));
 
 // Daily reset endpoint
-app.post('/api/daily-reset', (req, res) => {
+app.post('/api/daily-reset', asyncRoute(async (req, res) => {
   const { workshop } = req.body;
   
   if (!workshop) {
     return res.status(400).json({ error: 'Укажите цех' });
   }
 
-  const stocks = getStocks();
+  const stocks = await getStocks();
   
   if (!stocks[workshop]) {
     return res.status(404).json({ error: 'Цех не найден' });
@@ -624,7 +905,7 @@ app.post('/api/daily-reset', (req, res) => {
   };
 
   // Добавляем запись о сбросе в лог
-  const entries = readLogEntries();
+  const entries = await readLogEntries();
   const resetEntry = {
     id: `reset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     category: 'RESET',
@@ -640,8 +921,8 @@ app.post('/api/daily-reset', (req, res) => {
   };
 
   entries.unshift(resetEntry);
-  writeLogEntries(entries);
-  saveStocks(stocks);
+  await writeLogEntries(entries);
+  await saveStocks(stocks);
 
   res.json({
     success: true,
@@ -649,22 +930,26 @@ app.post('/api/daily-reset', (req, res) => {
     previousStock: currentStock,
     newStock: toClientStock(stocks[workshop])
   });
-});
+}));
 
 // Daily statistics endpoint
-app.get('/api/daily-stats/:workshop', (req, res) => {
+app.get('/api/daily-stats/:workshop', asyncRoute(async (req, res) => {
   const { workshop } = req.params;
   
   if (!workshop) {
     return res.status(400).json({ error: 'Укажите цех' });
   }
 
-  const entries = readLogEntries();
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Начало сегодняшнего дня
   
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1); // Начало вчерашнего дня
+
+  const entries = [
+    ...await readEntriesByDate(getLocalDateKey(today)),
+    ...await readEntriesByDate(getLocalDateKey(yesterday))
+  ];
 
   // Фильтруем записи за сегодня и вчера
   const todayEntries = entries.filter(entry => 
@@ -740,17 +1025,30 @@ app.get('/api/daily-stats/:workshop', (req, res) => {
       entriesCount: yesterdayEntries.length
     }
   });
+}));
+
+app.use((error, _req, res, _next) => {
+  console.error('API error:', error);
+  res.status(500).json({ error: 'Внутренняя ошибка сервера' });
 });
 
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log('=========================================');
-    console.log('OQTEPA SMART SYSTEM STARTED');
-    console.log(`Port: ${PORT}`);
-    console.log('=========================================');
-  });
+  initPostgresStorage()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log('=========================================');
+        console.log('OQTEPA SMART SYSTEM STARTED');
+        console.log(`Port: ${PORT}`);
+        console.log(`Storage: ${USE_POSTGRES ? 'PostgreSQL' : 'JSON files'}`);
+        console.log('=========================================');
+      });
+    })
+    .catch((error) => {
+      console.error('Failed to initialize storage:', error);
+      process.exit(1);
+    });
 }
 
-module.exports = { app, getLocalDateKey };
+module.exports = { app, getLocalDateKey, initPostgresStorage };

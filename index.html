@@ -1352,15 +1352,46 @@
       }
     }
 
+    function getLocalDateKey(value = new Date()) {
+      const date = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getStoredHistoryEntries() {
+      try {
+        const localHistory = localStorage.getItem(`history_${curWS}`);
+        const parsed = localHistory ? JSON.parse(localHistory) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_error) {
+        return [];
+      }
+    }
+
+    function saveStoredHistoryEntries(entries) {
+      localStorage.setItem(`history_${curWS}`, JSON.stringify(entries || []));
+    }
+
+    function isEntryOnDate(entry, dateKey) {
+      return !dateKey || getLocalDateKey(entry.timestamp) === dateKey;
+    }
+
     async function loadHistory() {
       const list = document.getElementById("historyList");
       list.innerHTML = '<div class="spinner"></div>';
       
       try {
-        // Try to load from localStorage first
-        const localHistory = localStorage.getItem(`history_${curWS}`);
-        if (localHistory) {
-          historyEntries = JSON.parse(localHistory);
+        const dateInput = document.getElementById("historyDate");
+        const selectedDate = dateInput.value;
+        const storedHistory = getStoredHistoryEntries();
+        const localForDate = storedHistory.filter((item) => isEntryOnDate(item, selectedDate));
+
+        if (localForDate.length) {
+          historyEntries = localForDate;
           console.log('📂 Loaded from localStorage:', historyEntries.length, 'entries');
           updateProductionSummary(historyEntries);
           renderHistoryList();
@@ -1368,8 +1399,6 @@
         
         // Then load from server and merge
         let url = `/api/history/${encodeURIComponent(curWS)}`;
-        const dateInput = document.getElementById("historyDate");
-        const selectedDate = dateInput.value;
         if (selectedDate) {
           url += `?date=${selectedDate}`;
         }
@@ -1381,13 +1410,15 @@
         
         // Merge server data with local data
         const serverIds = new Set(items.map(item => item.id));
-        const localOnly = historyEntries.filter(item => !serverIds.has(item.id));
+        const localOnly = localForDate.filter(item => !serverIds.has(item.id));
         historyEntries = [...items, ...localOnly];
         
         console.log('📂 Merged historyEntries count:', historyEntries.length);
         
-        // Save merged data back to localStorage
-        localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
+        // Save merged data back to localStorage without dropping other dates
+        const storedById = new Map(storedHistory.map((item) => [item.id, item]));
+        items.forEach((item) => storedById.set(item.id, item));
+        saveStoredHistoryEntries([...storedById.values()]);
         
         updateProductionSummary(historyEntries);
         renderHistoryList();
@@ -1463,9 +1494,11 @@
     function renderHistoryList() {
       const list = document.getElementById("historyList");
       list.innerHTML = "";
+      const selectedDate = document.getElementById("historyDate")?.value || "";
+      const entriesForDate = historyEntries.filter((item) => isEntryOnDate(item, selectedDate));
       const visibleEntries = currentMode === "RAW"
-        ? historyEntries.filter((item) => item.category === "RAW")
-        : historyEntries.filter((item) => item.category === "PROD");
+        ? entriesForDate.filter((item) => item.category === "RAW")
+        : entriesForDate.filter((item) => item.category === "PROD");
       groupedHistory = groupHistoryByFixation(visibleEntries);
 
       groupedHistory.forEach((group) => {
@@ -1607,11 +1640,16 @@
     function appendHistoryEntry(entry) {
       if (!entry) return;
       console.log('🟢 Adding entry to history:', entry);
-      historyEntries.unshift(entry);
+      const storedHistory = getStoredHistoryEntries().filter((item) => item.id !== entry.id);
+      storedHistory.unshift(entry);
+      saveStoredHistoryEntries(storedHistory);
+
+      const selectedDate = document.getElementById("historyDate")?.value || "";
+      if (isEntryOnDate(entry, selectedDate)) {
+        historyEntries = [entry, ...historyEntries.filter((item) => item.id !== entry.id)];
+      }
+
       console.log('🟢 History entries count:', historyEntries.length);
-      
-      // Save to localStorage
-      localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
       
       updateProductionSummary(historyEntries);
       renderHistoryList();
@@ -1620,9 +1658,7 @@
 
     function removeHistoryEntry(entryId) {
       historyEntries = historyEntries.filter((item) => item.id !== entryId);
-      
-      // Save to localStorage
-      localStorage.setItem(`history_${curWS}`, JSON.stringify(historyEntries));
+      saveStoredHistoryEntries(getStoredHistoryEntries().filter((item) => item.id !== entryId));
       
       updateProductionSummary(historyEntries);
       renderHistoryList();
