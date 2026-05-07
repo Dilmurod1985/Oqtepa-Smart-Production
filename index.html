@@ -898,6 +898,7 @@
       <button class="tile" onclick="openWS(`WENDY'S`)">WENDY'S</button>
       <button class="tile" onclick="openWS('MISSION')">MISSION</button>
       <button class="tile" onclick="openWS('TURK')">TURK</button>
+      <button class="tile" onclick="openWS('XOJIAKBAR BURGER')">XOJIAKBAR BURGER</button>
     </div>
 
     <section id="panel" class="panel">
@@ -1018,6 +1019,7 @@
                   <option value="CITY 50/50">CITY 50/50</option>
                   <option value="WENDY'S 50/50">WENDY'S 50/50</option>
                   <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+                  <option value="XOJIAKBAR BURGER 50/50">XOJIAKBAR BURGER 50/50</option>
                 </select>
                 <input type="text" class="pFirm" placeholder="Фирма *" required oninput="updateProductTotal(0)" />
                 <button class="btn-qr btn-small" onclick="generateProductQR(0)" type="button" title="Сгенерировать QR-код товара">🏷</button>
@@ -1081,6 +1083,7 @@
                   <option value="CITY 50/50">CITY 50/50</option>
                   <option value="WENDY'S 50/50">WENDY'S 50/50</option>
                   <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+                  <option value="XOJIAKBAR BURGER 50/50">XOJIAKBAR BURGER 50/50</option>
                 </select>
                 <input type="number" class="universal-caliber" placeholder="Калибр" step="0.1" min="0" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
                 <input type="number" class="universal-count" placeholder="Кол-во" min="1" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;">
@@ -1092,6 +1095,7 @@
                   <option value="CITY">CITY</option>
                   <option value="WENDY'S">WENDY'S</option>
                   <option value="MISSION">MISSION</option>
+                  <option value="XOJIAKBAR BURGER">XOJIAKBAR BURGER</option>
                 </select>
                 <button type="button" onclick="removeUniversalProduct(0)" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
               </div>
@@ -1219,7 +1223,14 @@
         35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
         60: { l: 29.4, k: 24.6, d: 6 }
       },
-      "MISSION 100% QIYMA": { 50: { l: 0, k: 49, d: 1 } }
+      "MISSION 100% QIYMA": { 50: { l: 0, k: 49, d: 1 } },
+      "XOJIAKBAR BURGER 50/50": {
+        5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
+        10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
+        20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
+        35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
+        60: { l: 29.4, k: 24.6, d: 6 }
+      }
     };
 
     let employees = [...BASE_EMPLOYEES];
@@ -1645,57 +1656,32 @@
         .map(([caliber, qty]) => `${caliber}: ${qty} шт`)
         .join(", ");
 
-      document.getElementById('todayProductionCalibers').textContent = caliberText || "По калибрам: нет данных";
+      return `${group.meta}. Всего: ${totalKg.toFixed(1)} кг. ${caliberText ? `По калибрам: ${caliberText}.` : ""}`;
     }
-  } catch (error) {
-    console.error('Failed to load daily stats:', error);
-  }
-}
 
-function setM(mode) {
-  currentMode = mode;
-  document.getElementById("secRaw").classList.toggle("hidden", mode !== "RAW");
-  document.getElementById("secProd").classList.toggle("hidden", mode !== "PROD");
-  document.getElementById("mRaw").classList.toggle("active", mode === "RAW");
-  document.getElementById("mProd").classList.toggle("active", mode === "PROD");
-  document.getElementById("prodSummaryCard").classList.toggle("hidden", mode !== "PROD");
-  renderHistoryList();
-}
-
-function filterW() {
-  const value = document.getElementById("wSearch").value.trim().toLowerCase();
-  const list = document.getElementById("workerList");
-  list.innerHTML = "";
-
-  if (!value) {
-    list.classList.add("hidden");
-    return;
-  }
+    async function loadDailyStats() {
       if (!curWS) return;
 
       try {
         const res = await fetch(`/api/daily-stats/${encodeURIComponent(curWS)}`);
         const data = await res.json();
-        
+
         if (data.success && data.today) {
           const stats = data.today;
-          
-          // Обновляем статистику
           const totalStockIn = stats.stockIn.lahm + stats.stockIn.kiyma + stats.stockIn.dumba;
           const totalStockOut = stats.stockOut.lahm + stats.stockOut.kiyma + stats.stockOut.dumba;
-          
+
           document.getElementById('todayStockIn').textContent = `${totalStockIn.toFixed(1)} кг`;
           document.getElementById('todayStockOut').textContent = `${totalStockOut.toFixed(1)} кг`;
           document.getElementById('todayProduction').textContent = `${stats.production.toFixed(1)} кг`;
           document.getElementById('todayProductionCount').textContent = `${stats.productionCount} шт`;
-          
-          // Обновляем статистику по калибрам для сегодняшнего дня
-          const prodEntries = historyEntries.filter((item) => 
-            item.category === "PROD" && 
+
+          const prodEntries = historyEntries.filter((item) =>
+            item.category === "PROD" &&
             !item.isUndone &&
             new Date(item.timestamp) >= new Date(new Date().setHours(0, 0, 0, 0))
           );
-          
+
           const byCaliber = new Map();
           prodEntries.forEach((item) => {
             const key = String(item.caliber || "-").trim();
@@ -1878,6 +1864,7 @@ function filterW() {
             <option value="CITY 50/50">CITY 50/50</option>
             <option value="WENDY'S 50/50">WENDY'S 50/50</option>
             <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+            <option value="XOJIAKBAR BURGER 50/50">XOJIAKBAR BURGER 50/50</option>
           </select>
           <input type="text" class="pFirm" placeholder="Фирма *" required value="${window.currentFirm || curWS || ''}" oninput="updateProductTotal(${newIndex})" />
           <button class="btn-qr btn-small" onclick="generateProductQR(${newIndex})" type="button" title="Сгенерировать QR-код товара">🏷</button>
@@ -2068,6 +2055,7 @@ function filterW() {
               <option value="CITY 50/50">CITY 50/50</option>
               <option value="WENDY'S 50/50">WENDY'S 50/50</option>
               <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+              <option value="XOJIAKBAR BURGER 50/50">XOJIAKBAR BURGER 50/50</option>
             </select>
             <input class="pFirm" type="text" placeholder="Фирма *" required value="${window.currentFirm || curWS || ''}" />
             <button class="btn-qr btn-small" onclick="generateProductQR(0)" type="button" title="Сгенерировать QR-код товара">🏷</button>
@@ -3164,6 +3152,7 @@ function filterW() {
               <option value="CITY 50/50">CITY 50/50</option>
               <option value="WENDY'S 50/50">WENDY'S 50/50</option>
               <option value="MISSION 100% QIYMA">MISSION 100% QIYMA</option>
+              <option value="XOJIAKBAR BURGER 50/50">XOJIAKBAR BURGER 50/50</option>
             </select>
             <input type="number" class="universal-caliber" placeholder="Калибр" step="0.1" min="0" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
             <input type="number" class="universal-count" placeholder="Кол-во" min="1" style="padding: 8px; border: 1px solid var(--border); border-radius: 8px;" oninput="updateUniversalTotal()">
@@ -3175,6 +3164,7 @@ function filterW() {
               <option value="CITY">CITY</option>
               <option value="WENDY'S">WENDY'S</option>
               <option value="MISSION">MISSION</option>
+              <option value="XOJIAKBAR BURGER">XOJIAKBAR BURGER</option>
             </select>
             <button type="button" onclick="removeUniversalProduct(0)" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
           </div>
@@ -3212,6 +3202,7 @@ function filterW() {
             <option value="CITY">CITY</option>
             <option value="WENDY'S">WENDY'S</option>
             <option value="MISSION">MISSION</option>
+            <option value="XOJIAKBAR BURGER">XOJIAKBAR BURGER</option>
           </select>
           <button type="button" onclick="removeUniversalProduct(${universalProductIndex})" style="padding: 8px; background: #f44336; color: white; border: none; border-radius: 8px;">×</button>
         </div>
@@ -3277,7 +3268,8 @@ function filterW() {
         'TURK 70/30': 'TURK',
         'CITY 50/50': 'CITY',
         "WENDY'S 50/50": 'WENDYS',
-        'MISSION 100% QIYMA': 'MISSION'
+        'MISSION 100% QIYMA': 'MISSION',
+        'XOJIAKBAR BURGER 50/50': 'XOJIAKBAR BURGER'
       };
       
       return productWorkshops[productType] || 'ALLMAKON'; // Default to ALLMAKON
