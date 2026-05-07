@@ -74,6 +74,63 @@ const DEFAULT_EMPLOYEES = [
   { id: '0.5', name: 'Qayumova Dilnoza' }, { id: 'staj-1', name: 'Maxkamov Jahongir' }, { id: 'staj-2', name: "Turg'unboyev Asadbek" }
 ];
 
+const RECIPES = {
+  'DONER 50/50': {
+    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
+    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
+    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
+    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
+    60: { l: 29.4, k: 24.6, d: 6 }
+  },
+  'DONER 30/70': {
+    5: { l: 1.5, k: 3.2, d: 0.3 }, 6: { l: 1.8, k: 3.8, d: 0.4 }, 8: { l: 2.4, k: 5.1, d: 0.5 },
+    10: { l: 3, k: 6.4, d: 0.6 }, 12: { l: 3.6, k: 7.7, d: 0.7 }, 15: { l: 4.5, k: 9.6, d: 0.9 },
+    20: { l: 6, k: 12.8, d: 1.2 }, 25: { l: 7.5, k: 16, d: 1.5 }, 30: { l: 9, k: 19.2, d: 1.8 },
+    35: { l: 10.5, k: 22.4, d: 2.1 }, 40: { l: 12, k: 25.6, d: 2.4 }, 50: { l: 15, k: 32, d: 3 },
+    60: { l: 18, k: 38.4, d: 3.6 }
+  },
+  'DONER 60/40': {
+    5: { l: 2.8, k: 1.7, d: 0.5 }, 6: { l: 3.4, k: 2, d: 0.6 }, 8: { l: 4.5, k: 2.7, d: 0.8 },
+    10: { l: 5.6, k: 3.4, d: 1 }, 12: { l: 6.7, k: 4.1, d: 1.2 }, 15: { l: 8.4, k: 5.1, d: 1.5 },
+    20: { l: 11.2, k: 6.8, d: 2 }, 25: { l: 14, k: 8.5, d: 2.5 }, 30: { l: 16.8, k: 10.2, d: 3 },
+    35: { l: 19.6, k: 11.9, d: 3.5 }, 40: { l: 22.4, k: 13.6, d: 4 }, 50: { l: 28, k: 17, d: 5 },
+    60: { l: 33.6, k: 20.4, d: 6 }
+  },
+  'DONER 70/30': {
+    5: { l: 3, k: 1.3, d: 0.7 }, 6: { l: 3.6, k: 1.6, d: 0.8 }, 8: { l: 4.9, k: 2, d: 1.1 },
+    10: { l: 6.1, k: 2.5, d: 1.4 }, 12: { l: 7.3, k: 3, d: 1.7 }, 15: { l: 9.1, k: 3.8, d: 2.1 },
+    20: { l: 12.2, k: 5, d: 2.8 }, 25: { l: 15.2, k: 6.3, d: 3.5 }, 30: { l: 18.3, k: 7.5, d: 4.2 },
+    35: { l: 21.3, k: 8.8, d: 4.9 }, 40: { l: 24.4, k: 10, d: 5.6 }, 50: { l: 30.5, k: 12.5, d: 7 },
+    60: { l: 36.6, k: 15, d: 8.4 }
+  },
+  'TURK 70/30': {
+    10: { l: 5.8, k: 3, d: 1.2 }, 20: { l: 11.6, k: 6, d: 2.4 }, 30: { l: 16.5, k: 9, d: 4.5 },
+    40: { l: 22, k: 12, d: 6 }, 50: { l: 27.5, k: 15, d: 7.5 }, 60: { l: 33, k: 18, d: 9 }
+  },
+  'CITY 50/50': {
+    5: { l: 2.4, k: 2.1, d: 0.6 }, 6: { l: 2.8, k: 2.4, d: 0.7 }, 8: { l: 3.8, k: 3.3, d: 1 },
+    10: { l: 4.7, k: 4.1, d: 1.2 }, 12: { l: 5.6, k: 4.9, d: 1.4 }, 15: { l: 7.1, k: 6.2, d: 1.8 },
+    20: { l: 9.4, k: 8.2, d: 2.4 }, 25: { l: 11.8, k: 10.3, d: 3 }, 30: { l: 14.1, k: 12.3, d: 3.6 },
+    35: { l: 16.5, k: 14.4, d: 4.2 }, 40: { l: 18.8, k: 16.4, d: 4.8 }, 50: { l: 23.5, k: 20.5, d: 6 },
+    60: { l: 28.2, k: 24.6, d: 7.2 }
+  },
+  "WENDY'S 50/50": {
+    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
+    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
+    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
+    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
+    60: { l: 29.4, k: 24.6, d: 6 }
+  },
+  'MISSION 100% QIYMA': { 50: { l: 0, k: 49, d: 1 } },
+  'XOJIAKBAR BURGER 50/50': {
+    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
+    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
+    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
+    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
+    60: { l: 29.4, k: 24.6, d: 6 }
+  }
+};
+
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
 let pgPool = null;
 
@@ -573,25 +630,36 @@ async function findEntryById(entryId) {
   return rows[0] ? normalizeDbEntry(rows[0]) : null;
 }
 
-function calculateUsageByProduct(product, totalKg) {
-  // Calculate ingredient usage based on product type and total kg
-  const usageRatios = {
-    'DONER 50/50': { lahm: 0.5, kiyma: 0.5, dumba: 0 },
-    'DONER 30/70': { lahm: 0.3, kiyma: 0.7, dumba: 0 },
-    'DONER 60/40': { lahm: 0.6, kiyma: 0.4, dumba: 0 },
-    'DONER 70/30': { lahm: 0.7, kiyma: 0.3, dumba: 0 },
-    'TURK 70/30': { lahm: 0.7, kiyma: 0.3, dumba: 0 },
-    'CITY 50/50': { lahm: 0.5, kiyma: 0.5, dumba: 0 },
-    "WENDY'S 50/50": { lahm: 0.5, kiyma: 0.5, dumba: 0 },
-    'MISSION 100% QIYMA': { lahm: 0, kiyma: 1.0, dumba: 0 }
-  };
-  
-  const ratios = usageRatios[product] || { lahm: 0.5, kiyma: 0.5, dumba: 0 };
-  
+function parseCaliberValue(value) {
+  const parsed = parseFloat(String(value || '').replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function calculateUsageByRecipe(product, caliber, count) {
+  const table = RECIPES[product] || {};
+  const caliberValue = parseCaliberValue(caliber);
+  const key = String(Number(caliberValue || 0));
+  const exact = table[key];
+
+  if (exact) {
+    return {
+      lahm: Number((Number(exact.l || 0) * Number(count || 0)).toFixed(2)),
+      kiyma: Number((Number(exact.k || 0) * Number(count || 0)).toFixed(2)),
+      dumba: Number((Number(exact.d || 0) * Number(count || 0)).toFixed(2))
+    };
+  }
+
+  const entries = Object.entries(table);
+  if (!entries.length) return { lahm: 0, kiyma: 0, dumba: 0 };
+
+  const [weight, values] = entries[0];
+  const kg = Number(weight || 1) || 1;
+  const totalKg = caliberValue * Number(count || 0);
+
   return {
-    lahm: totalKg * ratios.lahm,
-    kiyma: totalKg * ratios.kiyma,
-    dumba: totalKg * ratios.dumba
+    lahm: Number(((Number(values.l || 0) / kg) * totalKg).toFixed(2)),
+    kiyma: Number(((Number(values.k || 0) / kg) * totalKg).toFixed(2)),
+    dumba: Number(((Number(values.d || 0) / kg) * totalKg).toFixed(2))
   };
 }
 
@@ -637,7 +705,7 @@ function applyEntryToStocks(stocks, entry, direction) {
     const usage = entry.usage || {};
     
     // Special logic for workshops that use ingredients from OQTEPA
-    const workshopsUsingOqtepa = ['MISSION', 'TURK', 'CITY', 'WENDYS'];
+    const workshopsUsingOqtepa = ['MISSION', 'TURK', 'CITY', 'WENDYS', "WENDY'S"];
     
     if (workshopsUsingOqtepa.includes(entry.workshop)) {
       ensureWorkshopStock(stocks, 'OQTEPA');
@@ -811,17 +879,7 @@ app.post('/api/stock', asyncRoute(async (req, res) => {
   if (entry.category === 'PROD') {
     entry.count = Number(entry.count || 0);
     entry.totalKg = Number(entry.totalKg || 0);
-    
-    // Calculate usage automatically if not provided
-    if (!entry.usage || (entry.usage.lahm === 0 && entry.usage.kiyma === 0 && entry.usage.dumba === 0)) {
-      entry.usage = calculateUsageByProduct(entry.product, entry.totalKg);
-    } else {
-      entry.usage = {
-        lahm: Number(entry.usage?.lahm || 0),
-        kiyma: Number(entry.usage?.kiyma || 0),
-        dumba: Number(entry.usage?.dumba || 0)
-      };
-    }
+    entry.usage = calculateUsageByRecipe(entry.product, entry.caliber, entry.count);
   }
 
   const applyResult = applyEntryToStocks(stocks, entry, 'apply');
@@ -1051,4 +1109,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, getLocalDateKey, initPostgresStorage };
+module.exports = { app, getLocalDateKey, initPostgresStorage, calculateUsageByRecipe };
