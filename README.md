@@ -1,51 +1,63 @@
 # Oqtepa Smart Production
 
-Прототип веб-приложения для учета остатков сырья и фиксации выпуска продукции по цехам.
+Prototype web app for tracking raw material stock and production output by workshop.
 
-## Что внутри
+## What's Included
 
-- `server.js` — Express-сервер и API для остатков и выпуска
-- `index.html` — интерфейс оператора
-- `stocks.example.json` — пример структуры остатков
-- `.env.example` — пример переменных окружения
+- `server.js` - Express server and API for stock, employees, history, daily reset, and daily stats.
+- `index.html` - operator interface.
+- `.env.example` - example environment variables.
+- `render.yaml` - Render Blueprint for the web service and PostgreSQL database.
 
-## Запуск локально
+## Local Run
 
 ```bash
 npm install
 npm start
 ```
 
-После запуска приложение будет доступно по адресу `http://localhost:3000`.
+The app runs at `http://localhost:3000` by default.
 
-## Переменные окружения
+## Checks
 
-Скопируйте `.env.example` в `.env` и при необходимости измените значения.
+```bash
+npm run check
+```
+
+This validates the Node server syntax before deployment.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` for local development and change values if needed.
 
 ```env
 PORT=3000
 DATABASE_URL=postgres://user:password@localhost:5432/oqtepa
 ```
 
-## Данные
+If `DATABASE_URL` is empty, the app uses local JSON files. For production, set `DATABASE_URL` so the app uses PostgreSQL.
 
-В продакшене задайте `DATABASE_URL`, тогда приложение использует PostgreSQL. При первом запуске сервер создаст таблицы и импортирует текущие данные из `stocks.json`, `employees.json`, `log.json` и файлов в `logs/`, если база ещё пустая.
+On Render, `render.yaml` creates a PostgreSQL database and injects `DATABASE_URL` automatically.
 
-Если `DATABASE_URL` не задан, приложение продолжит работать через локальные JSON-файлы. В репозиторий не должны попадать рабочие файлы:
+## Data Storage
+
+In production, PostgreSQL is initialized on server startup. If the database is empty, the app imports existing local data from:
+
+- `stocks.json`
+- `employees.json`
+- `log.json`
+- `logs/*.json`
+
+Runtime data files should not be committed to the repository:
 
 - `.env`
-- `log.json`
 - `stocks.json`
+- `employees.json`
+- `log.json`
+- `logs/*.json`
 
-Если нужен стартовый шаблон остатков, используйте `stocks.example.json`.
+## Deploy To Render
 
-## Публикация на GitHub
-
-```bash
-git init
-git add .
-git commit -m "Prepare project for GitHub"
-git branch -M main
-git remote add origin https://github.com/<USERNAME>/<REPOSITORY>.git
-git push -u origin main
-```
+1. Push the repository to GitHub.
+2. In Render, create a new Blueprint from this repository.
+3. Render will run `npm ci && npm run check`, start with `npm start`, and use `/health` for health checks.

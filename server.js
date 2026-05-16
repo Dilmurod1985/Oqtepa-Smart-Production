@@ -20,6 +20,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    storage: USE_POSTGRES ? 'postgres' : 'files'
+  });
+});
+
 // Middleware for CORS and headers
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -76,58 +83,58 @@ const DEFAULT_EMPLOYEES = [
 
 const RECIPES = {
   'DONER 50/50': {
-    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
-    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
-    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
-    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
-    60: { l: 29.4, k: 24.6, d: 6 }
+    5: { l: 2.25, k: 2.25, d: 0.5 }, 6: { l: 2.7, k: 2.7, d: 0.6 }, 8: { l: 3.6, k: 3.6, d: 0.8 },
+    10: { l: 4.5, k: 4.5, d: 1.0 }, 12: { l: 5.4, k: 5.4, d: 1.2 }, 15: { l: 6.75, k: 6.75, d: 1.5 },
+    20: { l: 9.0, k: 9.0, d: 2.0 }, 25: { l: 11.25, k: 11.25, d: 2.5 }, 30: { l: 13.5, k: 13.5, d: 3.0 },
+    35: { l: 15.75, k: 15.75, d: 3.5 }, 40: { l: 18.0, k: 18.0, d: 4.0 }, 50: { l: 22.5, k: 22.5, d: 5.0 },
+    60: { l: 27.0, k: 27.0, d: 6.0 }
   },
   'DONER 30/70': {
-    5: { l: 1.5, k: 3.2, d: 0.3 }, 6: { l: 1.8, k: 3.8, d: 0.4 }, 8: { l: 2.4, k: 5.1, d: 0.5 },
-    10: { l: 3, k: 6.4, d: 0.6 }, 12: { l: 3.6, k: 7.7, d: 0.7 }, 15: { l: 4.5, k: 9.6, d: 0.9 },
-    20: { l: 6, k: 12.8, d: 1.2 }, 25: { l: 7.5, k: 16, d: 1.5 }, 30: { l: 9, k: 19.2, d: 1.8 },
-    35: { l: 10.5, k: 22.4, d: 2.1 }, 40: { l: 12, k: 25.6, d: 2.4 }, 50: { l: 15, k: 32, d: 3 },
-    60: { l: 18, k: 38.4, d: 3.6 }
+    5: { l: 1.35, k: 3.15, d: 0.5 }, 6: { l: 1.62, k: 3.78, d: 0.6 }, 8: { l: 2.16, k: 5.04, d: 0.8 },
+    10: { l: 2.7, k: 6.3, d: 1.0 }, 12: { l: 3.24, k: 7.56, d: 1.2 }, 15: { l: 4.05, k: 9.45, d: 1.5 },
+    20: { l: 5.4, k: 12.6, d: 2.0 }, 25: { l: 6.75, k: 15.75, d: 2.5 }, 30: { l: 8.1, k: 18.9, d: 3.0 },
+    35: { l: 9.45, k: 22.05, d: 3.5 }, 40: { l: 10.8, k: 25.2, d: 4.0 }, 50: { l: 13.5, k: 31.5, d: 5.0 },
+    60: { l: 16.2, k: 37.8, d: 6.0 }
   },
   'DONER 60/40': {
-    5: { l: 2.8, k: 1.7, d: 0.5 }, 6: { l: 3.4, k: 2, d: 0.6 }, 8: { l: 4.5, k: 2.7, d: 0.8 },
-    10: { l: 5.6, k: 3.4, d: 1 }, 12: { l: 6.7, k: 4.1, d: 1.2 }, 15: { l: 8.4, k: 5.1, d: 1.5 },
-    20: { l: 11.2, k: 6.8, d: 2 }, 25: { l: 14, k: 8.5, d: 2.5 }, 30: { l: 16.8, k: 10.2, d: 3 },
-    35: { l: 19.6, k: 11.9, d: 3.5 }, 40: { l: 22.4, k: 13.6, d: 4 }, 50: { l: 28, k: 17, d: 5 },
-    60: { l: 33.6, k: 20.4, d: 6 }
+    5: { l: 2.7, k: 1.8, d: 0.5 }, 6: { l: 3.24, k: 2.16, d: 0.6 }, 8: { l: 4.32, k: 2.88, d: 0.8 },
+    10: { l: 5.4, k: 3.6, d: 1.0 }, 12: { l: 6.48, k: 4.32, d: 1.2 }, 15: { l: 8.1, k: 5.4, d: 1.5 },
+    20: { l: 10.8, k: 7.2, d: 2.0 }, 25: { l: 13.5, k: 9.0, d: 2.5 }, 30: { l: 16.2, k: 10.8, d: 3.0 },
+    35: { l: 18.9, k: 12.6, d: 3.5 }, 40: { l: 21.6, k: 14.4, d: 4.0 }, 50: { l: 27.0, k: 18.0, d: 5.0 },
+    60: { l: 32.4, k: 21.6, d: 6.0 }
   },
   'DONER 70/30': {
-    5: { l: 3, k: 1.3, d: 0.7 }, 6: { l: 3.6, k: 1.6, d: 0.8 }, 8: { l: 4.9, k: 2, d: 1.1 },
-    10: { l: 6.1, k: 2.5, d: 1.4 }, 12: { l: 7.3, k: 3, d: 1.7 }, 15: { l: 9.1, k: 3.8, d: 2.1 },
-    20: { l: 12.2, k: 5, d: 2.8 }, 25: { l: 15.2, k: 6.3, d: 3.5 }, 30: { l: 18.3, k: 7.5, d: 4.2 },
-    35: { l: 21.3, k: 8.8, d: 4.9 }, 40: { l: 24.4, k: 10, d: 5.6 }, 50: { l: 30.5, k: 12.5, d: 7 },
-    60: { l: 36.6, k: 15, d: 8.4 }
+    5: { l: 3.15, k: 1.35, d: 0.5 }, 6: { l: 3.78, k: 1.62, d: 0.6 }, 8: { l: 5.04, k: 2.16, d: 0.8 },
+    10: { l: 6.3, k: 2.7, d: 1.0 }, 12: { l: 7.56, k: 3.24, d: 1.2 }, 15: { l: 9.45, k: 4.05, d: 1.5 },
+    20: { l: 12.6, k: 5.4, d: 2.0 }, 25: { l: 15.75, k: 6.75, d: 2.5 }, 30: { l: 18.9, k: 8.1, d: 3.0 },
+    35: { l: 22.05, k: 9.45, d: 3.5 }, 40: { l: 25.2, k: 10.8, d: 4.0 }, 50: { l: 31.5, k: 13.5, d: 5.0 },
+    60: { l: 37.8, k: 16.2, d: 6.0 }
   },
   'TURK 70/30': {
-    10: { l: 5.8, k: 3, d: 1.2 }, 20: { l: 11.6, k: 6, d: 2.4 }, 30: { l: 16.5, k: 9, d: 4.5 },
-    40: { l: 22, k: 12, d: 6 }, 50: { l: 27.5, k: 15, d: 7.5 }, 60: { l: 33, k: 18, d: 9 }
+    10: { l: 5, k: 3, d: 2 }, 20: { l: 10, k: 6, d: 4 }, 30: { l: 15, k: 9, d: 6 },
+    40: { l: 20, k: 12, d: 8 }, 50: { l: 25, k: 15, d: 10 }, 60: { l: 30, k: 18, d: 12 }
   },
   'CITY 50/50': {
-    5: { l: 2.4, k: 2.1, d: 0.6 }, 6: { l: 2.8, k: 2.4, d: 0.7 }, 8: { l: 3.8, k: 3.3, d: 1 },
-    10: { l: 4.7, k: 4.1, d: 1.2 }, 12: { l: 5.6, k: 4.9, d: 1.4 }, 15: { l: 7.1, k: 6.2, d: 1.8 },
-    20: { l: 9.4, k: 8.2, d: 2.4 }, 25: { l: 11.8, k: 10.3, d: 3 }, 30: { l: 14.1, k: 12.3, d: 3.6 },
-    35: { l: 16.5, k: 14.4, d: 4.2 }, 40: { l: 18.8, k: 16.4, d: 4.8 }, 50: { l: 23.5, k: 20.5, d: 6 },
-    60: { l: 28.2, k: 24.6, d: 7.2 }
+    5: { l: 2.2, k: 2.2, d: 0.6 }, 6: { l: 2.64, k: 2.64, d: 0.72 }, 8: { l: 3.52, k: 3.52, d: 0.96 },
+    10: { l: 4.4, k: 4.4, d: 1.2 }, 12: { l: 5.28, k: 5.28, d: 1.44 }, 15: { l: 6.6, k: 6.6, d: 1.8 },
+    20: { l: 8.8, k: 8.8, d: 2.4 }, 25: { l: 11.0, k: 11.0, d: 3.0 }, 30: { l: 13.2, k: 13.2, d: 3.6 },
+    35: { l: 15.4, k: 15.4, d: 4.2 }, 40: { l: 17.6, k: 17.6, d: 4.8 }, 50: { l: 22.0, k: 22.0, d: 6.0 },
+    60: { l: 26.4, k: 26.4, d: 7.2 }
   },
   "WENDY'S 50/50": {
-    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
-    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
-    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
-    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
-    60: { l: 29.4, k: 24.6, d: 6 }
+    5: { l: 2.25, k: 2.25, d: 0.5 }, 6: { l: 2.7, k: 2.7, d: 0.6 }, 8: { l: 3.6, k: 3.6, d: 0.8 },
+    10: { l: 4.5, k: 4.5, d: 1.0 }, 12: { l: 5.4, k: 5.4, d: 1.2 }, 15: { l: 6.75, k: 6.75, d: 1.5 },
+    20: { l: 9.0, k: 9.0, d: 2.0 }, 25: { l: 11.25, k: 11.25, d: 2.5 }, 30: { l: 13.5, k: 13.5, d: 3.0 },
+    35: { l: 15.75, k: 15.75, d: 3.5 }, 40: { l: 18.0, k: 18.0, d: 4.0 }, 50: { l: 22.5, k: 22.5, d: 5.0 },
+    60: { l: 27.0, k: 27.0, d: 6.0 }
   },
-  'MISSION 100% QIYMA': { 50: { l: 0, k: 49, d: 1 } },
+  'MISSION 100% QIYMA': { 10: { l: 0, k: 9.8, d: 0.2 }, 50: { l: 0, k: 49, d: 1 } },
   'XOJIAKBAR BURGER 50/50': {
-    5: { l: 2.4, k: 2.1, d: 0.5 }, 6: { l: 3, k: 2.4, d: 0.6 }, 8: { l: 3.9, k: 3.3, d: 0.8 },
-    10: { l: 4.9, k: 4.1, d: 1 }, 12: { l: 5.9, k: 4.9, d: 1.2 }, 15: { l: 7.3, k: 6.2, d: 1.5 },
-    20: { l: 9.8, k: 8.2, d: 2 }, 25: { l: 12.2, k: 10.3, d: 2.5 }, 30: { l: 14.7, k: 12.3, d: 3 },
-    35: { l: 17.1, k: 14.4, d: 3.5 }, 40: { l: 19.6, k: 16.4, d: 4 }, 50: { l: 24.5, k: 20.5, d: 5 },
-    60: { l: 29.4, k: 24.6, d: 6 }
+    5: { l: 2.25, k: 2.25, d: 0.5 }, 6: { l: 2.7, k: 2.7, d: 0.6 }, 8: { l: 3.6, k: 3.6, d: 0.8 },
+    10: { l: 4.5, k: 4.5, d: 1.0 }, 12: { l: 5.4, k: 5.4, d: 1.2 }, 15: { l: 6.75, k: 6.75, d: 1.5 },
+    20: { l: 9.0, k: 9.0, d: 2.0 }, 25: { l: 11.25, k: 11.25, d: 2.5 }, 30: { l: 13.5, k: 13.5, d: 3.0 },
+    35: { l: 15.75, k: 15.75, d: 3.5 }, 40: { l: 18.0, k: 18.0, d: 4.0 }, 50: { l: 22.5, k: 22.5, d: 5.0 },
+    60: { l: 27.0, k: 27.0, d: 6.0 }
   }
 };
 
@@ -671,7 +678,7 @@ function applyEntryToStocks(stocks, entry, direction) {
 
   if (entry.category === 'RAW') {
     const typeValue = String(entry.type || '');
-    const isMorningBalance = typeValue.includes('Остаток утро') || typeValue.includes('РћСЃС‚Р°С‚РѕРє СѓС‚СЂРѕ');
+    const isMorningBalance = typeValue.includes('Остаток утро');
 
     if (isMorningBalance) {
       const nextStock = direction === 'undo'
@@ -694,7 +701,7 @@ function applyEntryToStocks(stocks, entry, direction) {
       dumba: Number(entry.dumba || 0)
     };
 
-    const isExpense = typeValue.includes('Расход') || typeValue.includes('Р Р°СЃС…РѕРґ');
+    const isExpense = typeValue.includes('Расход');
     const rawFactor = isExpense ? -1 : 1;
     applyDeltaWithShortage(target, 'lahm', 'shortageLahm', delta.lahm * rawFactor * factor);
     applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', delta.kiyma * rawFactor * factor);
@@ -718,9 +725,11 @@ function applyEntryToStocks(stocks, entry, direction) {
       stocks['OQTEPA'] = normalizeStock(oqtepaTarget);
       
       // Add used ingredients to workshop stock (as produced goods)
-      applyDeltaWithShortage(target, 'lahm', 'shortageLahm', Number(usage.lahm || 0) * factor);
-      applyDeltaWithShortage(target, 'kiyma', 'shortageKiyma', Number(usage.kiyma || 0) * factor);
-      applyDeltaWithShortage(target, 'dumba', 'shortageDumba', Number(usage.dumba || 0) * factor);
+      // Note: we don't apply shortage logic here for the workshop's own stock
+      // as it's just a record of what was produced
+      target.lahm += Number(usage.lahm || 0) * factor;
+      target.kiyma += Number(usage.kiyma || 0) * factor;
+      target.dumba += Number(usage.dumba || 0) * factor;
       
       if (direction === 'apply') {
         const shortage = {
@@ -789,12 +798,12 @@ app.post('/api/employees', asyncRoute(async (req, res) => {
   const id = String(req.body.id || '').trim();
 
   if (!name || !id) {
-    return res.status(400).json({ error: 'РЈРєР°Р¶РёС‚Рµ РёРјСЏ Рё ID СЃРѕС‚СЂСѓРґРЅРёРєР°' });
+    return res.status(400).json({ error: 'Укажите имя и ID сотрудника' });
   }
 
   const employees = await getEmployees();
   if (employees.some((employee) => String(employee.id) === id)) {
-    return res.status(400).json({ error: 'РЎРѕС‚СЂСѓРґРЅРёРє СЃ С‚Р°РєРёРј ID СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚' });
+    return res.status(400).json({ error: 'Сотрудник с таким ID уже существует' });
   }
 
   const newEmployee = { id, name };
@@ -856,7 +865,7 @@ app.post('/api/stock', asyncRoute(async (req, res) => {
   const workshop = data.workshop;
 
   if (!workshop) {
-    return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ workshop' });
+    return res.status(400).json({ error: 'Не указан workshop' });
   }
 
   const stocks = await getStocks();
@@ -894,7 +903,7 @@ app.post('/api/stock', asyncRoute(async (req, res) => {
     currentStock: toClientStock(stocks[workshop]),
     shortage: applyResult.shortage || null,
     entry: buildHistoryItem(entry),
-    message: 'РћРїРµСЂР°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°'
+    message: 'Операция выполнена'
   });
 }));
 
@@ -902,18 +911,18 @@ app.post('/api/undo', asyncRoute(async (req, res) => {
   const entryId = String(req.body.entryId || '').trim();
 
   if (!entryId) {
-    return res.status(400).json({ error: 'РќРµ СѓРєР°Р·Р°РЅ entryId' });
+    return res.status(400).json({ error: 'Не указан entryId' });
   }
 
   const entries = await readLogEntries();
   const entry = USE_POSTGRES ? await findEntryById(entryId) : entries.find((item) => item.id === entryId);
 
   if (!entry) {
-    return res.status(404).json({ error: 'РћРїРµСЂР°С†РёСЏ РЅРµ РЅР°Р№РґРµРЅР°' });
+    return res.status(404).json({ error: 'Операция не найдена' });
   }
 
   if (entry.isUndone) {
-    return res.status(400).json({ error: 'РћРїРµСЂР°С†РёСЏ СѓР¶Рµ РѕС‚РјРµРЅРµРЅР°' });
+    return res.status(400).json({ error: 'Операция уже отменена' });
   }
 
   const stocks = await getStocks();
@@ -931,7 +940,7 @@ app.post('/api/undo', asyncRoute(async (req, res) => {
   res.json({
     success: true,
     currentStock: toClientStock(stocks[entry.workshop]),
-    message: 'РћРїРµСЂР°С†РёСЏ РѕС‚РјРµРЅРµРЅР°'
+    message: 'Операция отменена'
   });
 }));
 
@@ -993,33 +1002,18 @@ app.post('/api/daily-reset', asyncRoute(async (req, res) => {
 // Daily statistics endpoint
 app.get('/api/daily-stats/:workshop', asyncRoute(async (req, res) => {
   const { workshop } = req.params;
+  const { date } = req.query;
   
   if (!workshop) {
     return res.status(400).json({ error: 'Укажите цех' });
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Начало сегодняшнего дня
-  
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1); // Начало вчерашнего дня
+  const targetDate = date || getLocalDateKey(new Date());
+  const entries = await readEntriesByDate(targetDate);
 
-  const entries = [
-    ...await readEntriesByDate(getLocalDateKey(today)),
-    ...await readEntriesByDate(getLocalDateKey(yesterday))
-  ];
-
-  // Фильтруем записи за сегодня и вчера
-  const todayEntries = entries.filter(entry => 
+  // Фильтруем записи за выбранную дату
+  const targetEntries = entries.filter(entry => 
     entry.workshop === workshop && 
-    new Date(entry.timestamp) >= today &&
-    !entry.isUndone
-  );
-
-  const yesterdayEntries = entries.filter(entry => 
-    entry.workshop === workshop && 
-    new Date(entry.timestamp) >= yesterday &&
-    new Date(entry.timestamp) < today &&
     !entry.isUndone
   );
 
@@ -1027,16 +1021,24 @@ app.get('/api/daily-stats/:workshop', asyncRoute(async (req, res) => {
   const calculateStats = (dayEntries) => {
     let stockIn = { lahm: 0, kiyma: 0, dumba: 0 };
     let stockOut = { lahm: 0, kiyma: 0, dumba: 0 };
+    let openingBalance = null;
     let production = 0;
     let productionCount = 0;
 
     dayEntries.forEach(entry => {
       if (entry.category === 'RAW') {
-        if (entry.type.includes('Приход')) {
+        const typeValue = String(entry.type || '');
+        if (typeValue.includes('Остаток утро')) {
+          openingBalance = {
+            lahm: Number(entry.lahm || 0),
+            kiyma: Number(entry.kiyma || 0),
+            dumba: Number(entry.dumba || 0)
+          };
+        } else if (typeValue.includes('Приход')) {
           stockIn.lahm += Number(entry.lahm || 0);
           stockIn.kiyma += Number(entry.kiyma || 0);
           stockIn.dumba += Number(entry.dumba || 0);
-        } else if (entry.type.includes('Расход') || entry.type.includes('Расход')) {
+        } else if (typeValue.includes('Расход')) {
           stockOut.lahm += Number(entry.lahm || 0);
           stockOut.kiyma += Number(entry.kiyma || 0);
           stockOut.dumba += Number(entry.dumba || 0);
@@ -1046,17 +1048,17 @@ app.get('/api/daily-stats/:workshop', asyncRoute(async (req, res) => {
         productionCount += Number(entry.count || 0);
         
         // Add raw material consumption from production
-        if (entry.usage) {
-          stockOut.lahm += Number(entry.usage.lahm || 0);
-          stockOut.kiyma += Number(entry.usage.kiyma || 0);
-          stockOut.dumba += Number(entry.usage.dumba || 0);
-        }
+        const usage = entry.usage || {};
+        stockOut.lahm += Number(usage.lahm || 0);
+        stockOut.kiyma += Number(usage.kiyma || 0);
+        stockOut.dumba += Number(usage.dumba || 0);
       }
     });
 
     return {
       stockIn,
       stockOut,
+      openingBalance,
       production,
       productionCount,
       netStock: {
@@ -1067,20 +1069,19 @@ app.get('/api/daily-stats/:workshop', asyncRoute(async (req, res) => {
     };
   };
 
-  const todayStats = calculateStats(todayEntries);
-  const yesterdayStats = calculateStats(yesterdayEntries);
+  const stats = calculateStats(targetEntries);
 
   res.json({
     success: true,
-    today: {
-      date: getLocalDateKey(today),
-      ...todayStats,
-      entriesCount: todayEntries.length
+    today: { // Keeping 'today' for backward compatibility
+      date: targetDate,
+      ...stats,
+      entriesCount: targetEntries.length
     },
-    yesterday: {
-      date: getLocalDateKey(yesterday),
-      ...yesterdayStats,
-      entriesCount: yesterdayEntries.length
+    stats: {
+      date: targetDate,
+      ...stats,
+      entriesCount: targetEntries.length
     }
   });
 }));

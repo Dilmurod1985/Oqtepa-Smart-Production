@@ -4,6 +4,7 @@
   "private": true,
   "main": "server.js",
   "scripts": {
+    "check": "node --check server.js",
     "start": "node server.js"
   },
   "engines": {
